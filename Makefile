@@ -1,0 +1,23 @@
+CC = clang
+
+SDIR = src
+ODIR = obj
+
+_OBJ = main.o
+OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
+
+CFLAGS = -Wall -Wextra -g
+LIBS = -lm -lGL -lGLU -lglut
+
+all: frogger
+
+$(ODIR)/%.o: $(SDIR)/%.c
+	@mkdir -p $(@D)
+	$(CC) -c -o $@ $< $(CFLAGS)
+
+frogger: $(OBJ)
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
+
+.PHONY: clean
+clean:
+	rm -f $(ODIR) core frogger

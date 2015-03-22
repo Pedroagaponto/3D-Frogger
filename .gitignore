@@ -1,6 +1,7 @@
-# Object files
+# Objects
 *.o
 *.obj
+obj/
 
 # Executables
 *.exe
