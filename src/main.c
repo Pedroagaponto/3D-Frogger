@@ -16,13 +16,15 @@
 #   include <GL/glut.h>
 #endif
 
+#ifndef M_PI
 #define M_PI 3.14159265359
+#endif
 
 void init(void);
 void display(void);
 void keyboard(unsigned char key, int x, int y);
 void drawAxes(void);
-void drawCircle(bool cartesianFlag);
+void drawCircle(void);
 void drawParametricCircle(void);
 void drawCartesianCircle(void);
 
@@ -53,14 +55,17 @@ int axesPosition[][3] = {
 	{0, 0, 1}
 };
 
-bool debug = true;
-const int segments = 10;
+const int segments = 5;
 const float cRadius =  0.05;
+
+bool debug = true;
+bool cartesianFlag = true;
 
 int main(int argc, char **argv)
 {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
+	glutInitWindowSize(1000, 1000);
 	glutCreateWindow("Assignment 1");
 
 	init();
@@ -85,7 +90,7 @@ void display(void)
 	glEnable(GL_DEPTH_TEST);
 
 	drawAxes();
-	drawCircle(true);
+	drawCircle();
 
 	glutSwapBuffers();
 }
@@ -94,12 +99,22 @@ void keyboard(unsigned char key, int x, int y)
 {
 	switch (key)
 	{
+		case 'f':
+		case 'F':
+			cartesianFlag = !cartesianFlag;
+			break;
+		case 'd':
+		case 'D':
+			debug = !debug;
+			break;
 		case 27:
 		case 'q':
+		case 'Q':
 			exit(EXIT_SUCCESS);
 		default:
 			break;
 	}
+	glutPostRedisplay();
 }
 
 void drawAxes(void)
@@ -117,7 +132,7 @@ void drawAxes(void)
 		printf(">>>>>AXES DREW<<<<<\n\n");
 }
 
-void drawCircle(bool cartesianFlag)
+void drawCircle(void)
 {
 	glBegin(GL_LINE_LOOP);
 	glColor3f (0.8, 0.8, 0.8);
@@ -127,8 +142,6 @@ void drawCircle(bool cartesianFlag)
 	else
 		drawParametricCircle();
 
-	if (debug)
-		printf(">>>>CIRCLE DREW<<<<<\n\n");
 	glEnd();
 }
 
@@ -142,6 +155,9 @@ void drawParametricCircle(void)
 			printf("Circle vertex coordenates: (%f, %f), t = %f\n",
 			cRadius*cos(t) + frog.r.x, cRadius*sin(t) + frog.r.y, t);
 	}
+
+	if (debug)
+		printf(">>>>PARAMETRIC CIRCLE DREW<<<<<\n\n");
 }
 
 void drawCartesianCircle(void)
@@ -165,4 +181,7 @@ void drawCartesianCircle(void)
 			printf("Circle vertex coordenates: (%f, %f), t = %f\n",
 			t + frog.r.x, sqrt(aux) + frog.r.y, t);
 	}
+
+	if (debug)
+		printf(">>>>CARTESIAN CIRCLE DREW<<<<<\n\n");
 }

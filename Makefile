@@ -20,4 +20,4 @@ frogger: $(OBJ)
 
 .PHONY: clean
 clean:
-	rm -f $(ODIR) core frogger
+	rm -r $(ODIR) frogger
