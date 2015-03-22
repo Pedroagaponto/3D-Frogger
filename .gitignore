@@ -1,0 +1,14 @@
+# Object files
+*.o
+*.obj
+
+# Executables
+*.exe
+*.out
+
+# Vim temporary files
+*.swp*
+*.swo
+
+# executable name
+frogger
