@@ -19,6 +19,7 @@
 #ifndef M_PI
 #define M_PI 3.14159265359
 #endif
+#define UNUSED_VAR (void)
 
 void init(void);
 void display(void);
@@ -26,7 +27,9 @@ void keyboard(unsigned char key, int x, int y);
 void drawAxes(void);
 void drawCircle(void);
 void drawParametricCircle(void);
+void drawParametricTangent(void);
 void drawCartesianCircle(void);
+void drawCartesianTangent(void);
 
 typedef struct{
 	float x, y;
@@ -56,10 +59,11 @@ int axesPosition[][3] = {
 };
 
 const int segments = 5;
-const float cRadius =  0.05;
+const float cRadius =  0.5;
 
 bool debug = true;
 bool cartesianFlag = true;
+bool tangentFlag = true;
 
 int main(int argc, char **argv)
 {
@@ -97,6 +101,9 @@ void display(void)
 
 void keyboard(unsigned char key, int x, int y)
 {
+	UNUSED_VAR x;
+	UNUSED_VAR y;
+
 	switch (key)
 	{
 		case 'f':
@@ -106,6 +113,10 @@ void keyboard(unsigned char key, int x, int y)
 		case 'd':
 		case 'D':
 			debug = !debug;
+			break;
+		case 't':
+		case 'T':
+			tangentFlag = !tangentFlag;
 			break;
 		case 27:
 		case 'q':
@@ -134,34 +145,52 @@ void drawAxes(void)
 
 void drawCircle(void)
 {
-	glBegin(GL_LINE_LOOP);
-	glColor3f (0.8, 0.8, 0.8);
-
 	if (cartesianFlag)
 		drawCartesianCircle();
 	else
 		drawParametricCircle();
-
-	glEnd();
 }
 
 void drawParametricCircle(void)
 {
+	glBegin(GL_LINE_LOOP);
+	glColor3f (0.8, 0.8, 0.8);
 	for (int i = 0; i <= segments; i++)
 	{
 		float t = (i / (float) segments) * 2 * M_PI;
-		glVertex3f(cRadius*cos(t) + frog.r.x, cRadius*sin(t) + frog.r.y, 0);
+		glVertex3f(cRadius*cos(t)+frog.r.x, cRadius*sin(t)+frog.r.y, 0);
 		if (debug)
 			printf("Circle vertex coordenates: (%f, %f), t = %f\n",
-			cRadius*cos(t) + frog.r.x, cRadius*sin(t) + frog.r.y, t);
+			cRadius*cos(t)+frog.r.x, cRadius*sin(t)+frog.r.y, t);
 	}
+	glEnd();
 
 	if (debug)
 		printf(">>>>PARAMETRIC CIRCLE DREW<<<<<\n\n");
+
+	if (tangentFlag)
+		drawParametricTangent();
+}
+
+void drawParametricTangent(void)
+{
+	for (int i = 0; i <= segments; i++)
+	{
+		glBegin(GL_LINES);
+		glColor3f (0.8, 0.8, 0);
+		float t = (i / (float) segments) * 2 * M_PI;
+		float x = cRadius*cos(t)+frog.r.x;
+		float y = cRadius*sin(t)+frog.r.y;
+		glVertex3f(x, y, 0);
+		glVertex3f(x + y, y - x, 0);
+		glEnd();
+	}
 }
 
 void drawCartesianCircle(void)
 {
+	glBegin(GL_LINE_LOOP);
+	glColor3f (0.8, 0.8, 0.8);
 	for (int i = 0; i <= segments; i++)
 	{
 		float t = (i / (float) segments) * 2 * cRadius - cRadius;
@@ -169,7 +198,7 @@ void drawCartesianCircle(void)
 		glVertex3f(t + frog.r.x, frog.r.y - sqrt(aux), 0);
 		if (debug)
 			printf("Circle vertex coordenates: (%f, %f), t = %f\n",
-			t + frog.r.x, frog.r.y - sqrt(aux), t);
+					t + frog.r.x, frog.r.y - sqrt(aux), t);
 	}
 
 	for (int i = segments; i >= 0 ; i--)
@@ -179,9 +208,32 @@ void drawCartesianCircle(void)
 		glVertex3f(t + frog.r.x, sqrt(aux) + frog.r.y, 0);
 		if (debug)
 			printf("Circle vertex coordenates: (%f, %f), t = %f\n",
-			t + frog.r.x, sqrt(aux) + frog.r.y, t);
+					t + frog.r.x, sqrt(aux) + frog.r.y, t);
 	}
+	glEnd();
 
 	if (debug)
 		printf(">>>>CARTESIAN CIRCLE DREW<<<<<\n\n");
+
+	if (tangentFlag)
+		drawCartesianTangent();
+}
+
+void drawCartesianTangent(void)
+{
+	for (int i = 0; i <= segments; i++)
+	{
+		glBegin(GL_LINES);
+		glColor3f (0.8, 0.8, 0);
+		float t = (i / (float) segments) * 2 * cRadius - cRadius;
+		float aux = -pow(frog.r.x, 2)+(2*frog.r.x*t)+pow(cRadius, 2)-pow(t, 2);
+		float x = t+frog.r.x;
+		float y1 = frog.r.y - sqrt(aux);
+		float y2 = frog.r.y + sqrt(aux);
+		glVertex3f(x, y1, 0);
+		glVertex3f(x+y1, y1-x, 0);
+		glVertex3f(x, y2, 0);
+		glVertex3f(x+y2, y2-x, 0);
+		glEnd();
+	}
 }
