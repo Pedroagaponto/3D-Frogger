@@ -24,6 +24,7 @@
 void init(void);
 void display(void);
 void keyboard(unsigned char key, int x, int y);
+void specialKeys(int key, int x, int y);
 void drawAxes(void);
 void drawCircle(void);
 void drawParametricCircle(void);
@@ -61,11 +62,11 @@ int axesPosition[][3] = {
 	{0, 0, 1}
 };
 
-const int segments = 10;
 const float cRadius =  0.05;
 float speed = 1;
 float angle = M_PI/4;
 
+int segments = 10;
 bool debug = true;
 bool cartesianFlag = true;
 bool tangentFlag = true;
@@ -82,6 +83,7 @@ int main(int argc, char **argv)
 
 	glutDisplayFunc(display);
 	glutKeyboardFunc(keyboard);
+	glutSpecialFunc(specialKeys);
 	glutMainLoop();
 
 	return EXIT_SUCCESS;
@@ -149,6 +151,25 @@ void keyboard(unsigned char key, int x, int y)
 		case 'q':
 		case 'Q':
 			exit(EXIT_SUCCESS);
+		default:
+			break;
+	}
+	glutPostRedisplay();
+}
+
+void specialKeys(int key, int x, int y)
+{
+	UNUSED_VAR x;
+	UNUSED_VAR y;
+
+	switch (key)
+	{
+		case GLUT_KEY_UP:
+			segments *= 2;
+			break;
+		case GLUT_KEY_DOWN:
+			segments = (segments < 8) ? 4 : segments/2;
+			break;
 		default:
 			break;
 	}
