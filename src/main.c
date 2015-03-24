@@ -34,6 +34,9 @@ void drawCartesianCircle(void);
 void drawCartesianTangent(void);
 void drawCartesianNormal(void);
 void drawDirectionSpeedVector(void);
+void drawCartesianParabola();
+void drawParametricParabola();
+void drawParabola();
 
 typedef struct{
 	float x, y;
@@ -63,6 +66,7 @@ int axesPosition[][3] = {
 };
 
 const float cRadius =  0.05;
+const float gravity = 9.8;
 float speed = 1;
 float angle = M_PI/4;
 
@@ -104,7 +108,7 @@ void display(void)
 	drawAxes();
 	drawCircle();
 	drawDirectionSpeedVector();
-
+	drawParabola();
 	glutSwapBuffers();
 }
 
@@ -141,11 +145,11 @@ void keyboard(unsigned char key, int x, int y)
 			break;
 		case 'w':
 		case 'W':
-			speed = (speed > 9) ? 10 : speed+0.5;
+			speed = (speed > 9.8) ? 10 : speed+0.2;
 			break;
 		case 's':
 		case 'S':
-			speed = (speed < 1.5) ? 1 : speed-0.5;
+			speed = (speed < 1.2) ? 1 : speed-0.2;
 			break;
 		case 27:
 		case 'q':
@@ -330,6 +334,55 @@ void drawDirectionSpeedVector(void)
 	glBegin(GL_LINES);
 	glColor3f(1, 0, 1);
 	glVertex3f(frog.r.x, frog.r.y, 0);
-	glVertex3f(speed*0.1*cos(angle)+frog.r.x, speed*0.1*sin(angle)+frog.r.y, 0);
+	glVertex3f(speed*0.2*cos(angle)+frog.r.x, speed*0.2*sin(angle)+frog.r.y, 0);
 	glEnd();
+}
+
+void drawCartesianParabola()
+{
+	//    y = tan(θ) x - g * x^2 / (2 (v*cos(θ))^2)
+
+	glBegin(GL_LINE_STRIP);
+	glColor3f(0, 0, 1);
+
+	float distance = ((speed*speed) / gravity) * sin(2*angle);
+	for (int i = 0; i <= segments; i++)
+	{
+		float x = (i/(float)segments)*distance + frog.r.x;
+		float y1 = 2 * pow(cos(angle)*speed,2);
+		float y = tan(angle) * x - (gravity*x*x)/y1;
+		if (debug)
+			printf("drawCartesianParabola: d = %.5f\tx = %.5f\ty = %.5f\n", distance, x, y);
+		glVertex3f(frog.r.x + x, frog.r.y + y, 0.5);
+
+	}
+	glEnd();
+}
+void drawParametricParabola()
+{
+	//    x = v t cos(θ)
+	//    y = v t sin(θ) - 1/2 g t^2
+
+	glBegin(GL_LINE_STRIP);
+	glColor3f(0, 0, 1);
+
+	float distance = (2*(speed*sin(angle)))/(gravity);
+	for (int i = 0; i <= segments; i++)
+	{
+		float t = (i/(float)segments)*distance;
+		float x = speed * t * cos(angle);
+		float y = speed * t * sin(angle) - (gravity*t*t)/2;
+		if (debug)
+			printf("drawParametricParabola: d = %.5f\tx = %.5f\ty = %.5f\n", distance, x, y);
+		glVertex3f(frog.r.x + x, frog.r.y + y, 0.5);
+
+	}
+	glEnd();
+}
+void drawParabola()
+{
+	if (cartesianFlag)
+		drawCartesianParabola();
+	else
+		drawParametricParabola();
 }
