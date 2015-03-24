@@ -212,11 +212,12 @@ void drawParametricNormal(void)
 
 void drawCartesianCircle(void)
 {
+	int halfSeg = segments/2;
 	glBegin(GL_LINE_LOOP);
 	glColor3f (0.8, 0.8, 0.8);
-	for (int i = 0; i <= segments; i++)
+	for (int i = 0; i <= halfSeg; i++)
 	{
-		float t = (i / (float) segments) * 2 * cRadius - cRadius;
+		float t = (i / (float) halfSeg) * 2 * cRadius - cRadius;
 		float aux = -pow(frog.r.x, 2)+(2*frog.r.x*t)+pow(cRadius, 2)-pow(t, 2);
 		glVertex3f(t + frog.r.x, frog.r.y - sqrt(aux), 0);
 		if (debug)
@@ -224,9 +225,9 @@ void drawCartesianCircle(void)
 					t + frog.r.x, frog.r.y - sqrt(aux), t);
 	}
 
-	for (int i = segments; i >= 0 ; i--)
+	for (int i = halfSeg; i >= 0 ; i--)
 	{
-		float t = (i / (float) segments) * 2 * cRadius - cRadius;
+		float t = (i / (float) halfSeg) * 2 * cRadius - cRadius;
 		float aux = -pow(frog.r.x, 2)+(2*frog.r.x*t)+pow(cRadius, 2)-pow(t, 2);
 		glVertex3f(t + frog.r.x, sqrt(aux) + frog.r.y, 0);
 		if (debug)
@@ -245,11 +246,12 @@ void drawCartesianCircle(void)
 
 void drawCartesianTangent(void)
 {
-	for (int i = 0; i <= segments; i++)
+	int halfSeg = segments/2;
+	for (int i = 0; i <= halfSeg; i++)
 	{
 		glBegin(GL_LINES);
 		glColor3f (0, 1, 1);
-		float t = (i / (float) segments) * 2 * cRadius - cRadius;
+		float t = (i / (float) halfSeg) * 2 * cRadius - cRadius;
 		float aux = -pow(frog.r.x, 2)+(2*frog.r.x*t)+pow(cRadius, 2)-pow(t, 2);
 		float x = t+frog.r.x;
 		float y1 = frog.r.y - sqrt(aux);
@@ -264,11 +266,12 @@ void drawCartesianTangent(void)
 
 void drawCartesianNormal(void)
 {
-	for (int i = 0; i <= segments; i++)
+	int halfSeg = segments/2;
+	for (int i = 0; i <= halfSeg; i++)
 	{
 		glBegin(GL_LINES);
 		glColor3f (1, 1, 0);
-		float t = (i / (float) segments) * 2 * cRadius - cRadius;
+		float t = (i / (float) halfSeg) * 2 * cRadius - cRadius;
 		float aux = -pow(frog.r.x, 2)+(2*frog.r.x*t)+pow(cRadius, 2)-pow(t, 2);
 		float x = t+frog.r.x;
 		float y1 = frog.r.y - sqrt(aux);
