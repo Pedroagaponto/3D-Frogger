@@ -32,6 +32,7 @@ void drawParametricNormal(void);
 void drawCartesianCircle(void);
 void drawCartesianTangent(void);
 void drawCartesianNormal(void);
+void drawDirectionSpeedVector(void);
 
 typedef struct{
 	float x, y;
@@ -62,6 +63,8 @@ int axesPosition[][3] = {
 
 const int segments = 10;
 const float cRadius =  0.05;
+float speed = 1;
+float angle = M_PI/4;
 
 bool debug = true;
 bool cartesianFlag = true;
@@ -98,6 +101,7 @@ void display(void)
 
 	drawAxes();
 	drawCircle();
+	drawDirectionSpeedVector();
 
 	glutSwapBuffers();
 }
@@ -113,8 +117,8 @@ void keyboard(unsigned char key, int x, int y)
 		case 'F':
 			cartesianFlag = !cartesianFlag;
 			break;
-		case 'd':
-		case 'D':
+		case 'v':
+		case 'V':
 			debug = !debug;
 			break;
 		case 't':
@@ -124,6 +128,22 @@ void keyboard(unsigned char key, int x, int y)
 		case 'n':
 		case 'N':
 			normalFlag = !normalFlag;
+			break;
+		case 'a':
+		case 'A':
+			angle = (angle < M_PI-M_PI/32) ? angle+M_PI/32 : M_PI-M_PI/32;
+			break;
+		case 'd':
+		case 'D':
+			angle = (angle < M_PI/16) ? M_PI/32 : angle-M_PI/32;
+			break;
+		case 'w':
+		case 'W':
+			speed = (speed > 9) ? 10 : speed+0.5;
+			break;
+		case 's':
+		case 'S':
+			speed = (speed < 1.5) ? 1 : speed-0.5;
 			break;
 		case 27:
 		case 'q':
@@ -270,7 +290,7 @@ void drawCartesianNormal(void)
 	for (int i = 0; i <= halfSeg; i++)
 	{
 		glBegin(GL_LINES);
-		glColor3f (1, 1, 0);
+		glColor3f(1, 1, 0);
 		float t = (i / (float) halfSeg) * 2 * cRadius - cRadius;
 		float aux = -pow(frog.r.x, 2)+(2*frog.r.x*t)+pow(cRadius, 2)-pow(t, 2);
 		float x = t+frog.r.x;
@@ -282,4 +302,13 @@ void drawCartesianNormal(void)
 		glVertex3f(2*x, 2*y2, 0);
 		glEnd();
 	}
+}
+
+void drawDirectionSpeedVector(void)
+{
+	glBegin(GL_LINES);
+	glColor3f(1, 0, 1);
+	glVertex3f(frog.r.x, frog.r.y, 0);
+	glVertex3f(speed*0.1*cos(angle)+frog.r.x, speed*0.1*sin(angle)+frog.r.y, 0);
+	glEnd();
 }
