@@ -203,7 +203,7 @@ void drawParametricCircle(void)
 {
 	glBegin(GL_LINE_LOOP);
 	glColor3f (0.8, 0.8, 0.8);
-	for (int i = 0; i <= segments; i++)
+	for (int i = 0; i < segments; i++)
 	{
 		float t = (i / (float) segments) * 2 * M_PI;
 		glVertex3f(cRadius*cos(t)+frog.r.x, cRadius*sin(t)+frog.r.y, 0);
@@ -223,7 +223,7 @@ void drawParametricCircle(void)
 
 void drawParametricTangent(void)
 {
-	for (int i = 0; i <= segments; i++)
+	for (int i = 0; i < segments; i++)
 	{
 		glBegin(GL_LINES);
 		glColor3f (0, 1, 1);
@@ -238,7 +238,7 @@ void drawParametricTangent(void)
 
 void drawParametricNormal(void)
 {
-	for (int i = 0; i <= segments; i++)
+	for (int i = 0; i < segments; i++)
 	{
 		glBegin(GL_LINES);
 		glColor3f (1, 1, 0);
@@ -256,7 +256,7 @@ void drawCartesianCircle(void)
 	int halfSeg = segments/2;
 	glBegin(GL_LINE_LOOP);
 	glColor3f (0.8, 0.8, 0.8);
-	for (int i = 0; i <= halfSeg; i++)
+	for (int i = 0; i < halfSeg; i++)
 	{
 		float t = (i / (float) halfSeg) * 2 * cRadius - cRadius;
 		float aux = -pow(frog.r.x, 2)+(2*frog.r.x*t)+pow(cRadius, 2)-pow(t, 2);
@@ -266,7 +266,7 @@ void drawCartesianCircle(void)
 					t + frog.r.x, frog.r.y - sqrt(aux), t);
 	}
 
-	for (int i = halfSeg; i >= 0 ; i--)
+	for (int i = halfSeg; i > 0 ; i--)
 	{
 		float t = (i / (float) halfSeg) * 2 * cRadius - cRadius;
 		float aux = -pow(frog.r.x, 2)+(2*frog.r.x*t)+pow(cRadius, 2)-pow(t, 2);
