@@ -20,6 +20,7 @@
 #define M_PI 3.14159265359
 #endif
 #define UNUSED_VAR (void)
+#define REDUCTION 25
 
 void init(void);
 void display(void);
@@ -236,8 +237,11 @@ void drawParametricTangent(void)
 		float t = (i / (float) segments) * 2 * M_PI;
 		float x = cRadius*cos(t)+frog.r.x;
 		float y = cRadius*sin(t)+frog.r.y;
+
 		glVertex3f(x, y, 0);
-		glVertex3f(x - y, y + x, 0);
+		float n = sqrt(y*y + x*x)*REDUCTION;
+		glVertex3f(x - y/n, y + x/n, 0);
+
 		glEnd();
 	}
 }
@@ -251,8 +255,11 @@ void drawParametricNormal(void)
 		float t = (i / (float) segments) * 2 * M_PI;
 		float x = cRadius*cos(t)+frog.r.x;
 		float y = cRadius*sin(t)+frog.r.y;
+
 		glVertex3f(x, y, 0);
-		glVertex3f(2*x, 2*y, 0);
+		float n = sqrt(y*y + x*x)*REDUCTION;
+		glVertex3f(2*x/n, 2*y/n, 0);
+
 		glEnd();
 	}
 }
@@ -303,10 +310,15 @@ void drawCartesianTangent(void)
 		float x = t+frog.r.x;
 		float y1 = frog.r.y - sqrt(aux);
 		float y2 = frog.r.y + sqrt(aux);
+
 		glVertex3f(x, y1, 0);
-		glVertex3f(x-y1, y1+x, 0);
+		float n = sqrt(y1*y1 + x*x)*REDUCTION;
+		glVertex3f(x-y1/n, y1+x/n, 0);
+
 		glVertex3f(x, y2, 0);
-		glVertex3f(x-y2, y2+x, 0);
+		n = sqrt(y2*y2 + x*x)*REDUCTION;
+		glVertex3f(x-y2/n, y2+x/n, 0);
+
 		glEnd();
 	}
 }
@@ -323,10 +335,15 @@ void drawCartesianNormal(void)
 		float x = t+frog.r.x;
 		float y1 = frog.r.y - sqrt(aux);
 		float y2 = frog.r.y + sqrt(aux);
+
 		glVertex3f(x, y1, 0);
-		glVertex3f(2*x, 2*y1, 0);
+		float n = sqrt(y1*y1 + x*x)*REDUCTION;
+		glVertex3f(x+x/n, y1+y1/n, 0);
+
 		glVertex3f(x, y2, 0);
-		glVertex3f(2*x, 2*y2, 0);
+		n = sqrt(y2*y2 + x*x)*REDUCTION;
+		glVertex3f(x+x/n, y2+y2/n, 0);
+
 		glEnd();
 	}
 }
@@ -336,7 +353,7 @@ void drawDirectionSpeedVector(void)
 	glBegin(GL_LINES);
 	glColor3f(1, 0, 1);
 	glVertex3f(frog.r.x, frog.r.y, 0);
-	glVertex3f(speed*0.2*cos(angle)+frog.r.x, speed*0.2*sin(angle)+frog.r.y, 0);
+	glVertex3f(speed*0.1*cos(angle)+frog.r.x, speed*0.1*sin(angle)+frog.r.y, 0);
 	glEnd();
 }
 
@@ -391,7 +408,7 @@ void drawParabola()
 
 void drawParabolaNormalTangent(void)
 {
-	float x, y, dx, dy;
+	float x, y, dx, dy, n;
 	float distance = (cartesianFlag)? ((speed*speed) / gravity) * sin(2*angle)
 									: (2*(speed*sin(angle)))/(gravity);
 	for (int i = 0; i < segments; i++)
@@ -418,8 +435,11 @@ void drawParabolaNormalTangent(void)
 		{
 			glBegin(GL_LINES);
 			glColor3f (0, 1, 1);
+
 			glVertex3f(x, y, 0);
-			glVertex3f(x + dx, y + dy, 0);
+			n = sqrt(dx*dx + dy*dy)*REDUCTION;
+			glVertex3f(x + dx/n, y + dy/n, 0);
+
 			glEnd();
 		}
 
@@ -427,8 +447,11 @@ void drawParabolaNormalTangent(void)
 		{
 			glBegin(GL_LINES);
 			glColor3f (1, 1, 0);
+
 			glVertex3f(x, y, 0);
-			glVertex3f(x - dy, y + dx, 0);
+			n = sqrt(dx*dx + dy*dy)*REDUCTION;
+			glVertex3f(x - dy/n, y + dx/n, 0);
+
 			glEnd();
 		}
 	}
