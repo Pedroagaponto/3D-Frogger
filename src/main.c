@@ -37,6 +37,7 @@ void drawDirectionSpeedVector(void);
 void drawCartesianParabola();
 void drawParametricParabola();
 void drawParabola();
+void drawParabolaNormalTangent();
 
 typedef struct{
 	float x, y;
@@ -109,6 +110,7 @@ void display(void)
 	drawCircle();
 	drawDirectionSpeedVector();
 	drawParabola();
+	drawParabolaNormalTangent();
 	glutSwapBuffers();
 }
 
@@ -385,4 +387,49 @@ void drawParabola()
 		drawCartesianParabola();
 	else
 		drawParametricParabola();
+}
+
+void drawParabolaNormalTangent(void)
+{
+	float x, y, dx, dy;
+	float distance = (cartesianFlag)? ((speed*speed) / gravity) * sin(2*angle)
+									: (2*(speed*sin(angle)))/(gravity);
+	for (int i = 0; i < segments; i++)
+	{
+		if (cartesianFlag)
+		{
+			x = (i/(float)segments)*distance + frog.r.x;
+			float y1 = 2 * pow(cos(angle)*speed,2);
+			y = tan(angle) * x - (gravity*x*x)/y1;
+			dy = tan(angle) - (gravity*x)/(pow(cos(angle)*speed,2));
+			dx = 1;
+		}
+		else
+		{
+			float t = (i/(float)segments)*distance;
+			x = speed * t * cos(angle);
+			y = speed * t * sin(angle) - (gravity*t*t)/2;
+			dx = speed * cos(angle);
+			dy = speed * sin(angle) - gravity*t;
+
+		}
+
+		if(tangentFlag)
+		{
+			glBegin(GL_LINES);
+			glColor3f (0, 1, 1);
+			glVertex3f(x, y, 0);
+			glVertex3f(x + dx, y + dy, 0);
+			glEnd();
+		}
+
+		if(normalFlag)
+		{
+			glBegin(GL_LINES);
+			glColor3f (1, 1, 0);
+			glVertex3f(x, y, 0);
+			glVertex3f(x - dy, y + dx, 0);
+			glEnd();
+		}
+	}
 }
