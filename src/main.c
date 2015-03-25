@@ -29,11 +29,11 @@ void specialKeys(int key, int x, int y);
 void drawAxes(void);
 void drawCircle(void);
 void drawParametricCircle(void);
-void drawParametricTangent(void);
-void drawParametricNormal(void);
+void drawCircleParametricTangents(void);
+void drawCircleParametricNormals(void);
 void drawCartesianCircle(void);
-void drawCartesianTangent(void);
-void drawCartesianNormal(void);
+void drawCircleCartesianTangents(void);
+void drawCircleCartesianNormals(void);
 void drawDirectionSpeedVector(void);
 void drawCartesianParabola();
 void drawParametricParabola();
@@ -223,12 +223,12 @@ void drawParametricCircle(void)
 	if (debug)
 		printf(">>>>PARAMETRIC CIRCLE DREW<<<<<\n\n");
 	if (tangentFlag)
-		drawParametricTangent();
+		drawCircleParametricTangents();
 	if (normalFlag)
-		drawParametricNormal();
+		drawCircleParametricNormals();
 }
 
-void drawParametricTangent(void)
+void drawCircleParametricTangents(void)
 {
 	for (int i = 0; i < segments; i++)
 	{
@@ -240,13 +240,13 @@ void drawParametricTangent(void)
 
 		glVertex3f(x, y, 0);
 		float n = sqrt(y*y + x*x)*REDUCTION;
-		glVertex3f(x - y/n, y + x/n, 0);
+		glVertex3f(-cRadius*sin(t)/n+x, cRadius*cos(t)/n+y, 0);
 
 		glEnd();
 	}
 }
 
-void drawParametricNormal(void)
+void drawCircleParametricNormals(void)
 {
 	for (int i = 0; i < segments; i++)
 	{
@@ -258,7 +258,7 @@ void drawParametricNormal(void)
 
 		glVertex3f(x, y, 0);
 		float n = sqrt(y*y + x*x)*REDUCTION;
-		glVertex3f(2*x/n, 2*y/n, 0);
+		glVertex3f(x+x/n, y+y/n, 0);
 
 		glEnd();
 	}
@@ -272,33 +272,31 @@ void drawCartesianCircle(void)
 	for (int i = 0; i < halfSeg; i++)
 	{
 		float t = (i / (float) halfSeg) * 2 * cRadius - cRadius;
-		float aux = -pow(frog.r.x, 2)+(2*frog.r.x*t)+pow(cRadius, 2)-pow(t, 2);
-		glVertex3f(t + frog.r.x, frog.r.y - sqrt(aux), 0);
+		glVertex3f(t+frog.r.x, -sqrt(cRadius*cRadius-t*t)+frog.r.y, 0);
 		if (debug)
-			printf("Circle vertex coordenates: (%f, %f), t = %f\n",
-					t + frog.r.x, frog.r.y - sqrt(aux), t);
+			printf("Circle vertex coordenates: (%f, %f)",
+					t + frog.r.x, -sqrt(cRadius*cRadius-t*t)+frog.r.y);
 	}
 
 	for (int i = halfSeg; i > 0 ; i--)
 	{
 		float t = (i / (float) halfSeg) * 2 * cRadius - cRadius;
-		float aux = -pow(frog.r.x, 2)+(2*frog.r.x*t)+pow(cRadius, 2)-pow(t, 2);
-		glVertex3f(t + frog.r.x, sqrt(aux) + frog.r.y, 0);
+		glVertex3f(t + frog.r.x, sqrt(cRadius*cRadius-t*t)+frog.r.y, 0);
 		if (debug)
-			printf("Circle vertex coordenates: (%f, %f), t = %f\n",
-					t + frog.r.x, sqrt(aux) + frog.r.y, t);
+			printf("Circle vertex coordenates: (%f, %f)",
+					t + frog.r.x, sqrt(cRadius*cRadius-t*t)+frog.r.y);
 	}
 	glEnd();
 
 	if (debug)
 		printf(">>>>CARTESIAN CIRCLE DREW<<<<<\n\n");
 	if (tangentFlag)
-		drawCartesianTangent();
+		drawCircleCartesianTangents();
 	if (normalFlag)
-		drawCartesianNormal();
+		drawCircleCartesianNormals();
 }
 
-void drawCartesianTangent(void)
+void drawCircleCartesianTangents(void)
 {
 	int halfSeg = segments/2;
 	for (int i = 0; i <= halfSeg; i++)
@@ -306,10 +304,9 @@ void drawCartesianTangent(void)
 		glBegin(GL_LINES);
 		glColor3f (0, 1, 1);
 		float t = (i / (float) halfSeg) * 2 * cRadius - cRadius;
-		float aux = -pow(frog.r.x, 2)+(2*frog.r.x*t)+pow(cRadius, 2)-pow(t, 2);
 		float x = t+frog.r.x;
-		float y1 = frog.r.y - sqrt(aux);
-		float y2 = frog.r.y + sqrt(aux);
+		float y1 = -sqrt(cRadius*cRadius-t*t)+frog.r.y;
+		float y2 = sqrt(cRadius*cRadius-t*t)+frog.r.y;
 
 		glVertex3f(x, y1, 0);
 		float n = sqrt(y1*y1 + x*x)*REDUCTION;
@@ -323,7 +320,7 @@ void drawCartesianTangent(void)
 	}
 }
 
-void drawCartesianNormal(void)
+void drawCircleCartesianNormals(void)
 {
 	int halfSeg = segments/2;
 	for (int i = 0; i <= halfSeg; i++)
@@ -331,10 +328,9 @@ void drawCartesianNormal(void)
 		glBegin(GL_LINES);
 		glColor3f(1, 1, 0);
 		float t = (i / (float) halfSeg) * 2 * cRadius - cRadius;
-		float aux = -pow(frog.r.x, 2)+(2*frog.r.x*t)+pow(cRadius, 2)-pow(t, 2);
 		float x = t+frog.r.x;
-		float y1 = frog.r.y - sqrt(aux);
-		float y2 = frog.r.y + sqrt(aux);
+		float y1 = -sqrt(cRadius*cRadius-t*t)+frog.r.y;
+		float y2 = sqrt(cRadius*cRadius-t*t)+frog.r.y;
 
 		glVertex3f(x, y1, 0);
 		float n = sqrt(y1*y1 + x*x)*REDUCTION;
@@ -428,7 +424,6 @@ void drawParabolaNormalTangent(void)
 			y = speed * t * sin(angle) - (gravity*t*t)/2;
 			dx = speed * cos(angle);
 			dy = speed * sin(angle) - gravity*t;
-
 		}
 
 		if(tangentFlag)
