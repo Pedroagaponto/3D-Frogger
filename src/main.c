@@ -39,6 +39,8 @@ void drawCartesianParabola();
 void drawParametricParabola();
 void drawParabola();
 void drawParabolaNormalTangent();
+float calcReach(void);
+bool parabolaInsideWindow(void);
 
 typedef struct{
 	float x, y;
@@ -356,9 +358,7 @@ void drawDirectionSpeedVector(void)
 void drawCartesianParabola()
 {
 	//    y = tan(θ) x - g * x^2 / (2 (v*cos(θ))^2)
-
 	glBegin(GL_LINE_STRIP);
-	glColor3f(0, 0, 1);
 
 	float distance = ((speed*speed) / gravity) * sin(2*angle);
 	for (int i = 0; i <= segments; i++)
@@ -377,9 +377,7 @@ void drawParametricParabola()
 {
 	//    x = v t cos(θ)
 	//    y = v t sin(θ) - 1/2 g t^2
-
 	glBegin(GL_LINE_STRIP);
-	glColor3f(0, 0, 1);
 
 	float distance = (2*(speed*sin(angle)))/(gravity);
 	for (int i = 0; i <= segments; i++)
@@ -396,6 +394,11 @@ void drawParametricParabola()
 }
 void drawParabola()
 {
+	if (parabolaInsideWindow())
+		glColor3f(0, 0, 1);
+	else
+		glColor3f(1, 0, 0);
+
 	if (cartesianFlag)
 		drawCartesianParabola();
 	else
@@ -405,8 +408,7 @@ void drawParabola()
 void drawParabolaNormalTangent(void)
 {
 	float x, y, dx, dy, n;
-	float distance = (cartesianFlag)? ((speed*speed) / gravity) * sin(2*angle)
-									: (2*(speed*sin(angle)))/(gravity);
+	float distance = calcReach();
 	for (int i = 0; i < segments; i++)
 	{
 		if (cartesianFlag)
@@ -450,4 +452,18 @@ void drawParabolaNormalTangent(void)
 			glEnd();
 		}
 	}
+}
+
+float calcReach(void)
+{
+	return (cartesianFlag)? ((speed*speed) / gravity) * sin(2*angle)
+						  : (2*(speed*sin(angle)))/(gravity);
+}
+
+bool parabolaInsideWindow(void)
+{
+	if ((calcReach() < 1.0) && (calcReach() > -1.0))
+		return true;
+
+	return false;
 }
