@@ -53,7 +53,7 @@ typedef struct {
 frogState frog = {
 	{ 0.0, 0.0 },
 	{ 1.0, 2.0 },
-	{ 0.0, 0.0 },
+	{ 1.0, 1.0 },
 	{ 1.0, 2.0 }
 };
 
@@ -237,12 +237,12 @@ void drawCircleParametricTangents(void)
 		glBegin(GL_LINES);
 		glColor3f (0, 1, 1);
 		float t = (i / (float) segments) * 2 * M_PI;
-		float x = cRadius*cos(t)+frog.r.x;
-		float y = cRadius*sin(t)+frog.r.y;
+		float x = cRadius*cos(t);
+		float y = cRadius*sin(t);
 
-		glVertex3f(x, y, 0);
+		glVertex3f(x + frog.r.x, y + frog.r.y, 0);
 		float n = sqrt(y*y + x*x)*REDUCTION;
-		glVertex3f(-cRadius*sin(t)/n+x, cRadius*cos(t)/n+y, 0);
+		glVertex3f(-y/n+x + frog.r.x, x/n+y + frog.r.y, 0);
 
 		glEnd();
 	}
@@ -255,12 +255,12 @@ void drawCircleParametricNormals(void)
 		glBegin(GL_LINES);
 		glColor3f (1, 1, 0);
 		float t = (i / (float) segments) * 2 * M_PI;
-		float x = cRadius*cos(t)+frog.r.x;
-		float y = cRadius*sin(t)+frog.r.y;
+		float x = cRadius*cos(t);
+		float y = cRadius*sin(t);
 
-		glVertex3f(x, y, 0);
+		glVertex3f(x + frog.r.x, y + frog.r.y, 0);
 		float n = sqrt(y*y + x*x)*REDUCTION;
-		glVertex3f(x+x/n, y+y/n, 0);
+		glVertex3f(x + x/n + frog.r.x, y + y/n + frog.r.y, 0);
 
 		glEnd();
 	}
@@ -273,20 +273,20 @@ void drawCartesianCircle(void)
 	glColor3f (0.8, 0.8, 0.8);
 	for (int i = 0; i < halfSeg; i++)
 	{
-		float t = (i / (float) halfSeg) * 2 * cRadius - cRadius;
-		glVertex3f(t+frog.r.x, -sqrt(cRadius*cRadius-t*t)+frog.r.y, 0);
+		float x = (i / (float) halfSeg) * 2 * cRadius - cRadius;
+		glVertex3f(x+frog.r.x, -sqrt(cRadius*cRadius-x*x)+frog.r.y, 0);
 		if (debug)
 			printf("Circle vertex coordenates: (%f, %f)\n",
-					t + frog.r.x, -sqrt(cRadius*cRadius-t*t)+frog.r.y);
+					x + frog.r.x, -sqrt(cRadius*cRadius-x*x)+frog.r.y);
 	}
 
 	for (int i = halfSeg; i > 0 ; i--)
 	{
-		float t = (i / (float) halfSeg) * 2 * cRadius - cRadius;
-		glVertex3f(t + frog.r.x, sqrt(cRadius*cRadius-t*t)+frog.r.y, 0);
+		float x = (i / (float) halfSeg) * 2 * cRadius - cRadius;
+		glVertex3f(x + frog.r.x, sqrt(cRadius*cRadius-x*x)+frog.r.y, 0);
 		if (debug)
 			printf("Circle vertex coordenates: (%f, %f)\n",
-					t + frog.r.x, sqrt(cRadius*cRadius-t*t)+frog.r.y);
+					x + frog.r.x, sqrt(cRadius*cRadius-x*x)+frog.r.y);
 	}
 	glEnd();
 
@@ -305,18 +305,17 @@ void drawCircleCartesianTangents(void)
 	{
 		glBegin(GL_LINES);
 		glColor3f (0, 1, 1);
-		float t = (i / (float) halfSeg) * 2 * cRadius - cRadius;
-		float x = t+frog.r.x;
-		float y1 = -sqrt(cRadius*cRadius-t*t)+frog.r.y;
-		float y2 = sqrt(cRadius*cRadius-t*t)+frog.r.y;
+		float x = (i / (float) halfSeg) * 2 * cRadius - cRadius;
+		float y1 = -sqrt(cRadius*cRadius-x*x);
+		float y2 = sqrt(cRadius*cRadius-x*x);
 
-		glVertex3f(x, y1, 0);
+		glVertex3f(x + frog.r.x, y1 + frog.r.y, 0);
 		float n = sqrt(y1*y1 + x*x)*REDUCTION;
-		glVertex3f(x-y1/n, y1+x/n, 0);
+		glVertex3f(x - y1/n + frog.r.x, y1 + x/n + frog.r.y, 0);
 
-		glVertex3f(x, y2, 0);
+		glVertex3f(x + frog.r.x, y2 + frog.r.y, 0);
 		n = sqrt(y2*y2 + x*x)*REDUCTION;
-		glVertex3f(x-y2/n, y2+x/n, 0);
+		glVertex3f(x - y2/n + frog.r.x, y2 + x/n + frog.r.y, 0);
 
 		glEnd();
 	}
@@ -329,18 +328,17 @@ void drawCircleCartesianNormals(void)
 	{
 		glBegin(GL_LINES);
 		glColor3f(1, 1, 0);
-		float t = (i / (float) halfSeg) * 2 * cRadius - cRadius;
-		float x = t+frog.r.x;
-		float y1 = -sqrt(cRadius*cRadius-t*t)+frog.r.y;
-		float y2 = sqrt(cRadius*cRadius-t*t)+frog.r.y;
+		float x = (i / (float) halfSeg) * 2 * cRadius - cRadius;
+		float y1 = -sqrt(cRadius*cRadius-x*x);
+		float y2 = sqrt(cRadius*cRadius-x*x);
 
-		glVertex3f(x, y1, 0);
+		glVertex3f(x + frog.r.x, y1 + frog.r.y, 0);
 		float n = sqrt(y1*y1 + x*x)*REDUCTION;
-		glVertex3f(x+x/n, y1+y1/n, 0);
+		glVertex3f(x + x/n + frog.r.x, y1 + y1/n + frog.r.y, 0);
 
-		glVertex3f(x, y2, 0);
+		glVertex3f(x + frog.r.x, y2 + frog.r.y, 0);
 		n = sqrt(y2*y2 + x*x)*REDUCTION;
-		glVertex3f(x+x/n, y2+y2/n, 0);
+		glVertex3f(x + x/n + frog.r.x, y2 + y2/n + frog.r.y, 0);
 
 		glEnd();
 	}
