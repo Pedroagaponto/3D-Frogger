@@ -44,17 +44,16 @@ bool parabolaInsideWindow(void);
 
 typedef struct{
 	float x, y;
-} vec2f;
+	float speed, angle;
+} projection;
 
 typedef struct {
-	vec2f r0, v0, r, v;
+	projection r0, r;
 } frogState;
 
 frogState frog = {
-	{ 0.0, 0.0 },
-	{ 1.0, 2.0 },
-	{ 1.0, 1.0 },
-	{ 1.0, 2.0 }
+	{ 0.5, 0.5, 1.0, M_PI/4 },
+	{ 0.5, 0.5, 1.0, M_PI/4 }
 };
 
 int colours[][3] = {
@@ -71,14 +70,15 @@ int axesPosition[][3] = {
 
 const float cRadius =  0.05;
 const float gravity = 9.8;
-float speed = 1;
-float angle = M_PI/4;
+//float speed = 1;
+//float angle = M_PI/4;
 
 int segments = 10;
 bool debug = true;
 bool cartesianFlag = true;
 bool tangentFlag = true;
 bool normalFlag = true;
+bool jumpingFlag = false;
 
 int main(int argc, char **argv)
 {
@@ -124,6 +124,9 @@ void keyboard(unsigned char key, int x, int y)
 
 	switch (key)
 	{
+		case ' ':
+			jumpingFlag = true;
+			break;
 		case 'f':
 		case 'F':
 			cartesianFlag = !cartesianFlag;
@@ -142,19 +145,19 @@ void keyboard(unsigned char key, int x, int y)
 			break;
 		case 'a':
 		case 'A':
-			angle = (angle < M_PI-M_PI/32) ? angle+M_PI/32 : M_PI-M_PI/32;
+			frog.r0.angle = (frog.r0.angle < M_PI-M_PI/32) ? frog.r0.angle+M_PI/32 : M_PI-M_PI/32;
 			break;
 		case 'd':
 		case 'D':
-			angle = (angle < M_PI/16) ? M_PI/32 : angle-M_PI/32;
+			frog.r0.angle = (frog.r0.angle < M_PI/16) ? M_PI/32 : frog.r0.angle-M_PI/32;
 			break;
 		case 'w':
 		case 'W':
-			speed = (speed > 9.8) ? 10 : speed+0.2;
+			frog.r0.speed = (frog.r0.speed > 9.8) ? 10 : frog.r0.speed+0.2;
 			break;
 		case 's':
 		case 'S':
-			speed = (speed < 1.2) ? 1 : speed-0.2;
+			frog.r0.speed = (frog.r0.speed < 1.2) ? 1 : frog.r0.speed-0.2;
 			break;
 		case 27:
 		case 'q':
@@ -349,7 +352,7 @@ void drawDirectionSpeedVector(void)
 	glBegin(GL_LINES);
 	glColor3f(1, 0, 1);
 	glVertex3f(frog.r.x, frog.r.y, 0);
-	glVertex3f(speed*0.1*cos(angle)+frog.r.x, speed*0.1*sin(angle)+frog.r.y, 0);
+	glVertex3f(frog.r0.speed*0.1*cos(frog.r0.angle)+frog.r.x, frog.r0.speed*0.1*sin(frog.r0.angle)+frog.r.y, 0);
 	glEnd();
 }
 
@@ -358,15 +361,15 @@ void drawCartesianParabola()
 	//    y = tan(θ) x - g * x^2 / (2 (v*cos(θ))^2)
 	glBegin(GL_LINE_STRIP);
 
-	float distance = ((speed*speed) / gravity) * sin(2*angle);
+	float distance = ((frog.r0.speed*frog.r0.speed) / gravity) * sin(2*frog.r0.angle);
 	for (int i = 0; i <= segments; i++)
 	{
-		float x = (i/(float)segments)*distance + frog.r.x;
-		float y1 = 2 * pow(cos(angle)*speed,2);
-		float y = tan(angle) * x - (gravity*x*x)/y1;
+		float x = (i/(float)segments)*distance;
+		float y1 = 2 * pow(cos(frog.r0.angle)*frog.r0.speed,2);
+		float y = tan(frog.r0.angle) * x - (gravity*x*x)/y1;
 		if (debug)
 			printf("drawCartesianParabola: d = %.5f\tx = %.5f\ty = %.5f\n", distance, x, y);
-		glVertex3f(frog.r.x + x, frog.r.y + y, 0.5);
+		glVertex3f(frog.r0.x + x, frog.r0.y + y, 0.5);
 
 	}
 	glEnd();
@@ -377,12 +380,12 @@ void drawParametricParabola()
 	//    y = v t sin(θ) - 1/2 g t^2
 	glBegin(GL_LINE_STRIP);
 
-	float distance = (2*(speed*sin(angle)))/(gravity);
+	float distance = (2*(frog.r0.speed*sin(frog.r0.angle)))/(gravity);
 	for (int i = 0; i <= segments; i++)
 	{
 		float t = (i/(float)segments)*distance;
-		float x = speed * t * cos(angle);
-		float y = speed * t * sin(angle) - (gravity*t*t)/2;
+		float x = frog.r0.speed * t * cos(frog.r0.angle);
+		float y = frog.r0.speed * t * sin(frog.r0.angle) - (gravity*t*t)/2;
 		if (debug)
 			printf("drawParametricParabola: d = %.5f\tx = %.5f\ty = %.5f\n", distance, x, y);
 		glVertex3f(frog.r.x + x, frog.r.y + y, 0.5);
@@ -411,19 +414,19 @@ void drawParabolaNormalTangent(void)
 		if (cartesianFlag)
 		{
 			float distance = calcReach();
-			x = (i/(float)segments)*distance + frog.r.x;
-			float y1 = 2 * pow(cos(angle)*speed,2);
-			y = tan(angle) * x - (gravity*x*x)/y1;
-			dy = tan(angle) - (gravity*x)/(pow(cos(angle)*speed,2));
+			x = (i/(float)segments)*distance;
+			float y1 = 2 * pow(cos(frog.r0.angle)*frog.r0.speed,2);
+			y = tan(frog.r0.angle) * x - (gravity*x*x)/y1;
+			dy = tan(frog.r0.angle) - (gravity*x)/(pow(cos(frog.r0.angle)*frog.r0.speed,2));
 			dx = 1;
 		}
 		else
 		{
-			float t = (i/(float)segments)*(2*(speed*sin(angle)))/(gravity);
-			x = speed * t * cos(angle);
-			y = speed * t * sin(angle) - (gravity*t*t)/2;
-			dx = speed * cos(angle);
-			dy = speed * sin(angle) - gravity*t;
+			float t = (i/(float)segments)*(2*(frog.r0.speed*sin(frog.r0.angle)))/(gravity);
+			x = frog.r0.speed * t * cos(frog.r0.angle);
+			y = frog.r0.speed * t * sin(frog.r0.angle) - (gravity*t*t)/2;
+			dx = frog.r0.speed * cos(frog.r0.angle);
+			dy = frog.r0.speed * sin(frog.r0.angle) - gravity*t;
 		}
 
 		if(tangentFlag)
@@ -431,9 +434,9 @@ void drawParabolaNormalTangent(void)
 			glBegin(GL_LINES);
 			glColor3f (0, 1, 1);
 
-			glVertex3f(x, y, 0);
+			glVertex3f(frog.r0.x + x, frog.r0.y + y, 0);
 			n = sqrt(dx*dx + dy*dy)*REDUCTION;
-			glVertex3f(x + dx/n, y + dy/n, 0);
+			glVertex3f(frog.r0.x + dx/n + x, frog.r0.y + dy/n + y, 0);
 
 			glEnd();
 		}
@@ -443,9 +446,9 @@ void drawParabolaNormalTangent(void)
 			glBegin(GL_LINES);
 			glColor3f (1, 1, 0);
 
-			glVertex3f(x, y, 0);
+			glVertex3f(frog.r0.x + x, frog.r0.y + y, 0);
 			n = sqrt(dx*dx + dy*dy)*REDUCTION;
-			glVertex3f(x - dy/n, y + dx/n, 0);
+			glVertex3f(frog.r0.x - dy/n + x, frog.r0.y + dx/n + y, 0);
 
 			glEnd();
 		}
@@ -454,14 +457,14 @@ void drawParabolaNormalTangent(void)
 
 float calcReach(void)
 {
-	return ((speed*speed) / gravity) * sin(2*angle);
+	return ((frog.r0.speed*frog.r0.speed) / gravity) * sin(2*frog.r0.angle);
 }
 
 bool parabolaInsideWindow(void)
 {
 	if(debug)
 		printf("calcReach:%f speed:%f angle:%f\n",
-				calcReach(), speed, angle*180/M_PI);
+				calcReach(), frog.r0.speed, frog.r0.angle*180/M_PI);
 	if ((calcReach() + frog.r.x < 1.0) && (calcReach() + frog.r.x  > -1.0))
 		return true;
 
