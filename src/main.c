@@ -276,7 +276,7 @@ void drawCartesianCircle(void)
 		float t = (i / (float) halfSeg) * 2 * cRadius - cRadius;
 		glVertex3f(t+frog.r.x, -sqrt(cRadius*cRadius-t*t)+frog.r.y, 0);
 		if (debug)
-			printf("Circle vertex coordenates: (%f, %f)",
+			printf("Circle vertex coordenates: (%f, %f)\n",
 					t + frog.r.x, -sqrt(cRadius*cRadius-t*t)+frog.r.y);
 	}
 
@@ -285,7 +285,7 @@ void drawCartesianCircle(void)
 		float t = (i / (float) halfSeg) * 2 * cRadius - cRadius;
 		glVertex3f(t + frog.r.x, sqrt(cRadius*cRadius-t*t)+frog.r.y, 0);
 		if (debug)
-			printf("Circle vertex coordenates: (%f, %f)",
+			printf("Circle vertex coordenates: (%f, %f)\n",
 					t + frog.r.x, sqrt(cRadius*cRadius-t*t)+frog.r.y);
 	}
 	glEnd();
@@ -408,11 +408,11 @@ void drawParabola()
 void drawParabolaNormalTangent(void)
 {
 	float x, y, dx, dy, n;
-	float distance = calcReach();
 	for (int i = 0; i < segments; i++)
 	{
 		if (cartesianFlag)
 		{
+			float distance = calcReach();
 			x = (i/(float)segments)*distance + frog.r.x;
 			float y1 = 2 * pow(cos(angle)*speed,2);
 			y = tan(angle) * x - (gravity*x*x)/y1;
@@ -421,7 +421,7 @@ void drawParabolaNormalTangent(void)
 		}
 		else
 		{
-			float t = (i/(float)segments)*distance;
+			float t = (i/(float)segments)*(2*(speed*sin(angle)))/(gravity);
 			x = speed * t * cos(angle);
 			y = speed * t * sin(angle) - (gravity*t*t)/2;
 			dx = speed * cos(angle);
@@ -456,13 +456,15 @@ void drawParabolaNormalTangent(void)
 
 float calcReach(void)
 {
-	return (cartesianFlag)? ((speed*speed) / gravity) * sin(2*angle)
-						  : (2*(speed*sin(angle)))/(gravity);
+	return ((speed*speed) / gravity) * sin(2*angle);
 }
 
 bool parabolaInsideWindow(void)
 {
-	if ((calcReach() < 1.0) && (calcReach() > -1.0))
+	if(debug)
+		printf("calcReach:%f speed:%f angle:%f\n",
+				calcReach(), speed, angle*180/M_PI);
+	if ((calcReach() + frog.r.x < 1.0) && (calcReach() + frog.r.x  > -1.0))
 		return true;
 
 	return false;
