@@ -6,7 +6,7 @@ ODIR = obj
 _OBJ = main.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
-CFLAGS = -Wall -Wextra -g
+CFLAGS = -Wall -Wextra -g -std=c99
 LIBS = -lm -lGL -lGLU -lglut
 
 all: frogger
