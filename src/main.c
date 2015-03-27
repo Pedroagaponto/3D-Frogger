@@ -260,6 +260,9 @@ void drawParametricCircle(void)
 	glColor3f (0.8, 0.8, 0.8);
 	for (int i = 0; i < segments; i++)
 	{
+		//parametric equations for a circle
+		//x = r.cos(t)
+		//y = r.sin(t)
 		float t = (i / (float) segments) * 2 * M_PI;
 		glVertex3f(cRadius*cos(t)+frog.r.x, cRadius*sin(t)+frog.r.y, 0);
 		if (debug)
@@ -274,6 +277,10 @@ void drawParametricCircle(void)
 		drawCircleParametricNormals();
 }
 
+/* Given that tan = dy/dx
+ * is possible to use this on the parametric equations for a circle
+ * so, tan = <dx/dt, dy/dt> = <-cRadius*sin(t), cRdius*cos(t)>
+ */
 void drawCircleParametricTangents(void)
 {
 	for (int i = 0; i < segments; i++)
@@ -292,6 +299,10 @@ void drawCircleParametricTangents(void)
 	}
 }
 
+/* Given that N.T = 0, and T = <dx/dt, dy/dt>
+ * N = <dy/dt, -dx/dt>
+ * so, N = <cRadius*cos(t), cRadius*sin(t)>
+ */
 void drawCircleParametricNormals(void)
 {
 	for (int i = 0; i < segments; i++)
@@ -310,6 +321,11 @@ void drawCircleParametricNormals(void)
 	}
 }
 
+/* For a circle which has its centre at (frog.r.x, frog.r.y):
+ * (x - frog.r.x)^2 + (y - frog.r.y)^2 = cRadius^2
+ * it can be rearranged and solved for y to give:
+ * y = +-sqrt(cRadius^2-x^2)
+ */
 void drawCartesianCircle(void)
 {
 	if (debug)
@@ -319,6 +335,7 @@ void drawCartesianCircle(void)
 	glColor3f (0.8, 0.8, 0.8);
 	for (int i = 0; i < halfSeg; i++)
 	{
+		//-sqrt(cRadius^2-x^2)
 		float x = (i / (float) halfSeg) * 2 * cRadius - cRadius;
 		glVertex3f(x+frog.r.x, -sqrt(cRadius*cRadius-x*x)+frog.r.y, 0);
 		if (debug)
@@ -328,6 +345,7 @@ void drawCartesianCircle(void)
 
 	for (int i = halfSeg; i > 0 ; i--)
 	{
+		//+sqrt(cRadius^2-x^2)
 		float x = (i / (float) halfSeg) * 2 * cRadius - cRadius;
 		glVertex3f(x + frog.r.x, sqrt(cRadius*cRadius-x*x)+frog.r.y, 0);
 		if (debug)
@@ -342,6 +360,10 @@ void drawCartesianCircle(void)
 		drawCircleCartesianNormals();
 }
 
+/* Given that tan = dy/dx and y = sqrt(cRadius^2-x^2)
+ * dy/dx = -x/y
+ * so, tan = <-y, x>
+ */
 void drawCircleCartesianTangents(void)
 {
 	int halfSeg = segments/2;
@@ -365,6 +387,9 @@ void drawCircleCartesianTangents(void)
 	}
 }
 
+/* Given that N.T = 0, T = <dx/dt, dy/dt> and dy/dx = -x/
+ * N = <x, y>
+ */
 void drawCircleCartesianNormals(void)
 {
 	int halfSeg = segments/2;
@@ -547,6 +572,7 @@ bool parabolaInsideWindow(void)
 	return false;
 }
 
+/* Function callback for jump motion */
 void idle(void)
 {
 	static float tLast = -1.0;
