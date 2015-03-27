@@ -1,4 +1,4 @@
-CC = clang
+CC = gcc
 
 SDIR = src
 ODIR = obj
@@ -6,7 +6,7 @@ ODIR = obj
 _OBJ = main.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
-CFLAGS = -Wall -Wextra -g -std=c99
+CFLAGS = -Wall -Wextra -pedantic -g -std=c99
 LIBS = -lm -lGL -lGLU -lglut
 
 all: frogger
