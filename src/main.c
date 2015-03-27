@@ -3,18 +3,9 @@
 #include <stdbool.h>
 #include <math.h>
 
-#if _WIN32
-#   include <Windows.h>
-#endif
-#if __APPLE__
-#   include <OpenGL/gl.h>
-#   include <OpenGL/glu.h>
-#   include <GLUT/glut.h>
-#else
-#   include <GL/gl.h>
-#   include <GL/glu.h>
-#   include <GL/glut.h>
-#endif
+#include <GL/gl.h>
+#include <GL/glu.h>
+#include <GL/glut.h>
 
 #ifndef M_PI
 #define M_PI 3.14159265359
@@ -25,6 +16,7 @@
 void init(void);
 void display(void);
 void keyboard(unsigned char key, int x, int y);
+void jumpingSettings(void);
 void specialKeys(int key, int x, int y);
 void drawAxes(void);
 void drawCircle(void);
@@ -35,10 +27,10 @@ void drawCartesianCircle(void);
 void drawCircleCartesianTangents(void);
 void drawCircleCartesianNormals(void);
 void drawDirectionSpeedVector(void);
-void drawCartesianParabola();
-void drawParametricParabola();
-void drawParabola();
-void drawParabolaNormalTangent();
+void drawCartesianParabola(void);
+void drawParametricParabola(void);
+void drawParabola(void);
+void drawParabolaNormalTangent(void);
 float calcReach(void);
 bool parabolaInsideWindow(void);
 void idle(void);
@@ -55,36 +47,34 @@ typedef struct {
 	projection r0, r;
 } frogState;
 
-frogState frog = {
+static frogState frog = {
 	{ 0.0, 0.0, 1.0, M_PI/4 },
 	{ 0.0, 0.0, 1.0, M_PI/4 }
 };
 
-int colours[][3] = {
+static int colours[][3] = {
 	{1, 0, 0},
 	{0, 1, 0},
 	{0, 0, 1}
 };
 
-int axesPosition[][3] = {
+static int axesPosition[][3] = {
 	{1, 0, 0},
 	{0, 1, 0},
 	{0, 0, 1}
 };
 
-const float cRadius =  0.05;
-const float gravity = 9.8;
-//float speed = 1;
-//float angle = M_PI/4;
+static const float cRadius =  0.05;
+static const float gravity = 9.8;
 
-int segments = 10;
-float startTime = 0;
-bool debug = true;
-bool cartesianFlag = true;
-bool tangentFlag = true;
-bool normalFlag = true;
-bool jumpingFlag = false;
-bool analyticFlag = true;
+static int segments = 10;
+static float startTime = 0;
+static bool debug = true;
+static bool cartesianFlag = true;
+static bool tangentFlag = true;
+static bool normalFlag = true;
+static bool jumpingFlag = false;
+static bool analyticFlag = true;
 
 int main(int argc, char **argv)
 {
@@ -134,14 +124,7 @@ void keyboard(unsigned char key, int x, int y)
 	switch (key)
 	{
 		case ' ':
-			if (!jumpingFlag && parabolaInsideWindow())
-			{
-				jumpingFlag = true;
-				startTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0;
-				frog.r.angle = frog.r0.angle;
-				frog.r.speed = frog.r0.speed;
-				glutPostRedisplay();
-			}
+			jumpingSettings();
 			break;
 		case 'f':
 		case 'F':
@@ -206,6 +189,18 @@ void keyboard(unsigned char key, int x, int y)
 			exit(EXIT_SUCCESS);
 		default:
 			break;
+	}
+}
+
+void jumpingSettings(void)
+{
+	if (!jumpingFlag && parabolaInsideWindow())
+	{
+		jumpingFlag = true;
+		startTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0;
+		frog.r.angle = frog.r0.angle;
+		frog.r.speed = frog.r0.speed;
+		glutPostRedisplay();
 	}
 }
 
@@ -406,7 +401,7 @@ void drawDirectionSpeedVector(void)
 	glEnd();
 }
 
-void drawCartesianParabola()
+void drawCartesianParabola(void)
 {
 	//y = tan(θ) x - g * x^2 / (2 (v*cos(θ))^2)
 	glBegin(GL_LINE_STRIP);
@@ -427,7 +422,7 @@ void drawCartesianParabola()
 	glEnd();
 }
 
-void drawParametricParabola()
+void drawParametricParabola(void)
 {
 	//x = v t cos(θ)
 	//y = v t sin(θ) - 1/2 g t^2
@@ -448,7 +443,7 @@ void drawParametricParabola()
 	glEnd();
 }
 
-void drawParabola()
+void drawParabola(void)
 {
 	if (debug)
 		printf(">>>>>PARABOLA<<<<<\ncalcReach:%f speed:%f angle:%f\n",
@@ -534,7 +529,7 @@ bool parabolaInsideWindow(void)
 	return false;
 }
 
-void idle()
+void idle(void)
 {
 	static float tLast = -1.0;
 	float t, dt;
@@ -591,7 +586,7 @@ void calcPositionAnalytical(float t)
 	if (debug)
 		printf("Analytical Jump: angle %f, speed %f, x %f, y %f\n",
 				frog.r.angle*180/M_PI, frog.r.speed, frog.r.x, frog.r.y);
-	if (t == tEnd)
+	if (t >= tEnd)
 	{
 		jumpingFlag = false;
 		frog.r0.x = frog.r.x;
