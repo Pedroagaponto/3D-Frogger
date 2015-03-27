@@ -42,8 +42,9 @@ void drawParabolaNormalTangent();
 float calcReach(void);
 bool parabolaInsideWindow(void);
 void idle(void);
-void calcPosition(void);
-void calcPositionAnalytical(float dt);
+void calcPosition(float t, float dt);
+void calcPositionAnalytical(float t);
+void calcPositionNumerical(float dt);
 
 typedef struct{
 	float x, y;
@@ -135,6 +136,8 @@ void keyboard(unsigned char key, int x, int y)
 			{
 				jumpingFlag = true;
 				startTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0;
+				frog.r.angle = frog.r0.angle;
+				frog.r.speed = frog.r0.speed;
 			}
 			break;
 		case 'f':
@@ -178,6 +181,12 @@ void keyboard(unsigned char key, int x, int y)
 			if (jumpingFlag)
 				break;
 			frog.r0.speed = (frog.r0.speed < 1.2) ? 1 : frog.r0.speed-0.2;
+			break;
+		case 'i':
+		case 'I':
+			if (jumpingFlag)
+				break;
+			analyticFlag = !analyticFlag;
 			break;
 		case 27:
 		case 'q':
@@ -499,52 +508,81 @@ bool parabolaInsideWindow(void)
 
 void idle()
 {
+	static float tLast = -1.0;
+	float t, dt;
+
 	if(!jumpingFlag)
 		return;
-	else
-		calcPosition();
-}
 
-void calcPosition(void)
-{
-	float t, dt;
-	static float tLast = 0.0;
+	t = glutGet(GLUT_ELAPSED_TIME) / 1000.0 - startTime;
 
-	t = glutGet(GLUT_ELAPSED_TIME);
-	t /= 1000.0;
+	if(tLast < 0.0)
+	{
+		tLast = t;
+		return;
+	}
 
 	dt = t - tLast;
 
-	if (analyticFlag)
-		calcPositionAnalytical(t-startTime);
-
-	printf("updateFrog: t=%f\tstartTime=%f\tx=%f\ty=%f\n",
-			t, startTime, frog.r.x, frog.r.y);
-
+	if (debug)
+		printf("Jump: t=%f\tstartTime=%f\tx=%f\ty=%f\n",
+				t, startTime, frog.r.x, frog.r.y);
+	calcPosition(t, dt);
 	tLast = t;
 
 	glutPostRedisplay();
 }
 
-void calcPositionAnalytical(float dt)
+void calcPosition(float t, float dt)
 {
-	float t = (2*(frog.r0.speed*sin(frog.r0.angle)))/(gravity);
-	if (dt > t)
-		dt = t;
-	float x = frog.r0.speed * dt * cos(frog.r0.angle);
+	if (analyticFlag)
+		calcPositionAnalytical(t);
+	else
+		calcPositionNumerical(dt);
+}
+
+void calcPositionAnalytical(float t)
+{
+	float tEnd = (2*(frog.r0.speed*sin(frog.r0.angle)))/(gravity);
+	if (t > tEnd)
+		t = tEnd;
+	float x = frog.r0.speed * t * cos(frog.r0.angle);
 	frog.r.x = frog.r0.x + x;
 
 	if (cartesianFlag)
 		frog.r.y = frog.r0.y + tan(frog.r0.angle)*x-(gravity*x*x)/
 			(2 * pow(cos(frog.r0.angle)*frog.r0.speed,2));
 	else
-		frog.r.y = frog.r0.speed * dt * sin(frog.r0.angle) -
-			(gravity*dt*dt)/2 + frog.r0.y;
+		frog.r.y = frog.r0.speed * t * sin(frog.r0.angle) -
+			(gravity*t*t)/2 + frog.r0.y;
 
-	if (dt == t)
+	if (t == tEnd)
 	{
 		jumpingFlag = false;
 		frog.r0.x = frog.r.x;
 		frog.r0.y = frog.r.y;
 	}
+}
+
+void calcPositionNumerical(float dt)
+{
+	float speedX = frog.r.speed * cos(frog.r.angle); 
+	float speedY = frog.r.speed * sin(frog.r.angle); 
+	frog.r.x += speedX * dt;
+	frog.r.y += speedY * dt;
+
+	speedY += -gravity * dt;
+	frog.r.speed = sqrt(speedX*speedX + speedY*speedY);
+	frog.r.angle = atan(speedY/speedX);
+	if (speedX < 0)
+		frog.r.angle = frog.r.angle + M_PI;
+
+	if(frog.r.y < frog.r0.y)
+	{
+		frog.r.y = frog.r0.y;
+		jumpingFlag = false;
+		frog.r0.x = frog.r.x;
+	}
+	if (debug)
+		printf("Jump: angle %f, speed %f\n", frog.r.angle, frog.r.speed);
 }
