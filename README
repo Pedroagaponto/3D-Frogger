@@ -1,0 +1,50 @@
+Authors:	Aurora Li Min de Freitas - s3529137
+			Pedro Henrique Morais Pereira - s3495839
+
+This code was implemented as part of COSC1186/1187 Interactive 3D Graphics and
+Animation course.
+
+Features:
+	-Draws a circle to represent a frog using both cartesian and parametric
+	equations
+	-Draws normal and tangent vectors for the circle
+	-Draws a vector representing the angle and speed of the circle (frog)
+	when it jumps.
+	-Draws a parabola representing the path of the circle (frog) when it jumps,
+	using both cartesian and parametric equations.
+	-Draws normal and tangent vectors for the parabola.
+	-Animates the circle (frog) to use projectile motion when the frog,
+	following the path of the parabola.
+	-Calculates the position of the circle (frog) both analytically,
+	and by integrating the acceleration/velocity.
+	-Draws x/y axes.
+
+Extra features:
+	-Changes parabola color to red when it ends outside the window, showing
+	that the frog cannot land there.
+	-Allows to switch on/off the debug (verbose) mode during program execution
+
+Controls:
+	-'v' or 'V': toggle verbose mode on/off
+	-‘w’ or 'W': increase speed
+	-’s’ or 'S': decrease speed
+	-‘a’ or 'A': increase angle
+	-‘d’ or 'D': decrease angle
+	-‘t’ or 'T': toggle tangent visualisation
+	-‘n’ or 'N': toggle normal visualisation
+	-‘f’ or 'F': toggle between cartesian/parametric equations
+	-‘i’ or 'I': toggle between analytical and numerical integration
+	-'q' or 'Q' or ESC: exit program
+	-up arrow: double number of segments
+	-down arrow: halve number of segments
+	-spacebar: jump
+
+How to compile:
+	-In the project folder, use the command 'make'
+
+How to use:
+	-In the project folder, use the command './frogger'
+
+Observation:
+	This project was versionated using Git. The git files are included in the
+	project folder.
