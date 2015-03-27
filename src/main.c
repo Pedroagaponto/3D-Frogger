@@ -192,6 +192,10 @@ void keyboard(unsigned char key, int x, int y)
 	}
 }
 
+/*
+ * Function executed when space key is pressed,
+ * and just allow jumping inside the window
+ */
 void jumpingSettings(void)
 {
 	if (!jumpingFlag && parabolaInsideWindow())
@@ -222,6 +226,8 @@ void specialKeys(int key, int x, int y)
 	}
 	glutPostRedisplay();
 }
+
+/****** DRAWING FUNCTIONS ******/
 
 void drawAxes(void)
 {
@@ -382,6 +388,10 @@ void drawCircleCartesianNormals(void)
 	}
 }
 
+/*
+ * Draw the speed vector, the force it will be launched
+ * or the speed vector during the jump
+ */
 void drawDirectionSpeedVector(void)
 {
 	glBegin(GL_LINES);
@@ -448,6 +458,8 @@ void drawParabola(void)
 	if (debug)
 		printf(">>>>>PARABOLA<<<<<\ncalcReach:%f speed:%f angle:%f\n",
 				calcReach(), frog.r0.speed, frog.r0.angle*180/M_PI);
+
+	/* Tha parabola change color to red when the frog will land outside */
 	if (parabolaInsideWindow())
 		glColor3f(0, 0, 1);
 	else
@@ -491,6 +503,7 @@ void drawParabolaNormalTangent(void)
 
 			glVertex3f(frog.r0.x + x, frog.r0.y + y, 0);
 			n = sqrt(dx*dx + dy*dy)*REDUCTION;
+			/* Invert the result, due to the way it is drawn*/
 			if (cartesianFlag && x < 0)
 				glVertex3f(frog.r0.x - dx/n + x, frog.r0.y - dy/n + y, 0);
 			else
@@ -506,6 +519,7 @@ void drawParabolaNormalTangent(void)
 
 			glVertex3f(frog.r0.x + x, frog.r0.y + y, 0);
 			n = sqrt(dx*dx + dy*dy)*REDUCTION;
+			/* Invert the result, due to the way it is drawn*/
 			if (!cartesianFlag && x < 0)
 				glVertex3f(frog.r0.x + dy/n + x, frog.r0.y - dx/n + y, 0);
 			else
@@ -516,11 +530,15 @@ void drawParabolaNormalTangent(void)
 	}
 }
 
+/****** AUXILIAR FUNCTIONS CALCULATION ******/
+
+/* Function responsible for calculating how far the frog will go */
 float calcReach(void)
 {
 	return ((frog.r0.speed*frog.r0.speed) / gravity) * sin(2*frog.r0.angle);
 }
 
+/* Using the calcReach, checks if will land inside the window */
 bool parabolaInsideWindow(void)
 {
 	if ((calcReach() + frog.r0.x < 1.0) && (calcReach() + frog.r0.x > -1.0))
@@ -571,6 +589,9 @@ void calcPosition(float t, float dt)
 void calcPositionAnalytical(float t)
 {
 	float tEnd = (2*(frog.r0.speed*sin(frog.r0.angle)))/(gravity);
+	/* If the t is greater than the projected landing tEnd, sets t as tEnd so
+	 * it lands exact on the right position, not going a bit further if the
+	 * loop took a bit longer */
 	if (t > tEnd)
 		t = tEnd;
 	float x = frog.r0.speed * t * cos(frog.r0.angle);
