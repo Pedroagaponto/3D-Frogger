@@ -399,7 +399,7 @@ void drawDirectionSpeedVector(void)
 
 void drawCartesianParabola()
 {
-	//    y = tan(θ) x - g * x^2 / (2 (v*cos(θ))^2)
+	//y = tan(θ) x - g * x^2 / (2 (v*cos(θ))^2)
 	glBegin(GL_LINE_STRIP);
 
 	float distance = ((frog.r0.speed*frog.r0.speed) / gravity) *
@@ -419,8 +419,8 @@ void drawCartesianParabola()
 }
 void drawParametricParabola()
 {
-	//    x = v t cos(θ)
-	//    y = v t sin(θ) - 1/2 g t^2
+	//x = v t cos(θ)
+	//y = v t sin(θ) - 1/2 g t^2
 	glBegin(GL_LINE_STRIP);
 
 	float distance = (2*(frog.r0.speed*sin(frog.r0.angle)))/(gravity);
@@ -485,7 +485,10 @@ void drawParabolaNormalTangent(void)
 
 			glVertex3f(frog.r0.x + x, frog.r0.y + y, 0);
 			n = sqrt(dx*dx + dy*dy)*REDUCTION;
-			glVertex3f(frog.r0.x + dx/n + x, frog.r0.y + dy/n + y, 0);
+			if(cartesianFlag && x < 0)
+				glVertex3f(frog.r0.x - dx/n + x, frog.r0.y - dy/n + y, 0);
+			else
+				glVertex3f(frog.r0.x + dx/n + x, frog.r0.y + dy/n + y, 0);
 
 			glEnd();
 		}
@@ -497,7 +500,10 @@ void drawParabolaNormalTangent(void)
 
 			glVertex3f(frog.r0.x + x, frog.r0.y + y, 0);
 			n = sqrt(dx*dx + dy*dy)*REDUCTION;
-			glVertex3f(frog.r0.x - dy/n + x, frog.r0.y + dx/n + y, 0);
+			if (!cartesianFlag && x < 0)
+				glVertex3f(frog.r0.x + dy/n + x, frog.r0.y - dx/n + y, 0);
+			else
+				glVertex3f(frog.r0.x - dy/n + x, frog.r0.y + dx/n + y, 0);
 
 			glEnd();
 		}
@@ -511,7 +517,7 @@ float calcReach(void)
 
 bool parabolaInsideWindow(void)
 {
-	if ((calcReach() + frog.r0.x < 1.0) && (calcReach() + frog.r0.x  > -1.0))
+	if ((calcReach() + frog.r0.x < 1.0) && (calcReach() + frog.r0.x > -1.0))
 		return true;
 
 	return false;
@@ -544,7 +550,7 @@ void idle()
 		tLast = -1;
 	else
 		tLast = t;
-	
+
 	glutPostRedisplay();
 }
 
