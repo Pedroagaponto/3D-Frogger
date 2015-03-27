@@ -26,7 +26,6 @@ void init(void);
 void display(void);
 void keyboard(unsigned char key, int x, int y);
 void specialKeys(int key, int x, int y);
-void idle(void);
 void drawAxes(void);
 void drawCircle(void);
 void drawParametricCircle(void);
@@ -42,6 +41,9 @@ void drawParabola();
 void drawParabolaNormalTangent();
 float calcReach(void);
 bool parabolaInsideWindow(void);
+void idle(void);
+void calcPosition(void);
+void calcPositionAnalytical(float dt);
 
 typedef struct{
 	float x, y;
@@ -81,6 +83,7 @@ bool cartesianFlag = true;
 bool tangentFlag = true;
 bool normalFlag = true;
 bool jumpingFlag = false;
+bool analyticFlag = true;
 
 int main(int argc, char **argv)
 {
@@ -152,18 +155,28 @@ void keyboard(unsigned char key, int x, int y)
 			break;
 		case 'a':
 		case 'A':
-			frog.r0.angle = (frog.r0.angle < M_PI-M_PI/32) ? frog.r0.angle+M_PI/32 : M_PI-M_PI/32;
+			if (jumpingFlag)
+				break;
+			frog.r0.angle = (frog.r0.angle < M_PI-M_PI/32) ?
+				frog.r0.angle+M_PI/32 : M_PI-M_PI/32;
 			break;
 		case 'd':
 		case 'D':
-			frog.r0.angle = (frog.r0.angle < M_PI/16) ? M_PI/32 : frog.r0.angle-M_PI/32;
+			if (jumpingFlag)
+				break;
+			frog.r0.angle = (frog.r0.angle < M_PI/16) ?
+				M_PI/32 : frog.r0.angle-M_PI/32;
 			break;
 		case 'w':
 		case 'W':
+			if (jumpingFlag)
+				break;
 			frog.r0.speed = (frog.r0.speed > 9.8) ? 10 : frog.r0.speed+0.2;
 			break;
 		case 's':
 		case 'S':
+			if (jumpingFlag)
+				break;
 			frog.r0.speed = (frog.r0.speed < 1.2) ? 1 : frog.r0.speed-0.2;
 			break;
 		case 27:
@@ -359,7 +372,8 @@ void drawDirectionSpeedVector(void)
 	glBegin(GL_LINES);
 	glColor3f(1, 0, 1);
 	glVertex3f(frog.r0.x, frog.r0.y, 0);
-	glVertex3f(frog.r0.speed*0.1*cos(frog.r0.angle)+frog.r0.x, frog.r0.speed*0.1*sin(frog.r0.angle)+frog.r0.y, 0);
+	glVertex3f(frog.r0.speed*0.1*cos(frog.r0.angle)+frog.r0.x,
+			frog.r0.speed*0.1*sin(frog.r0.angle)+frog.r0.y, 0);
 	glEnd();
 }
 
@@ -368,14 +382,16 @@ void drawCartesianParabola()
 	//    y = tan(θ) x - g * x^2 / (2 (v*cos(θ))^2)
 	glBegin(GL_LINE_STRIP);
 
-	float distance = ((frog.r0.speed*frog.r0.speed) / gravity) * sin(2*frog.r0.angle);
+	float distance = ((frog.r0.speed*frog.r0.speed) / gravity) *
+		sin(2*frog.r0.angle);
 	for (int i = 0; i <= segments; i++)
 	{
 		float x = (i/(float)segments)*distance;
 		float y1 = 2 * pow(cos(frog.r0.angle)*frog.r0.speed,2);
 		float y = tan(frog.r0.angle) * x - (gravity*x*x)/y1;
 		if (debug)
-			printf("drawCartesianParabola: d = %.5f\tx = %.5f\ty = %.5f\n", distance, x, y);
+			printf("drawCartesianParabola: d = %.5f\tx = %.5f\ty = %.5f\n",
+					distance, x, y);
 		glVertex3f(frog.r0.x + x, frog.r0.y + y, 0.5);
 
 	}
@@ -394,7 +410,8 @@ void drawParametricParabola()
 		float x = frog.r0.speed * t * cos(frog.r0.angle);
 		float y = frog.r0.speed * t * sin(frog.r0.angle) - (gravity*t*t)/2;
 		if (debug)
-			printf("drawParametricParabola: d = %.5f\tx = %.5f\ty = %.5f\n", distance, x, y);
+			printf("drawParametricParabola: d = %.5f\tx = %.5f\ty = %.5f\n",
+					distance, x, y);
 		glVertex3f(frog.r0.x + x, frog.r0.y + y, 0.5);
 
 	}
@@ -416,7 +433,7 @@ void drawParabola()
 void drawParabolaNormalTangent(void)
 {
 	float x, y, dx, dy, n;
-	for (int i = 0; i < segments; i++)
+	for (int i = 0; i <= segments; i++)
 	{
 		if (cartesianFlag)
 		{
@@ -424,12 +441,14 @@ void drawParabolaNormalTangent(void)
 			x = (i/(float)segments)*distance;
 			float y1 = 2 * pow(cos(frog.r0.angle)*frog.r0.speed,2);
 			y = tan(frog.r0.angle) * x - (gravity*x*x)/y1;
-			dy = tan(frog.r0.angle) - (gravity*x)/(pow(cos(frog.r0.angle)*frog.r0.speed,2));
+			dy = tan(frog.r0.angle) -
+				(gravity*x)/(pow(cos(frog.r0.angle)*frog.r0.speed,2));
 			dx = 1;
 		}
 		else
 		{
-			float t = (i/(float)segments)*(2*(frog.r0.speed*sin(frog.r0.angle)))/(gravity);
+			float t = (i/(float)segments)*
+				(2*(frog.r0.speed*sin(frog.r0.angle)))/(gravity);
 			x = frog.r0.speed * t * cos(frog.r0.angle);
 			y = frog.r0.speed * t * sin(frog.r0.angle) - (gravity*t*t)/2;
 			dx = frog.r0.speed * cos(frog.r0.angle);
@@ -478,45 +497,54 @@ bool parabolaInsideWindow(void)
 	return false;
 }
 
-void updateFrog(float dt)
+void idle()
 {
-		float t = (2*(frog.r0.speed*sin(frog.r0.angle)))/(gravity);
-		if (dt > t)
-			dt = t;
-
-		frog.r.x = frog.r0.speed * dt * cos(frog.r0.angle) + frog.r0.x;
-		frog.r.y = frog.r0.speed * dt * sin(frog.r0.angle) - (gravity*dt*dt)/2 + frog.r0.y;
-
-		if (dt == t)
-		{
-			jumpingFlag = false;
-			frog.r0.x = frog.r.x;
-			frog.r0.y = frog.r.y;
-		}
+	if(!jumpingFlag)
+		return;
+	else
+		calcPosition();
 }
 
-void idle()
+void calcPosition(void)
 {
 	float t, dt;
 	static float tLast = 0.0;
 
-	if(!jumpingFlag)
-		return;
-
-	/* Get elapsed time and convert to s */
 	t = glutGet(GLUT_ELAPSED_TIME);
 	t /= 1000.0;
 
-	/* Calculate delta t */
 	dt = t - tLast;
 
-	/* Update velocity and position */
-	updateFrog(t-startTime);
-	printf("updateFrog: t=%f\tstartTime=%f\tx=%f\ty=%f\n", t, startTime, frog.r.x, frog.r.y);
+	if (analyticFlag)
+		calcPositionAnalytical(t-startTime);
 
-	/* Update tLast for next time, using static local variable */
+	printf("updateFrog: t=%f\tstartTime=%f\tx=%f\ty=%f\n",
+			t, startTime, frog.r.x, frog.r.y);
+
 	tLast = t;
 
-	/* Ask glut to schedule call to display function */
 	glutPostRedisplay();
+}
+
+void calcPositionAnalytical(float dt)
+{
+	float t = (2*(frog.r0.speed*sin(frog.r0.angle)))/(gravity);
+	if (dt > t)
+		dt = t;
+	float x = frog.r0.speed * dt * cos(frog.r0.angle);
+	frog.r.x = frog.r0.x + x;
+
+	if (cartesianFlag)
+		frog.r.y = frog.r0.y + tan(frog.r0.angle)*x-(gravity*x*x)/
+			(2 * pow(cos(frog.r0.angle)*frog.r0.speed,2));
+	else
+		frog.r.y = frog.r0.speed * dt * sin(frog.r0.angle) -
+			(gravity*dt*dt)/2 + frog.r0.y;
+
+	if (dt == t)
+	{
+		jumpingFlag = false;
+		frog.r0.x = frog.r.x;
+		frog.r0.y = frog.r.y;
+	}
 }
