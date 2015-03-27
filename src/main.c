@@ -26,6 +26,7 @@ void init(void);
 void display(void);
 void keyboard(unsigned char key, int x, int y);
 void specialKeys(int key, int x, int y);
+void idle(void);
 void drawAxes(void);
 void drawCircle(void);
 void drawParametricCircle(void);
@@ -52,8 +53,8 @@ typedef struct {
 } frogState;
 
 frogState frog = {
-	{ 0.5, 0.5, 1.0, M_PI/4 },
-	{ 0.5, 0.5, 1.0, M_PI/4 }
+	{ 0.0, 0.0, 1.0, M_PI/4 },
+	{ 0.0, 0.0, 1.0, M_PI/4 }
 };
 
 int colours[][3] = {
@@ -74,6 +75,7 @@ const float gravity = 9.8;
 //float angle = M_PI/4;
 
 int segments = 10;
+float startTime = 0;
 bool debug = true;
 bool cartesianFlag = true;
 bool tangentFlag = true;
@@ -84,7 +86,7 @@ int main(int argc, char **argv)
 {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
-	glutInitWindowSize(1000, 1000);
+	glutInitWindowSize(500, 500);
 	glutCreateWindow("Assignment 1");
 
 	init();
@@ -92,6 +94,7 @@ int main(int argc, char **argv)
 	glutDisplayFunc(display);
 	glutKeyboardFunc(keyboard);
 	glutSpecialFunc(specialKeys);
+	glutIdleFunc(idle);
 	glutMainLoop();
 
 	return EXIT_SUCCESS;
@@ -125,7 +128,11 @@ void keyboard(unsigned char key, int x, int y)
 	switch (key)
 	{
 		case ' ':
-			jumpingFlag = true;
+			if(jumpingFlag == false && parabolaInsideWindow())
+			{
+				jumpingFlag = true;
+				startTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0;
+			}
 			break;
 		case 'f':
 		case 'F':
@@ -351,8 +358,8 @@ void drawDirectionSpeedVector(void)
 {
 	glBegin(GL_LINES);
 	glColor3f(1, 0, 1);
-	glVertex3f(frog.r.x, frog.r.y, 0);
-	glVertex3f(frog.r0.speed*0.1*cos(frog.r0.angle)+frog.r.x, frog.r0.speed*0.1*sin(frog.r0.angle)+frog.r.y, 0);
+	glVertex3f(frog.r0.x, frog.r0.y, 0);
+	glVertex3f(frog.r0.speed*0.1*cos(frog.r0.angle)+frog.r0.x, frog.r0.speed*0.1*sin(frog.r0.angle)+frog.r0.y, 0);
 	glEnd();
 }
 
@@ -388,7 +395,7 @@ void drawParametricParabola()
 		float y = frog.r0.speed * t * sin(frog.r0.angle) - (gravity*t*t)/2;
 		if (debug)
 			printf("drawParametricParabola: d = %.5f\tx = %.5f\ty = %.5f\n", distance, x, y);
-		glVertex3f(frog.r.x + x, frog.r.y + y, 0.5);
+		glVertex3f(frog.r0.x + x, frog.r0.y + y, 0.5);
 
 	}
 	glEnd();
@@ -465,8 +472,51 @@ bool parabolaInsideWindow(void)
 	if(debug)
 		printf("calcReach:%f speed:%f angle:%f\n",
 				calcReach(), frog.r0.speed, frog.r0.angle*180/M_PI);
-	if ((calcReach() + frog.r.x < 1.0) && (calcReach() + frog.r.x  > -1.0))
+	if ((calcReach() + frog.r0.x < 1.0) && (calcReach() + frog.r0.x  > -1.0))
 		return true;
 
 	return false;
+}
+
+void updateFrog(float dt)
+{
+		float t = (2*(frog.r0.speed*sin(frog.r0.angle)))/(gravity);
+		if (dt > t)
+			dt = t;
+
+		frog.r.x = frog.r0.speed * dt * cos(frog.r0.angle) + frog.r0.x;
+		frog.r.y = frog.r0.speed * dt * sin(frog.r0.angle) - (gravity*dt*dt)/2 + frog.r0.y;
+
+		if (dt == t)
+		{
+			jumpingFlag = false;
+			frog.r0.x = frog.r.x;
+			frog.r0.y = frog.r.y;
+		}
+}
+
+void idle()
+{
+	float t, dt;
+	static float tLast = 0.0;
+
+	if(!jumpingFlag)
+		return;
+
+	/* Get elapsed time and convert to s */
+	t = glutGet(GLUT_ELAPSED_TIME);
+	t /= 1000.0;
+
+	/* Calculate delta t */
+	dt = t - tLast;
+
+	/* Update velocity and position */
+	updateFrog(t-startTime);
+	printf("updateFrog: t=%f\tstartTime=%f\tx=%f\ty=%f\n", t, startTime, frog.r.x, frog.r.y);
+
+	/* Update tLast for next time, using static local variable */
+	tLast = t;
+
+	/* Ask glut to schedule call to display function */
+	glutPostRedisplay();
 }
