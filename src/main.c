@@ -122,6 +122,8 @@ void display(void)
 	drawParabola();
 	drawParabolaNormalTangent();
 	glutSwapBuffers();
+	if (debug)
+		printf("\n\n");
 }
 
 void keyboard(unsigned char key, int x, int y)
@@ -138,11 +140,13 @@ void keyboard(unsigned char key, int x, int y)
 				startTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0;
 				frog.r.angle = frog.r0.angle;
 				frog.r.speed = frog.r0.speed;
+				glutPostRedisplay();
 			}
 			break;
 		case 'f':
 		case 'F':
 			cartesianFlag = !cartesianFlag;
+			glutPostRedisplay();
 			break;
 		case 'v':
 		case 'V':
@@ -151,10 +155,12 @@ void keyboard(unsigned char key, int x, int y)
 		case 't':
 		case 'T':
 			tangentFlag = !tangentFlag;
+			glutPostRedisplay();
 			break;
 		case 'n':
 		case 'N':
 			normalFlag = !normalFlag;
+			glutPostRedisplay();
 			break;
 		case 'a':
 		case 'A':
@@ -162,6 +168,7 @@ void keyboard(unsigned char key, int x, int y)
 				break;
 			frog.r0.angle = (frog.r0.angle < M_PI-M_PI/32) ?
 				frog.r0.angle+M_PI/32 : M_PI-M_PI/32;
+			glutPostRedisplay();
 			break;
 		case 'd':
 		case 'D':
@@ -169,18 +176,21 @@ void keyboard(unsigned char key, int x, int y)
 				break;
 			frog.r0.angle = (frog.r0.angle < M_PI/16) ?
 				M_PI/32 : frog.r0.angle-M_PI/32;
+			glutPostRedisplay();
 			break;
 		case 'w':
 		case 'W':
 			if (jumpingFlag)
 				break;
 			frog.r0.speed = (frog.r0.speed > 9.8) ? 10 : frog.r0.speed+0.2;
+			glutPostRedisplay();
 			break;
 		case 's':
 		case 'S':
 			if (jumpingFlag)
 				break;
 			frog.r0.speed = (frog.r0.speed < 1.2) ? 1 : frog.r0.speed-0.2;
+			glutPostRedisplay();
 			break;
 		case 'i':
 		case 'I':
@@ -191,11 +201,12 @@ void keyboard(unsigned char key, int x, int y)
 		case 27:
 		case 'q':
 		case 'Q':
+			if (debug)
+				printf("\n>>>>>EXIT<<<<<\n");
 			exit(EXIT_SUCCESS);
 		default:
 			break;
 	}
-	glutPostRedisplay();
 }
 
 void specialKeys(int key, int x, int y)
@@ -229,7 +240,7 @@ void drawAxes(void)
 	}
 
 	if (debug)
-		printf(">>>>>AXES DREW<<<<<\n\n");
+		printf(">>>>>AXES DREW<<<<<\n");
 }
 
 void drawCircle(void)
@@ -242,6 +253,8 @@ void drawCircle(void)
 
 void drawParametricCircle(void)
 {
+	if (debug)
+		printf(">>>>PARAMETRIC CIRCLE<<<<<\n");
 	glBegin(GL_LINE_LOOP);
 	glColor3f (0.8, 0.8, 0.8);
 	for (int i = 0; i < segments; i++)
@@ -254,8 +267,6 @@ void drawParametricCircle(void)
 	}
 	glEnd();
 
-	if (debug)
-		printf(">>>>PARAMETRIC CIRCLE DREW<<<<<\n\n");
 	if (tangentFlag)
 		drawCircleParametricTangents();
 	if (normalFlag)
@@ -300,6 +311,8 @@ void drawCircleParametricNormals(void)
 
 void drawCartesianCircle(void)
 {
+	if (debug)
+		printf(">>>>CARTESIAN CIRCLE<<<<<\n");
 	int halfSeg = segments/2;
 	glBegin(GL_LINE_LOOP);
 	glColor3f (0.8, 0.8, 0.8);
@@ -322,8 +335,6 @@ void drawCartesianCircle(void)
 	}
 	glEnd();
 
-	if (debug)
-		printf(">>>>CARTESIAN CIRCLE DREW<<<<<\n\n");
 	if (tangentFlag)
 		drawCircleCartesianTangents();
 	if (normalFlag)
@@ -400,7 +411,7 @@ void drawCartesianParabola()
 		float y = tan(frog.r0.angle) * x - (gravity*x*x)/y1;
 		if (debug)
 			printf("drawCartesianParabola: d = %.5f\tx = %.5f\ty = %.5f\n",
-					distance, x, y);
+					distance, x + frog.r0.x, y + frog.r0.y);
 		glVertex3f(frog.r0.x + x, frog.r0.y + y, 0.5);
 
 	}
@@ -420,7 +431,7 @@ void drawParametricParabola()
 		float y = frog.r0.speed * t * sin(frog.r0.angle) - (gravity*t*t)/2;
 		if (debug)
 			printf("drawParametricParabola: d = %.5f\tx = %.5f\ty = %.5f\n",
-					distance, x, y);
+					distance, x + frog.r0.x, y + frog.r0.y);
 		glVertex3f(frog.r0.x + x, frog.r0.y + y, 0.5);
 
 	}
@@ -428,6 +439,9 @@ void drawParametricParabola()
 }
 void drawParabola()
 {
+	if (debug)
+		printf(">>>>>PARABOLA<<<<<\ncalcReach:%f speed:%f angle:%f\n",
+				calcReach(), frog.r0.speed, frog.r0.angle*180/M_PI);
 	if (parabolaInsideWindow())
 		glColor3f(0, 0, 1);
 	else
@@ -497,9 +511,6 @@ float calcReach(void)
 
 bool parabolaInsideWindow(void)
 {
-	if(debug)
-		printf("calcReach:%f speed:%f angle:%f\n",
-				calcReach(), frog.r0.speed, frog.r0.angle*180/M_PI);
 	if ((calcReach() + frog.r0.x < 1.0) && (calcReach() + frog.r0.x  > -1.0))
 		return true;
 
@@ -525,11 +536,15 @@ void idle()
 	dt = t - tLast;
 
 	if (debug)
-		printf("Jump: t=%f\tstartTime=%f\tx=%f\ty=%f\n",
+		printf(">>>>>JUMP<<<<<\nt=%f\tstartTime=%f\tx=%f\ty=%f\n",
 				t, startTime, frog.r.x, frog.r.y);
 	calcPosition(t, dt);
-	tLast = t;
 
+	if (!jumpingFlag)
+		tLast = -1;
+	else
+		tLast = t;
+	
 	glutPostRedisplay();
 }
 
@@ -556,6 +571,9 @@ void calcPositionAnalytical(float t)
 		frog.r.y = frog.r0.speed * t * sin(frog.r0.angle) -
 			(gravity*t*t)/2 + frog.r0.y;
 
+	if (debug)
+		printf("Analytical Jump: angle %f, speed %f, x %f, y %f\n",
+				frog.r.angle*180/M_PI, frog.r.speed, frog.r.x, frog.r.y);
 	if (t == tEnd)
 	{
 		jumpingFlag = false;
@@ -577,12 +595,14 @@ void calcPositionNumerical(float dt)
 	if (speedX < 0)
 		frog.r.angle = frog.r.angle + M_PI;
 
+	if (debug)
+		printf("Numerical Jump: angle %f, speed %f, x %f, y %f\n",
+				frog.r.angle*180/M_PI, frog.r.speed, frog.r.x, frog.r.y);
 	if(frog.r.y < frog.r0.y)
 	{
-		frog.r.y = frog.r0.y;
 		jumpingFlag = false;
-		frog.r0.x = frog.r.x;
+		frog.r.y = frog.r0.y;
+		frog.r0.x+= calcReach();
+		frog.r.x = frog.r0.x;
 	}
-	if (debug)
-		printf("Jump: angle %f, speed %f\n", frog.r.angle, frog.r.speed);
 }
