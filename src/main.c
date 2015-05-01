@@ -38,8 +38,14 @@ void calcPosition(float t, float dt);
 void calcPositionAnalytical(float t);
 void calcPositionNumerical(float dt);
 
+void drawSphere(void);
+void reshape(int width, int height);
+void setProjectionMatrix (int width, int height);
+void mouseMove(int x, int y);
+void mouseClick(int button, int state, int x, int y);
+
 typedef struct{
-	float x, y;
+	float x, y, z;
 	float speed, angle;
 } projection;
 
@@ -48,8 +54,8 @@ typedef struct {
 } frogState;
 
 static frogState frog = {
-	{ 0.0, 0.0, 1.0, M_PI/4 },
-	{ 0.0, 0.0, 1.0, M_PI/4 }
+	{ 0.0, 0.0, 0.0, 2.0, M_PI/4 },
+	{ 0.0, 0.0, 0.0, 2.0, M_PI/4 }
 };
 
 static int colours[][3] = {
@@ -75,18 +81,29 @@ static bool tangentFlag = true;
 static bool normalFlag = true;
 static bool jumpingFlag = false;
 static bool analyticFlag = true;
+static bool leftClickFlag = true;
+static float wWidth = 500;
+static float wHeight = 500;
+static int oldX = 0;
+static int oldY = 0;
+static float rotateCamX = 0;
+static float rotateCamY = 0;
+static float camZoom = 1;
 
 int main(int argc, char **argv)
 {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
-	glutInitWindowSize(500, 500);
+	glutInitWindowSize(wWidth, wHeight);
 	glutCreateWindow("Assignment 1");
 
 	init();
 
 	glutDisplayFunc(display);
 	glutKeyboardFunc(keyboard);
+	glutReshapeFunc(reshape);
+	glutMouseFunc(mouseClick);
+	glutMotionFunc(mouseMove);
 	glutSpecialFunc(specialKeys);
 	glutIdleFunc(idle);
 	glutMainLoop();
@@ -99,18 +116,29 @@ void init(void)
 	glMatrixMode(GL_PROJECTION);
 	glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
 	glMatrixMode(GL_MODELVIEW);
+	glEnable(GL_DEPTH_TEST);
 }
 
 void display(void)
 {
+	float camX = frog.r.x + cos(75);
+	float camY = frog.r.y + cos(75);
+	float camZ = frog.r.z + cos(75);
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glEnable(GL_DEPTH_TEST);
+
+	setProjectionMatrix(wWidth, wHeight);
+	glLoadIdentity();
+	gluLookAt(camX, camY, camZ, frog.r.x, frog.r.y, frog.r.z, 0, 1, 0);
+	glTranslatef(frog.r.x, frog.r.y, frog.r.z);
+	glRotatef(rotateCamX, 1, 0, 0);
+	glRotatef(rotateCamY, 0, 1, 0);
 
 	drawAxes();
-	drawCircle();
 	drawDirectionSpeedVector();
 	drawParabola();
 	drawParabolaNormalTangent();
+	drawSphere();
 	glutSwapBuffers();
 	if (debug)
 		printf("\n\n");
@@ -147,39 +175,42 @@ void keyboard(unsigned char key, int x, int y)
 			break;
 		case 'a':
 		case 'A':
-			if (jumpingFlag)
-				break;
-			frog.r0.angle = (frog.r0.angle < M_PI-M_PI/32) ?
-				frog.r0.angle+M_PI/32 : M_PI-M_PI/32;
-			glutPostRedisplay();
+			if (!jumpingFlag)
+			{
+				frog.r0.angle = (frog.r0.angle < M_PI-M_PI/32) ?
+					frog.r0.angle+M_PI/32 : M_PI-M_PI/32;
+				glutPostRedisplay();
+			}
 			break;
 		case 'd':
 		case 'D':
-			if (jumpingFlag)
-				break;
-			frog.r0.angle = (frog.r0.angle < M_PI/16) ?
-				M_PI/32 : frog.r0.angle-M_PI/32;
-			glutPostRedisplay();
+			if (!jumpingFlag)
+			{
+				frog.r0.angle = (frog.r0.angle < M_PI/16) ?
+					M_PI/32 : frog.r0.angle-M_PI/32;
+				glutPostRedisplay();
+			}
 			break;
 		case 'w':
 		case 'W':
-			if (jumpingFlag)
-				break;
-			frog.r0.speed = (frog.r0.speed > 9.8) ? 10 : frog.r0.speed+0.2;
-			glutPostRedisplay();
+			if (!jumpingFlag)
+			{
+				frog.r0.speed = (frog.r0.speed > 9.8) ? 10 : frog.r0.speed+0.2;
+				glutPostRedisplay();
+			}
 			break;
 		case 's':
 		case 'S':
-			if (jumpingFlag)
-				break;
-			frog.r0.speed = (frog.r0.speed < 1.2) ? 1 : frog.r0.speed-0.2;
-			glutPostRedisplay();
+			if (!jumpingFlag)
+			{
+				frog.r0.speed = (frog.r0.speed < 1.2) ? 1 : frog.r0.speed-0.2;
+				glutPostRedisplay();
+			}
 			break;
 		case 'i':
 		case 'I':
-			if (jumpingFlag)
-				break;
-			analyticFlag = !analyticFlag;
+			if (!jumpingFlag)
+				analyticFlag = !analyticFlag;
 			break;
 		case 27:
 		case 'q':
@@ -221,6 +252,12 @@ void specialKeys(int key, int x, int y)
 		case GLUT_KEY_DOWN:
 			segments = (segments < 8) ? 4 : segments/2;
 			break;
+		case GLUT_KEY_LEFT:
+			//TODO rotate speed component around Y
+			break;
+		case GLUT_KEY_RIGHT:
+			//TODO rotate speed component around Y
+			break;
 		default:
 			break;
 	}
@@ -235,8 +272,9 @@ void drawAxes(void)
 	{
 		glBegin(GL_LINES);
 		glColor3f(colours[i][0], colours[i][1], colours[i][2]);
-		glVertex3f(0, 0, -1);
-		glVertex3f(axesPosition[i][0], axesPosition[i][1], axesPosition[i][2]);
+		glVertex3f(frog.r0.x, frog.r0.y, frog.r0.z);
+		glVertex3f(axesPosition[i][0]+frog.r0.x,
+				axesPosition[i][1]+frog.r0.y, axesPosition[i][2]+frog.r0.z);
 		glEnd();
 	}
 
@@ -264,10 +302,10 @@ void drawParametricCircle(void)
 		//x = r.cos(t)
 		//y = r.sin(t)
 		float t = (i / (float) segments) * 2 * M_PI;
-		glVertex3f(cRadius*cos(t)+frog.r.x, cRadius*sin(t)+frog.r.y, 0);
+		glVertex3f(cRadius*cos(t)+frog.r.x, cRadius*sin(t)+frog.r.y, frog.r.z);
 		if (debug)
 			printf("Circle vertex coordenates: (%f, %f), t = %f\n",
-			cRadius*cos(t)+frog.r.x, cRadius*sin(t)+frog.r.y, t);
+			cRadius*cos(t)+frog.r.x, cRadius*sin(t)+frog.r.y, t+frog.r.z);
 	}
 	glEnd();
 
@@ -291,9 +329,9 @@ void drawCircleParametricTangents(void)
 		float x = cRadius*cos(t);
 		float y = cRadius*sin(t);
 
-		glVertex3f(x + frog.r.x, y + frog.r.y, 0);
+		glVertex3f(x + frog.r.x, y + frog.r.y, frog.r.z);
 		float n = sqrt(y*y + x*x)*REDUCTION;
-		glVertex3f(-y/n+x + frog.r.x, x/n+y + frog.r.y, 0);
+		glVertex3f(-y/n+x + frog.r.x, x/n+y + frog.r.y, frog.r.z);
 
 		glEnd();
 	}
@@ -313,9 +351,9 @@ void drawCircleParametricNormals(void)
 		float x = cRadius*cos(t);
 		float y = cRadius*sin(t);
 
-		glVertex3f(x + frog.r.x, y + frog.r.y, 0);
+		glVertex3f(x + frog.r.x, y + frog.r.y, frog.r.z);
 		float n = sqrt(y*y + x*x)*REDUCTION;
-		glVertex3f(x + x/n + frog.r.x, y + y/n + frog.r.y, 0);
+		glVertex3f(x + x/n + frog.r.x, y + y/n + frog.r.y, frog.r.z);
 
 		glEnd();
 	}
@@ -337,7 +375,7 @@ void drawCartesianCircle(void)
 	{
 		//-sqrt(cRadius^2-x^2)
 		float x = (i / (float) halfSeg) * 2 * cRadius - cRadius;
-		glVertex3f(x+frog.r.x, -sqrt(cRadius*cRadius-x*x)+frog.r.y, 0);
+		glVertex3f(x+frog.r.x, -sqrt(cRadius*cRadius-x*x)+frog.r.y, frog.r.z);
 		if (debug)
 			printf("Circle vertex coordenates: (%f, %f)\n",
 					x + frog.r.x, -sqrt(cRadius*cRadius-x*x)+frog.r.y);
@@ -347,7 +385,7 @@ void drawCartesianCircle(void)
 	{
 		//+sqrt(cRadius^2-x^2)
 		float x = (i / (float) halfSeg) * 2 * cRadius - cRadius;
-		glVertex3f(x + frog.r.x, sqrt(cRadius*cRadius-x*x)+frog.r.y, 0);
+		glVertex3f(x + frog.r.x, sqrt(cRadius*cRadius-x*x)+frog.r.y, frog.r.z);
 		if (debug)
 			printf("Circle vertex coordenates: (%f, %f)\n",
 					x + frog.r.x, sqrt(cRadius*cRadius-x*x)+frog.r.y);
@@ -375,13 +413,13 @@ void drawCircleCartesianTangents(void)
 		float y1 = -sqrt(cRadius*cRadius-x*x);
 		float y2 = sqrt(cRadius*cRadius-x*x);
 
-		glVertex3f(x + frog.r.x, y1 + frog.r.y, 0);
+		glVertex3f(x + frog.r.x, y1 + frog.r.y, frog.r.z);
 		float n = sqrt(y1*y1 + x*x)*REDUCTION;
-		glVertex3f(x - y1/n + frog.r.x, y1 + x/n + frog.r.y, 0);
+		glVertex3f(x - y1/n + frog.r.x, y1 + x/n + frog.r.y, frog.r.z);
 
-		glVertex3f(x + frog.r.x, y2 + frog.r.y, 0);
+		glVertex3f(x + frog.r.x, y2 + frog.r.y, frog.r.z);
 		n = sqrt(y2*y2 + x*x)*REDUCTION;
-		glVertex3f(x - y2/n + frog.r.x, y2 + x/n + frog.r.y, 0);
+		glVertex3f(x - y2/n + frog.r.x, y2 + x/n + frog.r.y, frog.r.z);
 
 		glEnd();
 	}
@@ -401,13 +439,13 @@ void drawCircleCartesianNormals(void)
 		float y1 = -sqrt(cRadius*cRadius-x*x);
 		float y2 = sqrt(cRadius*cRadius-x*x);
 
-		glVertex3f(x + frog.r.x, y1 + frog.r.y, 0);
+		glVertex3f(x + frog.r.x, y1 + frog.r.y, frog.r.z);
 		float n = sqrt(y1*y1 + x*x)*REDUCTION;
-		glVertex3f(x + x/n + frog.r.x, y1 + y1/n + frog.r.y, 0);
+		glVertex3f(x + x/n + frog.r.x, y1 + y1/n + frog.r.y, frog.r.z);
 
-		glVertex3f(x + frog.r.x, y2 + frog.r.y, 0);
+		glVertex3f(x + frog.r.x, y2 + frog.r.y, frog.r.z);
 		n = sqrt(y2*y2 + x*x)*REDUCTION;
-		glVertex3f(x + x/n + frog.r.x, y2 + y2/n + frog.r.y, 0);
+		glVertex3f(x + x/n + frog.r.x, y2 + y2/n + frog.r.y, frog.r.z);
 
 		glEnd();
 	}
@@ -423,15 +461,15 @@ void drawDirectionSpeedVector(void)
 	glColor3f(1, 0, 1);
 	if (jumpingFlag)
 	{
-		glVertex3f(frog.r.x, frog.r.y, 0);
+		glVertex3f(frog.r.x, frog.r.y, frog.r.z);
 		glVertex3f(frog.r.speed*0.1*cos(frog.r.angle)+frog.r.x,
-				frog.r.speed*0.1*sin(frog.r.angle)+frog.r.y, 0);
+				frog.r.speed*0.1*sin(frog.r.angle)+frog.r.y, frog.r.z);
 	}
 	else
 	{
-		glVertex3f(frog.r0.x, frog.r0.y, 0);
+		glVertex3f(frog.r0.x, frog.r0.y, frog.r0.z);
 		glVertex3f(frog.r0.speed*0.1*cos(frog.r0.angle)+frog.r0.x,
-				frog.r0.speed*0.1*sin(frog.r0.angle)+frog.r0.y, 0);
+				frog.r0.speed*0.1*sin(frog.r0.angle)+frog.r0.y, frog.r0.z);
 	}
 	glEnd();
 }
@@ -451,8 +489,7 @@ void drawCartesianParabola(void)
 		if (debug)
 			printf("drawCartesianParabola: d = %.5f\tx = %.5f\ty = %.5f\n",
 					distance, x + frog.r0.x, y + frog.r0.y);
-		glVertex3f(frog.r0.x + x, frog.r0.y + y, 0.5);
-
+		glVertex3f(frog.r0.x + x, frog.r0.y + y, frog.r0.z);
 	}
 	glEnd();
 }
@@ -472,8 +509,7 @@ void drawParametricParabola(void)
 		if (debug)
 			printf("drawParametricParabola: d = %.5f\tx = %.5f\ty = %.5f\n",
 					distance, x + frog.r0.x, y + frog.r0.y);
-		glVertex3f(frog.r0.x + x, frog.r0.y + y, 0.5);
-
+		glVertex3f(frog.r0.x + x, frog.r0.y + y, frog.r0.z);
 	}
 	glEnd();
 }
@@ -526,13 +562,13 @@ void drawParabolaNormalTangent(void)
 			glBegin(GL_LINES);
 			glColor3f (0, 1, 1);
 
-			glVertex3f(frog.r0.x + x, frog.r0.y + y, 0);
+			glVertex3f(frog.r0.x + x, frog.r0.y + y, frog.r0.z);
 			n = sqrt(dx*dx + dy*dy)*REDUCTION;
 			/* Invert the result, due to the way it is drawn*/
 			if (cartesianFlag && x < 0)
-				glVertex3f(frog.r0.x - dx/n + x, frog.r0.y - dy/n + y, 0);
+				glVertex3f(frog.r0.x - dx/n + x, frog.r0.y - dy/n + y, frog.r0.z);
 			else
-				glVertex3f(frog.r0.x + dx/n + x, frog.r0.y + dy/n + y, 0);
+				glVertex3f(frog.r0.x + dx/n + x, frog.r0.y + dy/n + y, frog.r0.z);
 
 			glEnd();
 		}
@@ -542,13 +578,13 @@ void drawParabolaNormalTangent(void)
 			glBegin(GL_LINES);
 			glColor3f (1, 1, 0);
 
-			glVertex3f(frog.r0.x + x, frog.r0.y + y, 0);
+			glVertex3f(frog.r0.x + x, frog.r0.y + y, frog.r0.z);
 			n = sqrt(dx*dx + dy*dy)*REDUCTION;
 			/* Invert the result, due to the way it is drawn*/
 			if (!cartesianFlag && x < 0)
-				glVertex3f(frog.r0.x + dy/n + x, frog.r0.y - dx/n + y, 0);
+				glVertex3f(frog.r0.x + dy/n + x, frog.r0.y - dx/n + y, frog.r0.z);
 			else
-				glVertex3f(frog.r0.x - dy/n + x, frog.r0.y + dx/n + y, 0);
+				glVertex3f(frog.r0.x - dy/n + x, frog.r0.y + dx/n + y, frog.r0.z);
 
 			glEnd();
 		}
@@ -566,7 +602,7 @@ float calcReach(void)
 /* Using the calcReach, checks if will land inside the window */
 bool parabolaInsideWindow(void)
 {
-	if ((calcReach() + frog.r0.x < 1.0) && (calcReach() + frog.r0.x > -1.0))
+	if ((calcReach() + frog.r0.x < 1.0 + frog.r.x) && (calcReach() + frog.r0.x > -1.0 + frog.r.x))
 		return true;
 
 	return false;
@@ -592,8 +628,8 @@ void idle(void)
 	dt = t - tLast;
 
 	if (debug)
-		printf(">>>>>JUMP<<<<<\nt=%f\tstartTime=%f\tx=%f\ty=%f\n",
-				t, startTime, frog.r.x, frog.r.y);
+		printf(">>>>>JUMP<<<<<\nt=%f\tstartTime=%f\tx=%f\ty=%f\tz=%f\n",
+				t, startTime, frog.r.x, frog.r.y, frog.r.z);
 	calcPosition(t, dt);
 
 	if (!jumpingFlag)
@@ -672,3 +708,60 @@ void calcPositionNumerical(float dt)
 		frog.r.x = frog.r0.x;
 	}
 }
+
+void drawSphere(void)
+{
+	glColor3f (1, 1, 1);
+	if (debug)
+		printf(">>>>SPHERE<<<<<\n");
+	glTranslatef(frog.r.x, frog.r.y, 0);
+	glScalef(0.1f, 0.1f, 0.1f);
+	glutWireSphere(1, 10, 10);
+}
+
+void reshape(int width, int height)
+{
+	glViewport(frog.r.x, frog.r.y, width, height);
+	setProjectionMatrix(width, height);
+	glutPostRedisplay();
+	wWidth = width;
+	wHeight = height;
+}
+
+void setProjectionMatrix (int width, int height)
+{
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(75*camZoom, ((float) width / (float) height), 0.1, 100);
+	glMatrixMode(GL_MODELVIEW);
+}
+
+void mouseClick(int button, int state, int x, int y)
+{
+	UNUSED_VAR state;
+
+	oldX = x;
+	oldY = y;
+	if (button == GLUT_LEFT_BUTTON)
+		leftClickFlag = true;
+	else if (button == GLUT_RIGHT_BUTTON)
+		leftClickFlag = false;
+}
+
+void mouseMove(int x, int y)
+{
+	int diffX = oldX - x, diffY = oldY - y;
+
+	if (leftClickFlag)
+	{
+		rotateCamY+=diffX;
+		rotateCamX+=diffY;
+	}
+	else if ((camZoom-(diffY*0.1) > 0.4) && (camZoom-(diffY*0.1) < 1.6))
+		camZoom-=diffY*0.01;
+
+	oldX = x;
+	oldY = y;
+	glutPostRedisplay();
+}
+
