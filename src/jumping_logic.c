@@ -34,8 +34,10 @@ void jumpingSettings(void)
 	{
 		jumpingFlag = true;
 		startTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0;
-		frog.r.angle = frog.r0.angle;
-		frog.r.speed = frog.r0.speed;
+		frog.r.theta = frog.r0.theta;
+		frog.r.r = frog.r0.r;
+		frog.r.phi = frog.r0.phi;
+		updateCartesian(&frog.r);
 		glutPostRedisplay();
 	}
 }
@@ -74,21 +76,26 @@ int jumpingIdle(void)
 /* Function responsible for calculating how far the frog will go */
 float calcReach(void)
 {
-	return ((frog.r0.speed*frog.r0.speed) / GRAVITY) * sin(2*frog.r0.angle);
+	return ((frog.r0.r*frog.r0.r) / GRAVITY) * sin(2*frog.r0.theta);
+}
+
+/* Function responsible for calculating how far the frog will go */
+float calcTimeOfFlight(void)
+{
+	return (2*(frog.r0.r * cos(frog.r0.theta)))/(GRAVITY);
 }
 
 void calcPosition(float t, float dt)
 {
-	if (analyticFlag)
-		calcPositionAnalytical(t);
-	else
-		calcPositionNumerical(dt);
+	UNUSED_VAR t;
+
+	calcPositionNumerical(dt);
 }
 
 /* Using the calcReach, checks if will land inside the window */
 bool parabolaInsideWindow(void)
 {
-	if ((calcReach() + frog.r0.x < 1.0 + frog.r.x) && (calcReach() + frog.r0.x > -1.0 + frog.r.x))
+	if (calcReach() < 1.0)
 		return true;
 
 	return false;
@@ -97,6 +104,8 @@ bool parabolaInsideWindow(void)
 /****** LOCAL FUNCTIONS ******/
 void calcPositionAnalytical(float t)
 {
+	UNUSED_VAR t;
+#ifdef DISABLE_FUNCTION
 	float tEnd = (2*(frog.r0.speed*sin(frog.r0.angle)))/(GRAVITY);
 	/* If the t is greater than the projected landing tEnd, sets t as tEnd so
 	 * it lands exact on the right position, not going a bit further if the
@@ -129,30 +138,29 @@ void calcPositionAnalytical(float t)
 	frog.r.angle = atan(dy/dx);
 	if (dx < 0)
 		frog.r.angle+=M_PI;
+#endif
 }
 
 void calcPositionNumerical(float dt)
 {
-	float speedX = frog.r.speed * cos(frog.r.angle);
-	float speedY = frog.r.speed * sin(frog.r.angle);
-	frog.r.x += speedX * dt;
-	frog.r.y += speedY * dt;
+	frog.r.x += frog.r.dx * dt;
+	frog.r.y += frog.r.dy * dt;
+	frog.r.z += frog.r.dz * dt;
 
-	speedY += -GRAVITY * dt;
-	frog.r.speed = sqrt(speedX*speedX + speedY*speedY);
-	frog.r.angle = atan(speedY/speedX);
-	if (speedX < 0)
-		frog.r.angle+=M_PI;
+	frog.r.dy += -GRAVITY * dt;
+	updateSpherical(&frog.r);
 
 	if (getDebug())
-		printf("Numerical Jump: angle %f, speed %f, x %f, y %f\n",
-				frog.r.angle*180/M_PI, frog.r.speed, frog.r.x, frog.r.y);
+		printf("Numerical Jump: angle %f, speed %f, x %f, y %f, z %f\n",
+				frog.r.theta*180/M_PI, frog.r.r, frog.r.x, frog.r.y, frog.r.dz);
 	if (frog.r.y < frog.r0.y)
 	{
 		jumpingFlag = false;
-		frog.r.y = frog.r0.y;
-		frog.r0.x+= calcReach();
-		frog.r.x = frog.r0.x;
+		frog.r0.x += calcReach() * sin(frog.r0.phi);
+		frog.r0.z += calcReach() * cos(frog.r0.phi);
+		updateSpherical(&frog.r0);
+		frog.r = frog.r0;
+		glutPostRedisplay();
 	}
 }
 

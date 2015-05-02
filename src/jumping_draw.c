@@ -20,14 +20,14 @@ void drawDirectionSpeedVector(void)
 	if (getJumpingFlag())
 	{
 		glVertex3f(frog.r.x, frog.r.y, frog.r.z);
-		glVertex3f(frog.r.speed*0.1*cos(frog.r.angle)+frog.r.x,
-				frog.r.speed*0.1*sin(frog.r.angle)+frog.r.y, frog.r.z);
+		glVertex3f(frog.r.dx*0.1 + frog.r.x, frog.r.dy*0.1 + frog.r.y,
+				frog.r.dz*0.1 + frog.r.z);
 	}
 	else
 	{
 		glVertex3f(frog.r0.x, frog.r0.y, frog.r0.z);
-		glVertex3f(frog.r0.speed*0.1*cos(frog.r0.angle)+frog.r0.x,
-				frog.r0.speed*0.1*sin(frog.r0.angle)+frog.r0.y, frog.r0.z);
+		glVertex3f(frog.r0.dx*0.1 + frog.r0.x, frog.r0.dy*0.1 + frog.r0.y,
+				frog.r0.dz*0.1 + frog.r0.z);
 	}
 	glEnd();
 }
@@ -36,7 +36,7 @@ void drawParabola(void)
 {
 	if (getDebug())
 		printf(">>>>>PARABOLA<<<<<\ncalcReach:%f speed:%f angle:%f\n",
-				calcReach(), frog.r0.speed, frog.r0.angle*180/M_PI);
+				calcReach(), frog.r0.r, frog.r0.theta*180/M_PI);
 
 	/* Tha parabola change color to red when the frog will land outside */
 	if (parabolaInsideWindow())
@@ -44,53 +44,35 @@ void drawParabola(void)
 	else
 		glColor3f(1, 0, 0);
 
-	if (getCartesianFlag())
-		drawCartesianParabola();
-	else
-		drawParametricParabola();
+	drawParametricParabola();
 }
 
 void drawParabolaNormalTangent(void)
 {
-	float x, y, dx, dy, n;
+	float x, y, z, dx, dy, dz, n;
 	for (int i = 0; i <= getSegments(); i++)
 	{
-		if (getCartesianFlag())
-		{
-			float distance = calcReach();
-			x = (i/(float)getSegments())*distance;
-			float y1 = 2 * pow(cos(frog.r0.angle)*frog.r0.speed,2);
-			y = tan(frog.r0.angle) * x - (GRAVITY*x*x)/y1;
-			dy = tan(frog.r0.angle) -
-				(GRAVITY*x)/(pow(cos(frog.r0.angle)*frog.r0.speed,2));
-			dx = 1;
-		}
-		else
-		{
-			float t = (i/(float)getSegments())*
-				(2*(frog.r0.speed*sin(frog.r0.angle)))/(GRAVITY);
-			x = frog.r0.speed * t * cos(frog.r0.angle);
-			y = frog.r0.speed * t * sin(frog.r0.angle) - (GRAVITY*t*t)/2;
-			dx = frog.r0.speed * cos(frog.r0.angle);
-			dy = frog.r0.speed * sin(frog.r0.angle) - GRAVITY*t;
-		}
+		float t = (i/(float)getSegments()) * calcTimeOfFlight();
+		x = t * frog.r0.dx;
+		z = t * frog.r0.dz;
+		y = t * frog.r0.dy - (GRAVITY*t*t)/2;
+		dx = frog.r0.dx;
+		dz = frog.r0.dz;
+		dy = frog.r0.dy - (GRAVITY*t);
 
 		if (getTangentFlag())
 		{
 			glBegin(GL_LINES);
 			glColor3f (0, 1, 1);
 
-			glVertex3f(frog.r0.x + x, frog.r0.y + y, frog.r0.z);
-			n = sqrt(dx*dx + dy*dy)*REDUCTION;
-			/* Invert the result, due to the way it is drawn*/
-			if (getCartesianFlag() && x < 0)
-				glVertex3f(frog.r0.x - dx/n + x, frog.r0.y - dy/n + y, frog.r0.z);
-			else
-				glVertex3f(frog.r0.x + dx/n + x, frog.r0.y + dy/n + y, frog.r0.z);
+			glVertex3f(frog.r0.x + x, frog.r0.y + y, frog.r0.z + z);
+			n = sqrt(dx*dx + dy*dy + dz*dz)*REDUCTION;
+			glVertex3f(frog.r0.x + dx/n + x, frog.r0.y + dy/n + y, frog.r0.z + dz/n + z);
 
 			glEnd();
 		}
 
+#ifdef disabled_function
 		if (getNormalFlag())
 		{
 			glBegin(GL_LINES);
@@ -106,17 +88,19 @@ void drawParabolaNormalTangent(void)
 
 			glEnd();
 		}
+#endif
 	}
+
 }
 
 /****** LOCAL FUNCTIONS ******/
 void drawCartesianParabola(void)
 {
+#ifdef DISABLE_FUNCTION
 	//y = tan(θ) x - g * x^2 / (2 (v*cos(θ))^2)
 	glBegin(GL_LINE_STRIP);
 
-	float distance = ((frog.r0.speed*frog.r0.speed) / GRAVITY) *
-		sin(2*frog.r0.angle);
+	float distance = calcReach();
 	for (int i = 0; i <= getSegments(); i++)
 	{
 		float x = (i/(float)getSegments())*distance;
@@ -128,24 +112,27 @@ void drawCartesianParabola(void)
 		glVertex3f(frog.r0.x + x, frog.r0.y + y, frog.r0.z);
 	}
 	glEnd();
+#endif
 }
 
 void drawParametricParabola(void)
 {
-	//x = v t cos(θ)
-	//y = v t sin(θ) - 1/2 g t^2
+	//x = v t sin(θ) sin(ϕ)
+	//z = v t sin(θ) cos(ϕ)
+	//y = v t cos(θ) - 1/2 g t^2
 	glBegin(GL_LINE_STRIP);
 
-	float distance = (2*(frog.r0.speed*sin(frog.r0.angle)))/(GRAVITY);
+	float ToF = calcTimeOfFlight();
 	for (int i = 0; i <= getSegments(); i++)
 	{
-		float t = (i/(float)getSegments())*distance;
-		float x = frog.r0.speed * t * cos(frog.r0.angle);
-		float y = frog.r0.speed * t * sin(frog.r0.angle) - (GRAVITY*t*t)/2;
+		float t = (i/(float)getSegments())*ToF;
+		float x = t * frog.r0.dx;
+		float z = t * frog.r0.dz;
+		float y = t * frog.r0.dy - (GRAVITY*t*t)/2;
 		if (getDebug())
-			printf("drawParametricParabola: d = %.5f\tx = %.5f\ty = %.5f\n",
-					distance, x + frog.r0.x, y + frog.r0.y);
-		glVertex3f(frog.r0.x + x, frog.r0.y + y, frog.r0.z);
+			printf("drawParametricParabola: d = %.5f\tx = %.5f\ty = %.5f\tz = %.5f\n",
+					ToF, x + frog.r0.x, y + frog.r0.y, z + frog.r0.z);
+		glVertex3f(frog.r0.x + x, frog.r0.y + y, frog.r0.z + z);
 	}
 	glEnd();
 }

@@ -10,7 +10,7 @@ void drawSphere(void)
 	glColor3f (1, 1, 1);
 	if (getDebug())
 		printf(">>>>SPHERE<<<<<\n");
-	glTranslatef(frog.r.x, frog.r.y, 0);
+	glTranslatef(frog.r.x, frog.r.y, frog.r.z);
 	if (getWireFlag())
 		glutWireSphere(0.1, 10, 10);
 	else

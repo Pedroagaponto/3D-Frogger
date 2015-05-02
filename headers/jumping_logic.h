@@ -10,6 +10,7 @@ void switchAnalyticFlag(void);
 void jumpingSettings(void);
 int jumpingIdle(void);
 float calcReach(void);
+float calcTimeOfFlight(void);
 void calcPosition(float t, float dt);
 bool parabolaInsideWindow(void);
 

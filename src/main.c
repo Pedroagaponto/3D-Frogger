@@ -42,6 +42,8 @@ void init(void)
 	glMatrixMode(GL_MODELVIEW);
 	glEnable(GL_DEPTH_TEST);
 
+	updateCartesian(&frog.r);
+	updateCartesian(&frog.r0);
 	initGrid();
 }
 
@@ -73,7 +75,18 @@ void display(void)
 	drawSphere();
 	glutSwapBuffers();
 	if (getDebug())
+	{
+		printf("frog\tx\ty\tz\tr\ttheta\tphi\tdx\tdy\tdz\n"
+			   "r0:\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n"
+			   "r :\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n",
+			   frog.r0.x,  frog.r0.y,     frog.r0.z,
+			   frog.r0.r,  frog.r0.theta, frog.r0.phi,
+			   frog.r0.dx, frog.r0.dy,    frog.r0.dz,
+			   frog.r.x,   frog.r.y,      frog.r.z,
+			   frog.r.r,   frog.r.theta,  frog.r.phi,
+			   frog.r.dx,  frog.r.dy,     frog.r.dz);
 		printf("\n\n");
+	}
 }
 
 void idle(void)

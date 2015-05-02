@@ -14,8 +14,9 @@ static vertex vAxes[3] = {
 };
 
 frogState frog = {
-	{0.0, 0.0, 0.0, 2.0, M_PI/4},
-	{0.0, 0.0, 0.0, 2.0, M_PI/4}
+/*	{   x,   y,   z,   r,  theta,    phi,  dx,  dy,  dz}*/
+	{ 0.0, 0.0, 0.0, 2.0, M_PI/4, M_PI/2, 0.0, 0.0, 0.0},
+	{ 0.0, 0.0, 0.0, 2.0, M_PI/4, M_PI/2, 0.0, 0.0, 0.0}
 };
 
 static vertex vOrigin = {0, 0, 0};
@@ -155,6 +156,22 @@ void setCamZoom(float newCamZoom)
 {
 	camZoom = newCamZoom;
 }
+
+void updateCartesian(projection *p)
+{
+	p->dz = p->r * sin(p->theta) * cos(p->phi);
+	p->dx = p->r * sin(p->theta) * sin(p->phi);
+	p->dy = p->r * cos(p->theta);
+}
+
+void updateSpherical(projection *p)
+{
+	p->r = sqrt(p->dz*p->dz + p->dx*p->dx + p->dy*p->dy);
+	p->theta = acos(p->dy / p->r);
+	p->phi = atan2( p->dx, p->dz );
+	//p->phi += ( p->phi < 0 ) ? 2*M_PI : 0;
+}
+
 
 void switchDebug(void)
 {

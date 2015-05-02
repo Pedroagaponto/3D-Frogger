@@ -10,6 +10,20 @@
 #endif
 #define UNUSED_VAR (void)
 
+typedef struct{
+	float x, y, z;
+	float r, theta, phi;
+	float dx, dy, dz;
+} projection;
+
+typedef struct {
+	projection r0, r;
+} frogState;
+
+typedef struct {
+	float x, y, z;
+} vertex;
+
 void drawAxes(void);
 void initGrid(void);
 void drawGrid(void);
@@ -21,6 +35,8 @@ void setHeight(float newHeight);
 void setRotateCamX(float newRotateCamX);
 void setRotateCamY(float newRotateCamY);
 void setCamZoom(float newCamZoom);
+void updateCartesian(projection *p);
+void updateSpherical(projection *p);
 void switchDebug(void);
 void switchCartesianFlag(void);
 void switchTangentFlag(void);
@@ -37,19 +53,6 @@ bool getCartesianFlag(void);
 bool getTangentFlag(void);
 bool getNormalFlag(void);
 bool getWireFlag(void);
-
-typedef struct{
-	float x, y, z;
-	float speed, angle;
-} projection;
-
-typedef struct {
-	projection r0, r;
-} frogState;
-
-typedef struct {
-	float x, y, z;
-} vertex;
 
 extern frogState frog;
 

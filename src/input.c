@@ -45,21 +45,23 @@ void keyboard(unsigned char key, int x, int y)
 			switchNormalFlag();
 			glutPostRedisplay();
 			break;
-		case 'a':
-		case 'A':
-			if (!getJumpingFlag())
-			{
-				frog.r0.angle = (frog.r0.angle < M_PI-M_PI/32) ?
-					frog.r0.angle+M_PI/32 : M_PI-M_PI/32;
-				glutPostRedisplay();
-			}
-			break;
 		case 'd':
 		case 'D':
 			if (!getJumpingFlag())
 			{
-				frog.r0.angle = (frog.r0.angle < M_PI/16) ?
-					M_PI/32 : frog.r0.angle-M_PI/32;
+				frog.r0.theta = (frog.r0.theta > M_PI/2 - M_PI/16) ?
+					M_PI/2-M_PI/32 : frog.r0.theta+M_PI/32;
+				updateCartesian(&frog.r0);
+				glutPostRedisplay();
+			}
+			break;
+		case 'a':
+		case 'A':
+			if (!getJumpingFlag())
+			{
+				frog.r0.theta = (frog.r0.theta < M_PI/16) ?
+					M_PI/32 : frog.r0.theta-M_PI/32;
+				updateCartesian(&frog.r0);
 				glutPostRedisplay();
 			}
 			break;
@@ -67,7 +69,8 @@ void keyboard(unsigned char key, int x, int y)
 		case 'W':
 			if (!getJumpingFlag())
 			{
-				frog.r0.speed = (frog.r0.speed > 9.8) ? 10 : frog.r0.speed+0.2;
+				frog.r0.r = (frog.r0.r > 9.8) ? 10 : frog.r0.r+0.2;
+				updateCartesian(&frog.r0);
 				glutPostRedisplay();
 			}
 			break;
@@ -75,7 +78,8 @@ void keyboard(unsigned char key, int x, int y)
 		case 'S':
 			if (!getJumpingFlag())
 			{
-				frog.r0.speed = (frog.r0.speed < 1.2) ? 1 : frog.r0.speed-0.2;
+				frog.r0.r = (frog.r0.r < 1.2) ? 1 : frog.r0.r-0.2;
+				updateCartesian(&frog.r0);
 				glutPostRedisplay();
 			}
 			break;
@@ -109,10 +113,12 @@ void specialKeys(int key, int x, int y)
 			setSegments((getSegments() < 8) ? 4 : getSegments()/2);
 			break;
 		case GLUT_KEY_LEFT:
-			//TODO rotate speed component around Y
+			frog.r0.phi += M_PI/16;
+			updateCartesian(&frog.r0);
 			break;
 		case GLUT_KEY_RIGHT:
-			//TODO rotate speed component around Y
+			frog.r0.phi -= M_PI/16;
+			updateCartesian(&frog.r0);
 			break;
 		default:
 			break;
