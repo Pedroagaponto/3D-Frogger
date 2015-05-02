@@ -1,12 +1,13 @@
 CC = gcc
 
 SDIR = src
+IDIR = headers
 ODIR = obj
 
-_OBJ = main.o
+_OBJ = main.o core.o input.o jumping_logic.o jumping_draw.o sphere.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
-CFLAGS = -Wall -Wextra -pedantic -g -std=c99
+CFLAGS = -I$(IDIR) -Wall -Wextra -pedantic -g -std=c99
 LIBS = -lm -lGL -lGLU -lglut
 
 all: frogger
