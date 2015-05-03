@@ -11,7 +11,10 @@
 #define UNUSED_VAR (void)
 
 void drawAxes(void);
-void setProjectionMatrix();
+void initGrid(void);
+void drawGrid(void);
+void drawGridNormals(void);
+void setProjectionMatrix(void);
 void setSegments(int newSegments);
 void setWidth(float newWidth);
 void setHeight(float newHeight);
@@ -41,6 +44,10 @@ typedef struct{
 typedef struct {
 	projection r0, r;
 } frogState;
+
+typedef struct {
+	float x, y, z;
+} vertex;
 
 extern frogState frog;
 

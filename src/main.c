@@ -41,6 +41,8 @@ void init(void)
 	glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
 	glMatrixMode(GL_MODELVIEW);
 	glEnable(GL_DEPTH_TEST);
+
+	initGrid();
 }
 
 void display(void)
@@ -54,10 +56,13 @@ void display(void)
 	setProjectionMatrix();
 	glLoadIdentity();
 	gluLookAt(camX, camY, camZ, frog.r.x, frog.r.y, frog.r.z, 0, 1, 0);
+	glTranslatef(frog.r.x, frog.r.y, frog.r.z);
+	//glRotatef(getRotateCamY(), 0, 1, 0);
 	glRotatef(getRotateCamX(), 1, 0, 0);
-	glRotatef(getRotateCamY(), 0, 1, 0);
+	glTranslatef(-frog.r.x, -frog.r.y, -frog.r.z);
 
 	drawAxes();
+	drawGrid();
 	drawDirectionSpeedVector();
 	drawParabola();
 	drawParabolaNormalTangent();
@@ -76,7 +81,7 @@ void idle(void)
 void reshape(int width, int height)
 {
 	glViewport(frog.r.x, frog.r.y, width, height);
-	setProjectionMatrix(width, height);
+	setProjectionMatrix();
 	glutPostRedisplay();
 	setWidth(width);
 	setHeight(height);
