@@ -25,6 +25,7 @@ void switchDebug(void);
 void switchCartesianFlag(void);
 void switchTangentFlag(void);
 void switchNormalFlag(void);
+void switchWireFlag(void);
 int getSegments(void);
 float getWidth(void);
 float getHeight(void);
@@ -35,6 +36,7 @@ bool getDebug(void);
 bool getCartesianFlag(void);
 bool getTangentFlag(void);
 bool getNormalFlag(void);
+bool getWireFlag(void);
 
 typedef struct{
 	float x, y, z;

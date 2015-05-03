@@ -35,6 +35,7 @@ static bool debug = true;
 static bool cartesianFlag = true;
 static bool tangentFlag = true;
 static bool normalFlag = true;
+static bool wireFlag = true;
 
 void drawAxes(void)
 {
@@ -90,7 +91,6 @@ void initGrid(void)
 void drawGrid(void)
 {
 	glColor3f(0, 1, 0);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glBegin(GL_TRIANGLES);
 	for (int i = 0; i < GRID_WIDTH*GRID_HEIGHT*6; i++)
 	{
@@ -176,6 +176,11 @@ void switchNormalFlag(void)
 	normalFlag = !normalFlag;
 }
 
+void switchWireFlag(void)
+{
+	wireFlag = !wireFlag;
+}
+
 int getSegments(void)
 {
 	return segments;
@@ -226,3 +231,7 @@ bool getNormalFlag(void)
 	return normalFlag;
 }
 
+bool getWireFlag(void)
+{
+	return wireFlag;
+}

@@ -52,6 +52,10 @@ void display(void)
 	float camZ = frog.r.z + cos(75);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	if (getWireFlag())
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	else
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	setProjectionMatrix();
 	glLoadIdentity();

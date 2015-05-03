@@ -11,6 +11,9 @@ void drawSphere(void)
 	if (getDebug())
 		printf(">>>>SPHERE<<<<<\n");
 	glTranslatef(frog.r.x, frog.r.y, 0);
-	glutWireSphere(0.1, 10, 10);
+	if (getWireFlag())
+		glutWireSphere(0.1, 10, 10);
+	else
+		glutSolidSphere(0.1, 10, 10);
 }
 

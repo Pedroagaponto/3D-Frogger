@@ -35,6 +35,11 @@ void keyboard(unsigned char key, int x, int y)
 			switchTangentFlag();
 			glutPostRedisplay();
 			break;
+		case 'p':
+		case 'P':
+			switchWireFlag();
+			glutPostRedisplay();
+			break;
 		case 'n':
 		case 'N':
 			switchNormalFlag();
