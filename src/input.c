@@ -147,8 +147,8 @@ void mouseMove(int x, int y)
 		setRotateCamY(getRotateCamY() + diffX);
 		setRotateCamX(getRotateCamX() + diffY);
 	}
-	else if ((getCamZoom()-(diffY*0.1) > 0) &&
-			(getCamZoom()-(diffY*0.1) < 2))
+	else if ((getCamZoom()-(diffY*0.1) > 0.5) &&
+			(getCamZoom()-(diffY*0.1) < 6))
 		setCamZoom(getCamZoom()-diffY*0.01);
 
 	oldX = x;

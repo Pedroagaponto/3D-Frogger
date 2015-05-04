@@ -28,8 +28,8 @@ static int segments = 10;
 
 static float width = 500;
 static float height = 500;
-static float rotateCamX = 0;
-static float rotateCamY = 0;
+static float rotateCamX = 45;
+static float rotateCamY = 45;
 static float camZoom = 1;
 
 static bool debug = true;
@@ -144,7 +144,8 @@ void setHeight(float newHeight)
 
 void setRotateCamX(float newRotateCamX)
 {
-	rotateCamX = newRotateCamX;
+	rotateCamX = (newRotateCamX > 0 && newRotateCamX < 180)
+		         ? newRotateCamX : rotateCamX;
 }
 
 void setRotateCamY(float newRotateCamY)
