@@ -7,9 +7,13 @@
 
 #define GRID_WIDTH 100
 #define GRID_HEIGHT 100
-#define SLICES 8
-#define STACKS 8
-#define RADIUS 0.1
+#define S_SLICES 8
+#define S_STACKS 8
+#define S_RADIUS 0.1
+#define C_SLICES 4
+#define C_STACKS 2
+#define C_RADIUS  0.70710678
+#define C_HEIGHT 1
 
 static vertex vAxes[3] = {
 	{1, 0, 0},
@@ -20,9 +24,11 @@ static vertex vAxes[3] = {
 static vertex vOrigin = {0, 0, 0};
 static vertex *vGrid = NULL;
 static vertex *vSphere = NULL;
+static vertex *vCylinder = NULL;
 
 static int *iGrid = NULL;
 static int *iSphere = NULL;
+static int *iCylinder = NULL;
 
 void drawAxes(float scale)
 {
@@ -84,7 +90,7 @@ void drawGrid(void)
 	glBegin(GL_TRIANGLES);
 	for (int i = 0; i < GRID_WIDTH*GRID_HEIGHT*6; i++)
 	{
-		glNormal3fv((float *) &vGrid[i]);
+		glNormal3fv((float *) &vGrid[iGrid[i]]);
 		glVertex3fv((float *) &vGrid[iGrid[i]]);
 	}
 	glEnd();
@@ -112,8 +118,8 @@ void drawGridNormals(void)
 
 void initSphere(void)
 {
-	vSphere = (vertex *) calloc(SLICES*(STACKS+2), sizeof(vertex));
-	iSphere = (int *) calloc(SLICES*(STACKS+2)*6, sizeof(int));
+	vSphere = (vertex *) calloc(S_SLICES*(S_STACKS+2), sizeof(vertex));
+	iSphere = (int *) calloc(S_SLICES*(S_STACKS+2)*6, sizeof(int));
 	if (!vSphere || !iSphere)
 	{
 		if (getDebug())
@@ -125,24 +131,24 @@ void initSphere(void)
 	int iCount = 0;
 	vertex *vAux = vSphere;
 
-	for (int j = 0; j <= (STACKS+1); j++) {
-		phi = j / (float)STACKS * M_PI;
-		for (int i = 0; i < SLICES; i++) {
-			theta = i / (float)SLICES * 2.0 * M_PI;
-			vAux->x = RADIUS * sinf(phi) * cosf(theta);
-			vAux->y = RADIUS * sinf(phi) * sinf(theta);
-			vAux->z = RADIUS * cosf(phi);
+	for (int j = 0; j <= (S_STACKS+1); j++) {
+		phi = j / (float)S_STACKS * M_PI;
+		for (int i = 0; i < S_SLICES; i++) {
+			theta = i / (float)S_SLICES * 2.0 * M_PI;
+			vAux->x = S_RADIUS * sinf(phi) * cosf(theta);
+			vAux->y = S_RADIUS * sinf(phi) * sinf(theta);
+			vAux->z = S_RADIUS * cosf(phi);
 			vAux++;
 
-			if (j == SLICES)
+			if (j == S_SLICES)
 				continue;
 
-			iSphere[iCount++] = (i*SLICES)+j;
-			iSphere[iCount++] = (i*SLICES)+j+1;
-			iSphere[iCount++] = ((i+1)*SLICES)+j;
-			iSphere[iCount++] = (i*SLICES)+j+1;
-			iSphere[iCount++] = ((i+1)*SLICES)+j;
-			iSphere[iCount++] = ((i+1)*SLICES)+j+1;
+			iSphere[iCount++] = (i*S_SLICES)+j;
+			iSphere[iCount++] = (i*S_SLICES)+j+1;
+			iSphere[iCount++] = ((i+1)*S_SLICES)+j;
+			iSphere[iCount++] = (i*S_SLICES)+j+1;
+			iSphere[iCount++] = ((i+1)*S_SLICES)+j;
+			iSphere[iCount++] = ((i+1)*S_SLICES)+j+1;
 		}
 	}
 }
@@ -152,7 +158,7 @@ void drawSphere(void)
 	glTranslatef(frog.r.x, frog.r.y, frog.r.z);
 	glColor3f(1, 1, 1);
 	glBegin(GL_TRIANGLES);
-	for (int i = 0; i < SLICES*(STACKS+2)*6; i++)
+	for (int i = 0; i < S_SLICES*(S_STACKS+2)*6; i++)
 	{
 		glNormal3fv((float *) &vSphere[iSphere[i]]);
 		glVertex3fv((float *) &vSphere[iSphere[i]]);
@@ -166,17 +172,89 @@ void drawSphere(void)
 	glTranslatef(-frog.r.x, -frog.r.y, -frog.r.z);
 
 	if (getDebug())
-		printf(">>>>SPHERE<<<<<\n");
+		printf(">>>>SPHERE DREW<<<<<\n");
 }
 
 void drawSphereNormals(void)
 {
 	glColor3f(1, 1, 0);
 	glBegin(GL_LINES);
-	for (int i = 0; i < SLICES*(STACKS+2); i++)
+	for (int i = 0; i < S_SLICES*(S_STACKS+2); i++)
 	{
 		glVertex3fv((float *) &vSphere[i]);
 		glVertex3f(vSphere[i].x*1.2, vSphere[i].y*1.2, vSphere[i].z*1.2);
 	}
 	glEnd();
 }
+
+void initCylinder(void)
+{
+	vCylinder = (vertex *) calloc(C_SLICES*2, sizeof(vertex));
+	int nIndex = C_SLICES*6+(C_SLICES-2)*2*3;
+	iCylinder = (int *) calloc(nIndex, sizeof(int));
+	if (!vCylinder || !iCylinder)
+	{
+		if (getDebug())
+			printf("ERROR: Out of memory\n");
+		exit(1);
+	}
+
+	float theta, height = 1;
+	int iCount = 0;
+
+	/* Get the vertex */
+	for (int j = 0; j < 2; j++)
+	{
+		for (int i = 0; i < C_SLICES; i++)
+		{
+			theta = i / (float)C_SLICES * 2.0 * M_PI;
+			vCylinder[j*C_SLICES + i].x = C_RADIUS * cosf(theta+M_PI/4);
+			vCylinder[j*C_SLICES + i].y = C_RADIUS * sinf(theta+M_PI/4);
+			vCylinder[j*C_SLICES + i].z = height * j - height/2;
+
+		}
+	}
+
+	/* Get the vertex index for body */
+	for (int i = 0; i < C_SLICES; i++)
+	{
+		iCylinder[iCount++] = i;
+		iCylinder[iCount++] = C_SLICES+i;
+		iCylinder[iCount++] = C_SLICES+(i+1)%C_SLICES;
+
+		iCylinder[iCount++] = i;
+		iCylinder[iCount++] = C_SLICES+(i+1)%C_SLICES;
+		iCylinder[iCount++] = (i+1)%C_SLICES;
+	}
+
+	/* Get the vertex index for top and bottom */
+	for (int j = 0; j < 2; j++)
+	{
+		for (int i = 1; i < C_SLICES - 1; i++)
+		{
+			iCylinder[iCount++] = j*C_SLICES + 0;
+			iCylinder[iCount++] = j*C_SLICES + i;
+			iCylinder[iCount++] = j*C_SLICES + i+1;
+		}
+	}
+
+
+}
+
+void drawCylinder(void)
+{
+	glColor3f(1, 0, 0);
+	glBegin(GL_TRIANGLES);
+	for (int i = 0; i < C_SLICES*6+(C_SLICES-2)*2*3; i++)
+	{
+		//glNormal3fv((float *) &vCylinder[iCylinder[i]]);
+		glVertex3fv((float *) &vCylinder[iCylinder[i]]);
+	}
+	glEnd();
+
+	drawAxes(1);
+
+	if (getDebug())
+		printf(">>>>CYLINDER DREW<<<<<\n");
+}
+

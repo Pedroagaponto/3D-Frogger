@@ -46,8 +46,10 @@ void init(void)
 
 	updateCartesian(&frog.r);
 	updateCartesian(&frog.r0);
+
 	initGrid();
 	initSphere();
+	initCylinder();
 }
 
 void display(void)
@@ -63,10 +65,11 @@ void display(void)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	drawGrid();
-	drawDirectionSpeedVector();
-	drawParabola();
-	drawParabolaNormalTangent();
-	drawSphere();
+	drawCylinder();
+	//drawDirectionSpeedVector();
+	//drawParabola();
+	//drawParabolaNormalTangent();
+	//drawSphere();
 	glutSwapBuffers();
 	if (getDebug())
 	{

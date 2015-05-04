@@ -8,6 +8,8 @@ void drawGridNormals(void);
 void drawSphere(void);
 void initSphere(void);
 void drawSphereNormals(void);
+void initCylinder(void);
+void drawCylinder(void);
 
 #endif
 
