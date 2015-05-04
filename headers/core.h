@@ -29,6 +29,7 @@ void initGrid(void);
 void drawGrid(void);
 void drawGridNormals(void);
 void setProjectionMatrix(void);
+void setupCamera(void);
 void setSegments(int newSegments);
 void setWidth(float newWidth);
 void setHeight(float newHeight);

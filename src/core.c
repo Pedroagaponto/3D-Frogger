@@ -123,8 +123,37 @@ void setProjectionMatrix(void)
 {
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(75*camZoom, (width / height), 0.1, 100);
+	gluPerspective(75, (width / height), 0.1, 100);
 	glMatrixMode(GL_MODELVIEW);
+}
+
+void setupCamera(void)
+{
+	float camX, camY, camZ;
+	float offsetYcamX, offsetYcamY, offsetYcamZ;
+	float upX, upY, upZ;
+	const float offset = 1.0;
+
+	camX = camZoom * sin(rotateCamX*M_PI/180) * sin(rotateCamY*M_PI/180);
+	camZ = camZoom * sin(rotateCamX*M_PI/180) * cos(rotateCamY*M_PI/180);
+	camY = camZoom * cos(rotateCamX*M_PI/180);
+
+	// Changing on the y to get a new up vector
+	offsetYcamX = camZoom * sin(rotateCamX*M_PI/180-offset) *
+		sin(rotateCamY*M_PI/180);
+	offsetYcamZ = camZoom * sin(rotateCamX*M_PI/180-offset) *
+		cos(rotateCamY*M_PI/180);
+	offsetYcamY = camZoom * cos(rotateCamX*M_PI/180-offset);
+
+	upX = offsetYcamX-camX;
+	upY = offsetYcamY-camY;
+	upZ = offsetYcamZ-camZ;
+
+
+	glLoadIdentity();
+	gluLookAt(frog.r.x + camX, frog.r.y + camY, frog.r.z + camZ,
+			  frog.r.x, frog.r.y, frog.r.z,
+			  upX, upY, upZ);
 }
 
 void setSegments(int newSegments)

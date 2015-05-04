@@ -47,48 +47,17 @@ void init(void)
 	initGrid();
 }
 
-void setupCamera(void)
-{
-	float camX, camY, camZ;
-	float offsetYcamX, offsetYcamY, offsetYcamZ;
-	float upX, upY, upZ;
-	const float offset = 1.0;
-
-	camX = getCamZoom() * sin(getRotateCamX()*M_PI/180) *
-		sin(getRotateCamY()*M_PI/180);
-	camZ = getCamZoom() * sin(getRotateCamX()*M_PI/180) *
-		cos(getRotateCamY()*M_PI/180);
-	camY = getCamZoom() * cos(getRotateCamX()*M_PI/180);
-
-	// Changing on the y to get a new up vector
-	offsetYcamX = getCamZoom() * sin(getRotateCamX()*M_PI/180-offset) *
-		sin(getRotateCamY()*M_PI/180);
-	offsetYcamZ = getCamZoom() * sin(getRotateCamX()*M_PI/180-offset) *
-		cos(getRotateCamY()*M_PI/180);
-	offsetYcamY = getCamZoom() * cos(getRotateCamX()*M_PI/180-offset);
-
-	upX = offsetYcamX-camX;
-	upY = offsetYcamY-camY;
-	upZ = offsetYcamZ-camZ;
-
-
-	glLoadIdentity();
-	gluLookAt(frog.r.x + camX, frog.r.y + camY, frog.r.z + camZ,
-			  frog.r.x, frog.r.y, frog.r.z,
-			  upX, upY, upZ);
-}
-
 void display(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	setProjectionMatrix();
 	setupCamera();
 
 	if (getWireFlag())
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	else
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
 
 	drawAxes();
 	drawGrid();
