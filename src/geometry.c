@@ -10,9 +10,9 @@
 #define S_SLICES 8
 #define S_STACKS 8
 #define S_RADIUS 0.1
-#define C_SLICES 8
+#define C_SLICES 4
 #define C_STACKS 2
-#define C_RADIUS 0.1
+#define C_RADIUS  0.70710678
 #define C_HEIGHT 1
 
 static vertex vAxes[3] = {
@@ -189,8 +189,9 @@ void drawSphereNormals(void)
 
 void initCylinder(void)
 {
-	vCylinder = (vertex *) calloc(C_SLICES*C_STACKS, sizeof(vertex));
-	iCylinder = (int *) calloc(C_SLICES*C_STACKS*6, sizeof(int));
+	vCylinder = (vertex *) calloc(C_SLICES*2, sizeof(vertex));
+	int nIndex = C_SLICES*6+(C_SLICES-2)*2*3;
+	iCylinder = (int *) calloc(nIndex, sizeof(int));
 	if (!vCylinder || !iCylinder)
 	{
 		if (getDebug())
@@ -198,36 +199,55 @@ void initCylinder(void)
 		exit(1);
 	}
 
-	float theta, height;
+	float theta, height = 1;
 	int iCount = 0;
-	vertex *vAux = vCylinder;
 
-	for (int j = 0; j < C_STACKS; j++) {
-		height = j/C_HEIGHT;
-		for (int i = 0; i < C_SLICES; i++) {
+	/* Get the vertex */
+	for (int j = 0; j < 2; j++)
+	{
+		for (int i = 0; i < C_SLICES; i++)
+		{
 			theta = i / (float)C_SLICES * 2.0 * M_PI;
-			vAux->x = C_RADIUS * cosf(theta);
-			vAux->y = C_RADIUS * sinf(theta);
-			vAux->z = height;
-			vAux++;
+			vCylinder[j*C_SLICES + i].x = C_RADIUS * cosf(theta+M_PI/4);
+			vCylinder[j*C_SLICES + i].y = C_RADIUS * sinf(theta+M_PI/4);
+			vCylinder[j*C_SLICES + i].z = height * j - height/2;
 
-			iCylinder[iCount++] = (i*C_SLICES)+j;
-			iCylinder[iCount++] = (i*C_SLICES)+j+1;
-			iCylinder[iCount++] = ((i+1)*C_SLICES)+j;
-			iCylinder[iCount++] = (i*C_SLICES)+j+1;
-			iCylinder[iCount++] = ((i+1)*C_SLICES)+j;
-			iCylinder[iCount++] = ((i+1)*C_SLICES)+j+1;
 		}
 	}
+
+	/* Get the vertex index for body */
+	for (int i = 0; i < C_SLICES; i++)
+	{
+		iCylinder[iCount++] = i;
+		iCylinder[iCount++] = C_SLICES+i;
+		iCylinder[iCount++] = C_SLICES+(i+1)%C_SLICES;
+
+		iCylinder[iCount++] = i;
+		iCylinder[iCount++] = C_SLICES+(i+1)%C_SLICES;
+		iCylinder[iCount++] = (i+1)%C_SLICES;
+	}
+
+	/* Get the vertex index for top and bottom */
+	for (int j = 0; j < 2; j++)
+	{
+		for (int i = 1; i < C_SLICES - 1; i++)
+		{
+			iCylinder[iCount++] = j*C_SLICES + 0;
+			iCylinder[iCount++] = j*C_SLICES + i;
+			iCylinder[iCount++] = j*C_SLICES + i+1;
+		}
+	}
+
+
 }
 
 void drawCylinder(void)
 {
 	glColor3f(1, 0, 0);
-	glBegin(GL_POINTS);
-	for (int i = 0; i < C_SLICES*C_STACKS*6; i++)
+	glBegin(GL_TRIANGLES);
+	for (int i = 0; i < C_SLICES*6+(C_SLICES-2)*2*3; i++)
 	{
-		glNormal3fv((float *) &vCylinder[iCylinder[i]]);
+		//glNormal3fv((float *) &vCylinder[iCylinder[i]]);
 		glVertex3fv((float *) &vCylinder[iCylinder[i]]);
 	}
 	glEnd();
