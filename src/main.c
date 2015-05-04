@@ -40,11 +40,14 @@ void init(void)
 	glMatrixMode(GL_PROJECTION);
 	glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
 	glMatrixMode(GL_MODELVIEW);
+
+	glEnable(GL_NORMALIZE);
 	glEnable(GL_DEPTH_TEST);
 
 	updateCartesian(&frog.r);
 	updateCartesian(&frog.r0);
 	initGrid();
+	initSphere();
 }
 
 void display(void)
