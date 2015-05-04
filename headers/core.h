@@ -24,10 +24,6 @@ typedef struct {
 	float x, y, z;
 } vertex;
 
-void drawAxes(void);
-void initGrid(void);
-void drawGrid(void);
-void drawGridNormals(void);
 void setProjectionMatrix(void);
 void setupCamera(void);
 void setSegments(int newSegments);
@@ -43,6 +39,7 @@ void switchCartesianFlag(void);
 void switchTangentFlag(void);
 void switchNormalFlag(void);
 void switchWireFlag(void);
+void switchAxesFlag(void);
 int getSegments(void);
 float getWidth(void);
 float getHeight(void);
@@ -54,6 +51,7 @@ bool getCartesianFlag(void);
 bool getTangentFlag(void);
 bool getNormalFlag(void);
 bool getWireFlag(void);
+bool getAxesFlag(void);
 
 extern frogState frog;
 

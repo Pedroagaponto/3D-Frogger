@@ -40,6 +40,11 @@ void keyboard(unsigned char key, int x, int y)
 			switchWireFlag();
 			glutPostRedisplay();
 			break;
+		case 'o':
+		case 'O':
+			switchAxesFlag();
+			glutPostRedisplay();
+			break;
 		case 'n':
 		case 'N':
 			switchNormalFlag();

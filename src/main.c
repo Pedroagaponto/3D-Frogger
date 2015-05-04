@@ -6,7 +6,7 @@
 #include "input.h"
 #include "jumping_logic.h"
 #include "jumping_draw.h"
-#include "sphere.h"
+#include "geometry.h"
 //#include "circle.h"
 
 void init(void);
@@ -62,7 +62,6 @@ void display(void)
 	else
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-	drawAxes();
 	drawGrid();
 	drawDirectionSpeedVector();
 	drawParabola();

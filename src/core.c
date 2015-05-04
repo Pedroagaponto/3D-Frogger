@@ -4,25 +4,11 @@
 
 #include "core.h"
 
-#define GRID_WIDTH 100
-#define GRID_HEIGHT 100
-
-static vertex vAxes[3] = {
-	{1, 0, 0},
-	{0, 1, 0},
-	{0, 0, 1}
-};
-
 frogState frog = {
 /*	{   x,   y,   z,   r,  theta,    phi,  dx,  dy,  dz}*/
 	{ 0.0, 0.0, 0.0, 2.0, M_PI/4, M_PI/2, 0.0, 0.0, 0.0},
 	{ 0.0, 0.0, 0.0, 2.0, M_PI/4, M_PI/2, 0.0, 0.0, 0.0}
 };
-
-static vertex vOrigin = {0, 0, 0};
-static vertex *vGrid = NULL;
-
-static int *iGrid = NULL;
 
 static int segments = 10;
 
@@ -37,87 +23,7 @@ static bool cartesianFlag = true;
 static bool tangentFlag = true;
 static bool normalFlag = true;
 static bool wireFlag = true;
-
-void drawAxes(void)
-{
-	glBegin(GL_LINES);
-	for (int i = 0; i < 3; i++)
-	{
-		glColor3fv((float*) &vAxes[i]);
-		glVertex3fv((float*) &vOrigin);
-		glVertex3fv((float*) &vAxes[i]);
-	}
-	glEnd();
-
-	if (debug)
-		printf(">>>>>AXES DREW<<<<<\n");
-}
-
-void initGrid(void)
-{
-	vGrid = (vertex *) calloc((GRID_WIDTH+1)*(GRID_HEIGHT+1), sizeof(vertex));
-	iGrid = (int *) calloc(GRID_WIDTH*GRID_HEIGHT*6, sizeof(int));
-	if (!vGrid || !iGrid)
-	{
-		if (debug)
-			printf("ERROR: Out of memory\n");
-		exit(1);
-	}
-
-	vertex *vAux = vGrid;
-	int iCount = 0;
-
-	for (int i = 0; i < 101; i++)
-	{
-		for (int j =  0; j < 101; j++)
-		{
-			vAux->x = i - 50;
-			vAux->y = 0;
-			vAux->z = j - 50;
-			vAux++;
-
-			if (i == 100 || j == 100)
-				continue;
-
-			iGrid[iCount++] = (i*101)+j;
-			iGrid[iCount++] = (i*101)+j+1;
-			iGrid[iCount++] = ((i+1)*101)+j;
-			iGrid[iCount++] = (i*101)+j+1;
-			iGrid[iCount++] = ((i+1)*101)+j;
-			iGrid[iCount++] = ((i+1)*101)+j+1;
-		}
-	}
-}
-
-void drawGrid(void)
-{
-	glColor3f(0, 1, 0);
-	glBegin(GL_TRIANGLES);
-	for (int i = 0; i < GRID_WIDTH*GRID_HEIGHT*6; i++)
-	{
-		glNormal3fv((float *) &vGrid[i]);
-		glVertex3fv((float *) &vGrid[iGrid[i]]);
-	}
-	glEnd();
-
-	if (normalFlag)
-		drawGridNormals();
-
-	if (getDebug())
-		printf(">>>>>GRID DREW<<<<<\n");
-}
-
-void drawGridNormals(void)
-{
-	glColor3f(1, 1, 0);
-	glBegin(GL_LINES);
-	for (int i = 0; i < (GRID_WIDTH+1)*(GRID_HEIGHT+1); i++)
-	{
-		glVertex3fv((float *) &vGrid[i]);
-		glVertex3f(vGrid[i].x, 0.3, vGrid[i].z);
-	}
-	glEnd();
-}
+static bool axesFlag = true;
 
 void setProjectionMatrix(void)
 {
@@ -228,6 +134,11 @@ void switchWireFlag(void)
 	wireFlag = !wireFlag;
 }
 
+void switchAxesFlag(void)
+{
+	axesFlag = !axesFlag;
+}
+
 int getSegments(void)
 {
 	return segments;
@@ -282,3 +193,9 @@ bool getWireFlag(void)
 {
 	return wireFlag;
 }
+
+bool getAxesFlag(void)
+{
+	return axesFlag;
+}
+
