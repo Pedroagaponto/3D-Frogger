@@ -43,6 +43,7 @@ void init(void)
 
 	glEnable(GL_NORMALIZE);
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_COLOR_MATERIAL);
 
 	updateCartesian(&frog.r);
 	updateCartesian(&frog.r0);
@@ -99,5 +100,19 @@ void reshape(int width, int height)
 	glutPostRedisplay();
 	setWidth(width);
 	setHeight(height);
+	float specular[] = {1, 1, 1, 1};
+	float shininess[] = {50};
+	float lPosition[] = {1, 1, 1, 0};
+	float ambient[] = {0, 0, 0, 1};
+	glClearColor(0, 0, 0, 0);
+	glShadeModel(GL_SMOOTH);
+
+	glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
+	glMaterialfv(GL_FRONT, GL_SHININESS, shininess);
+	glLightfv(GL_LIGHT0, GL_POSITION, lPosition);
+	glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);
+
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
 }
 

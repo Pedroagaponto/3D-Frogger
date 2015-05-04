@@ -5,9 +5,9 @@
 #include "core.h"
 
 frogState frog = {
-/*	{   x,   y,   z,   r,  theta,    phi,  dx,  dy,  dz}*/
-	{ 0.0, 0.0, 0.0, 2.0, M_PI/4, M_PI/2, 0.0, 0.0, 0.0},
-	{ 0.0, 0.0, 0.0, 2.0, M_PI/4, M_PI/2, 0.0, 0.0, 0.0}
+/*	{  x,   y,   z,   r,  theta,    phi,  dx,  dy,  dz}*/
+	{0.0, 0.0, 0.0, 2.0, M_PI/4, M_PI/2, 0.0, 0.0, 0.0},
+	{0.0, 0.0, 0.0, 2.0, M_PI/4, M_PI/2, 0.0, 0.0, 0.0}
 };
 
 static int segments = 10;
