@@ -35,7 +35,7 @@ void drawDirectionSpeedVector(void)
 void drawParabola(void)
 {
 	if (getDebug())
-		printf(">>>>>PARABOLA<<<<<\ncalcReach:%f speed:%f angle:%f\n",
+		printf(">>>>>PARABOLA DREW<<<<<\ncalcReach:%f speed:%f angle:%f\n",
 				calcReach(), frog.r0.r, frog.r0.theta*180/M_PI);
 
 	/* Tha parabola change color to red when the frog will land outside */
