@@ -150,10 +150,11 @@ void calcPositionAnalytical(float t)
 void calcPositionNumerical(float dt)
 {
 	frog.r.x += frog.r.dx * dt;
-	frog.r.y += frog.r.dy * dt;
 	frog.r.z += frog.r.dz * dt;
+	frog.r.y += frog.r.dy * dt + GRAVITY / 2 * dt*dt;
 
 	frog.r.dy += -GRAVITY * dt;
+
 	updateSpherical(&frog.r);
 
 	if (getDebug())
@@ -162,8 +163,10 @@ void calcPositionNumerical(float dt)
 	if (frog.r.y < frog.r0.y)
 	{
 		jumpingFlag = false;
-		frog.r0.x += calcReach() * sin(frog.r0.phi);
-		frog.r0.z += calcReach() * cos(frog.r0.phi);
+		//frog.r0.x += calcReach() * sin(frog.r0.phi);
+		//frog.r0.z += calcReach() * cos(frog.r0.phi);
+		frog.r0.x = frog.r.x;
+		frog.r0.z = frog.r.z;
 		updateSpherical(&frog.r0);
 		frog.r = frog.r0;
 		glutPostRedisplay();
