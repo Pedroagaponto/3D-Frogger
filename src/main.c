@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <time.h>
 
 #include <GL/glut.h>
 
@@ -7,6 +8,7 @@
 #include "jumping_logic.h"
 #include "jumping_draw.h"
 #include "geometry.h"
+#include "procedural.h"
 //#include "circle.h"
 
 void init(void);
@@ -21,6 +23,7 @@ int main(int argc, char **argv)
 	glutInitWindowSize(getWidth(), getHeight());
 	glutCreateWindow("Assignment 2");
 
+	srand(time(NULL));
 	init();
 
 	glutDisplayFunc(display);
@@ -49,7 +52,10 @@ void init(void)
 
 	initGrid();
 	initSphere();
+	initCube();
 	initCylinder();
+	initCars();
+	initLogs();
 }
 
 void display(void)
@@ -69,6 +75,9 @@ void display(void)
 	drawParabola();
 	drawParabolaNormalTangent();
 	drawSphere();
+	drawCars();
+	drawLogs();
+
 	glutSwapBuffers();
 	if (getDebug())
 	{

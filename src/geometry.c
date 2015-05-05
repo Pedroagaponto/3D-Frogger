@@ -5,17 +5,15 @@
 #include "geometry.h"
 #include "core.h"
 
-#define GRID_WIDTH 100
 #define GRID_HEIGHT 100
 #define S_SLICES 8
 #define S_STACKS 8
 #define S_RADIUS 0.1
 #define CYLINDER_SLICES 8
-#define CYLINDER_RADIUS 0.1
-#define CUBE_SLICES 2
+#define CUBE_SLICES 4
 #define CUBE_RADIUS sqrt(2)/2
 
-void initPrism(int slices, float radius, vertex **v, int **index);
+void initPrism(int height, int slices, float radius, vertex **v, int **index);
 void drawGeometry(int length, vertex *v, int *index, int n, float axesScale);
 
 static vertex vAxes[3] = {
@@ -67,24 +65,24 @@ void initGrid(void)
 	vertex *vAux = vGrid;
 	int iCount = 0;
 
-	for (int i = 0; i < 101; i++)
+	for (int i = 0; i <= GRID_WIDTH; i++)
 	{
-		for (int j =  0; j < 101; j++)
+		for (int j =  0; j <= GRID_HEIGHT; j++)
 		{
-			vAux->x = i - 50;
+			vAux->x = i - GRID_WIDTH/2;
 			vAux->y = 0;
-			vAux->z = j - 50;
+			vAux->z = j - GRID_HEIGHT/2;
 			vAux++;
 
-			if (i == 100 || j == 100)
+			if (i == GRID_WIDTH || j == GRID_HEIGHT)
 				continue;
 
-			iGrid[iCount++] = (i*101)+j;
-			iGrid[iCount++] = (i*101)+j+1;
-			iGrid[iCount++] = ((i+1)*101)+j;
-			iGrid[iCount++] = (i*101)+j+1;
-			iGrid[iCount++] = ((i+1)*101)+j;
-			iGrid[iCount++] = ((i+1)*101)+j+1;
+			iGrid[iCount++] = (i*(GRID_WIDTH+1))+j;
+			iGrid[iCount++] = (i*(GRID_WIDTH+1))+j+1;
+			iGrid[iCount++] = ((i+1)*(GRID_WIDTH+1))+j;
+			iGrid[iCount++] = (i*(GRID_WIDTH+1))+j+1;
+			iGrid[iCount++] = ((i+1)*(GRID_WIDTH+1))+j;
+			iGrid[iCount++] = ((i+1)*(GRID_WIDTH+1))+j+1;
 		}
 	}
 }
@@ -174,7 +172,8 @@ void drawSphereNormals(void)
 
 void initCylinder(void)
 {
-	initPrism(CYLINDER_SLICES, CYLINDER_RADIUS, &vCylinder, &iCylinder);
+	initPrism(CYLINDER_HEIGHT, CYLINDER_SLICES, CYLINDER_RADIUS,
+			&vCylinder, &iCylinder);
 }
 
 void drawCylinder(void)
@@ -186,21 +185,21 @@ void drawCylinder(void)
 		printf(">>>>>CYLINDER DREW<<<<<\n");
 }
 
-void initCybe(void)
+void initCube(void)
 {
-	initPrism(CUBE_SLICES, CUBE_RADIUS, &vCube, &iCube);
+	initPrism(CUBE_LENGTH, CUBE_SLICES, CUBE_RADIUS, &vCube, &iCube);
 }
 
 void drawCube(void)
 {
 	glColor3f(1, 0, 0);
-	float length = CYLINDER_SLICES*6+(CYLINDER_SLICES-2)*6;
+	float length = CUBE_SLICES*6+(CUBE_SLICES-2)*6;
 	drawGeometry(length, vCube, iCube, 3, 1);
 	if (getDebug())
 		printf(">>>>>CUBE DREW<<<<<\n");
 }
 
-void initPrism(int slices, float radius, vertex **v, int **index)
+void initPrism(int height, int slices, float radius, vertex **v, int **index)
 {
 	*v = (vertex *) calloc(slices*2, sizeof(vertex));
 	int nIndex = slices*6+(slices-2)*2*3;
@@ -212,7 +211,7 @@ void initPrism(int slices, float radius, vertex **v, int **index)
 		exit(1);
 	}
 
-	float theta, height = 1;
+	float theta;
 	int iCount = 0;
 
 	/* Get the vertex */
@@ -221,9 +220,9 @@ void initPrism(int slices, float radius, vertex **v, int **index)
 		for (int i = 0; i < slices; i++)
 		{
 			theta = i / (float)slices * 2.0 * M_PI;
-			(*v)[j*slices + i].x = radius * cosf(theta+M_PI/4);
+			(*v)[j*slices + i].z = radius * cosf(theta+M_PI/4);
 			(*v)[j*slices + i].y = radius * sinf(theta+M_PI/4);
-			(*v)[j*slices + i].z = height * j - height/2;
+			(*v)[j*slices + i].x = height * j - height/2;
 		}
 	}
 
