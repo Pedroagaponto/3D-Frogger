@@ -14,9 +14,9 @@ static int segments = 10;
 
 static float width = 500;
 static float height = 500;
-static float rotateCamX = 45;
-static float rotateCamY = 45;
-static float camZoom = 1;
+static float rotateCamTheta = 45;
+static float rotateCamPhi = 0;
+static float camZoom = 5;
 
 static bool debug = false;
 static bool pause = false;
@@ -43,16 +43,16 @@ void setupCamera(void)
 	float upX, upY, upZ;
 	const float offset = 1.0;
 
-	camX = camZoom * sin(rotateCamX*M_PI/180) * sin(rotateCamY*M_PI/180);
-	camZ = camZoom * sin(rotateCamX*M_PI/180) * cos(rotateCamY*M_PI/180);
-	camY = camZoom * cos(rotateCamX*M_PI/180);
+	camX = camZoom * sin(rotateCamTheta*M_PI/180) * sin(rotateCamPhi*M_PI/180);
+	camZ = camZoom * sin(rotateCamTheta*M_PI/180) * cos(rotateCamPhi*M_PI/180);
+	camY = camZoom * cos(rotateCamTheta*M_PI/180);
 
 	// Changing on the y to get a new up vector
-	offsetYcamX = camZoom * sin(rotateCamX*M_PI/180-offset) *
-		sin(rotateCamY*M_PI/180);
-	offsetYcamZ = camZoom * sin(rotateCamX*M_PI/180-offset) *
-		cos(rotateCamY*M_PI/180);
-	offsetYcamY = camZoom * cos(rotateCamX*M_PI/180-offset);
+	offsetYcamX = camZoom * sin(rotateCamTheta*M_PI/180-offset) *
+		sin(rotateCamPhi*M_PI/180);
+	offsetYcamZ = camZoom * sin(rotateCamTheta*M_PI/180-offset) *
+		cos(rotateCamPhi*M_PI/180);
+	offsetYcamY = camZoom * cos(rotateCamTheta*M_PI/180-offset);
 
 	upX = offsetYcamX-camX;
 	upY = offsetYcamY-camY;
@@ -80,15 +80,15 @@ void setHeight(float newHeight)
 	height = newHeight;
 }
 
-void setRotateCamX(float newRotateCamX)
+void setRotateCamTheta(float newRotateCamTheta)
 {
-	rotateCamX = (newRotateCamX > 0 && newRotateCamX < 180)
-		         ? newRotateCamX : rotateCamX;
+	rotateCamTheta = (newRotateCamTheta > 0 && newRotateCamTheta < 180)
+		         ? newRotateCamTheta : rotateCamTheta;
 }
 
-void setRotateCamY(float newRotateCamY)
+void setRotateCamPhi(float newRotateCamPhi)
 {
-	rotateCamY = newRotateCamY;
+	rotateCamPhi = newRotateCamPhi;
 }
 
 void setCamZoom(float newCamZoom)
@@ -171,14 +171,14 @@ float getHeight(void)
 	return height;
 }
 
-float getRotateCamX(void)
+float getRotateCamTheta(void)
 {
-	return rotateCamX;
+	return rotateCamTheta;
 }
 
-float getRotateCamY(void)
+float getRotateCamPhi(void)
 {
-	return rotateCamY;
+	return rotateCamPhi;
 }
 
 float getCamZoom(void)

@@ -154,8 +154,8 @@ void mouseMove(int x, int y)
 
 	if (leftClickFlag)
 	{
-		setRotateCamY(getRotateCamY() + diffX);
-		setRotateCamX(getRotateCamX() + diffY);
+		setRotateCamPhi(getRotateCamPhi() + diffX);
+		setRotateCamTheta(getRotateCamTheta() + diffY);
 	}
 	else if ((getCamZoom()-(diffY*0.1) > 0.5) &&
 			(getCamZoom()-(diffY*0.1) < 6))
