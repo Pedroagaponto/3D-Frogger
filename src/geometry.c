@@ -78,8 +78,8 @@ void initGrid(void)
 			iGrid[iCount++] = (i*(GRID_WIDTH+1))+j+1;
 			iGrid[iCount++] = ((i+1)*(GRID_WIDTH+1))+j;
 			iGrid[iCount++] = (i*(GRID_WIDTH+1))+j+1;
-			iGrid[iCount++] = ((i+1)*(GRID_WIDTH+1))+j;
 			iGrid[iCount++] = ((i+1)*(GRID_WIDTH+1))+j+1;
+			iGrid[iCount++] = ((i+1)*(GRID_WIDTH+1))+j;
 		}
 	}
 }
@@ -139,12 +139,13 @@ void initSphere(void)
 			if (j == S_SLICES)
 				continue;
 
-			iSphere[iCount++] = (i*S_SLICES)+j;
-			iSphere[iCount++] = (i*S_SLICES)+j+1;
-			iSphere[iCount++] = ((i+1)*S_SLICES)+j;
-			iSphere[iCount++] = (i*S_SLICES)+j+1;
-			iSphere[iCount++] = ((i+1)*S_SLICES)+j;
-			iSphere[iCount++] = ((i+1)*S_SLICES)+j+1;
+			iSphere[iCount++] = (j*S_SLICES)+i;
+			iSphere[iCount++] = ((j+1)*S_SLICES)+i;
+			iSphere[iCount++] = (j*S_SLICES)+(i+1)%S_SLICES;
+
+			iSphere[iCount++] = (j*S_SLICES)+(i+1)%S_SLICES;
+			iSphere[iCount++] = ((j+1)*S_SLICES)+i;
+			iSphere[iCount++] = ((j+1)*S_SLICES)+(i+1)%S_SLICES;
 		}
 	}
 }
