@@ -1,10 +1,10 @@
 #include <stdio.h>
-
 #include <GL/glut.h>
 
 #include "geometry.h"
-#include "core.h"
 
+#define REDUCE 0.1
+#define GRID_WIDTH 100
 #define GRID_HEIGHT 100
 #define S_SLICES 8
 #define S_STACKS 8
@@ -12,26 +12,31 @@
 #define CYLINDER_SLICES 8
 #define CUBE_SLICES 4
 #define CUBE_RADIUS sqrt(2)/2
+#define WHITE {1.0, 1.0, 1.0}
+#define RED   {1.0, 0.0, 0.0}
+#define GREEN {0.0, 1.0, 0.0}
+#define BLUE  {0.0, 0.0, 1.0}
+#define BLACK {0.0, 0.0, 0.0}
 
-void initPrism(int height, int slices, float radius, vertex **v, int **index);
-void drawGeometry(int length, vertex *v, int *index, int n, float axesScale);
+void initPrism(int slices, float radius, mesh *m);
+void drawGeometry(mesh m);
+vertex vertexAddReduce(vertex v1, vertex v2);
+vertex vertexAdd(vertex v1, vertex v2);
+vertex vertexSub(vertex v1, vertex v2);
+vertex vertexCrossProduct(vertex v1, vertex v2);
+void normalize(vertex *v);
+vertex calcSurfaceNormal(vertex v1, vertex v2, vertex v3);
+void initNormals(mesh *m);
+void drawNormal(mesh m);
+vertex average3(vertex v1, vertex v2, vertex v3);
 
-static vertex vAxes[3] = {
-	{1, 0, 0},
-	{0, 1, 0},
-	{0, 0, 1}
-};
+static vertex vAxes[3] = { RED, GREEN, BLUE };
 
 static vertex vOrigin = {0, 0, 0};
-static vertex *vGrid = NULL;
-static vertex *vSphere = NULL;
-static vertex *vCylinder = NULL;
-static vertex *vCube = NULL;
-
-static int *iGrid = NULL;
-static int *iSphere = NULL;
-static int *iCylinder = NULL;
-static int *iCube = NULL;
+static mesh cylinder = {NULL, 0, NULL, 0, NULL, 3, BLACK};
+static mesh cube     = {NULL, 0, NULL, 0, NULL, 3, RED};
+static mesh sphere   = {NULL, 0, NULL, 0, NULL, 1, WHITE};
+static mesh grid     = {NULL, 0, NULL, 0, NULL, 3, GREEN};
 
 void drawAxes(float scale)
 {
@@ -50,16 +55,18 @@ void drawAxes(float scale)
 
 void initGrid(void)
 {
-	vGrid = (vertex *) calloc((GRID_WIDTH+1)*(GRID_HEIGHT+1), sizeof(vertex));
-	iGrid = (int *) calloc(GRID_WIDTH*GRID_HEIGHT*6, sizeof(int));
-	if (!vGrid || !iGrid)
+	grid.sizevi = GRID_WIDTH*GRID_HEIGHT*6;
+	grid.v = (vertex *) calloc((GRID_WIDTH+1)*(GRID_HEIGHT+1), sizeof(vertex));
+	grid.vi = (int *) calloc(grid.sizevi, sizeof(int));
+	grid.ipn = 3;
+	if (!grid.v || !grid.vi)
 	{
 		if (getDebug())
 			printf("ERROR: Out of memory\n");
 		exit(1);
 	}
 
-	vertex *vAux = vGrid;
+	vertex *vAux = grid.v;
 	int iCount = 0;
 
 	for (int i = 0; i <= GRID_WIDTH; i++)
@@ -74,49 +81,33 @@ void initGrid(void)
 			if (i == GRID_WIDTH || j == GRID_HEIGHT)
 				continue;
 
-			iGrid[iCount++] = (i*(GRID_WIDTH+1))+j;
-			iGrid[iCount++] = (i*(GRID_WIDTH+1))+j+1;
-			iGrid[iCount++] = ((i+1)*(GRID_WIDTH+1))+j;
-			iGrid[iCount++] = (i*(GRID_WIDTH+1))+j+1;
-			iGrid[iCount++] = ((i+1)*(GRID_WIDTH+1))+j+1;
-			iGrid[iCount++] = ((i+1)*(GRID_WIDTH+1))+j;
+			grid.vi[iCount++] = (i*(GRID_WIDTH+1))+j;
+			grid.vi[iCount++] = (i*(GRID_WIDTH+1))+j+1;
+			grid.vi[iCount++] = ((i+1)*(GRID_WIDTH+1))+j;
+			grid.vi[iCount++] = (i*(GRID_WIDTH+1))+j+1;
+			grid.vi[iCount++] = ((i+1)*(GRID_WIDTH+1))+j+1;
+			grid.vi[iCount++] = ((i+1)*(GRID_WIDTH+1))+j;
 		}
 	}
+
+	initNormals(&grid);
 }
 
 void drawGrid(void)
 {
-	glColor3f(0, 1, 0);
-
-	glBegin(GL_TRIANGLES);
-	glNormal3f(0,1,0);
-	for (int i = 0; i < GRID_WIDTH*GRID_HEIGHT*6; i++)
-		glVertex3fv((float *) &vGrid[iGrid[i]]);
-	glEnd();
-
-	if (getNormalFlag())
-		drawGridNormals();
-	if (getDebug())
-		printf(">>>>>GRID DREW<<<<<\n");
-}
-
-void drawGridNormals(void)
-{
-	glColor3f(1, 1, 0);
-	glBegin(GL_LINES);
-	for (int i = 0; i < (GRID_WIDTH+1)*(GRID_HEIGHT+1); i++)
-	{
-		glVertex3fv((float *) &vGrid[i]);
-		glVertex3f(vGrid[i].x, 0.3, vGrid[i].z);
-	}
-	glEnd();
+	drawGeometry(grid);
+	drawAxes(50);
 }
 
 void initSphere(void)
 {
-	vSphere = (vertex *) calloc(S_SLICES*(S_STACKS+2), sizeof(vertex));
-	iSphere = (int *) calloc(S_SLICES*(S_STACKS+2)*6, sizeof(int));
-	if (!vSphere || !iSphere)
+	sphere.sizevi = S_SLICES*S_STACKS*6;
+	sphere.vi = (int *) calloc(sphere.sizevi, sizeof(int));
+	sphere.sizev = S_SLICES*(S_STACKS+1);
+	sphere.v = (vertex *) calloc(sphere.sizev, sizeof(vertex));
+	sphere.ipn = 1;
+	sphere.vn = (vertex *) calloc(sphere.sizev, sizeof(vertex));
+	if (!sphere.v || !sphere.vi)
 	{
 		if (getDebug())
 			printf("ERROR: Out of memory\n");
@@ -125,90 +116,85 @@ void initSphere(void)
 
 	float theta, phi;
 	int iCount = 0;
-	vertex *vAux = vSphere;
+	vertex *vAux = sphere.v;
 
-	for (int j = 0; j <= (S_STACKS+1); j++) {
-		phi = j / (float)S_STACKS * M_PI;
+	for (int j = 0; j < (S_STACKS+1); j++) {
+		theta = j / (float)S_STACKS * M_PI;
 		for (int i = 0; i < S_SLICES; i++) {
-			theta = i / (float)S_SLICES * 2.0 * M_PI;
-			vAux->x = S_RADIUS * sinf(phi) * cosf(theta);
-			vAux->y = S_RADIUS * sinf(phi) * sinf(theta);
-			vAux->z = S_RADIUS * cosf(phi);
+			phi = i / (float)S_SLICES * 2.0 * M_PI;
+			vAux->x = S_RADIUS * sinf(theta) * cosf(phi);
+			vAux->y = S_RADIUS * sinf(theta) * sinf(phi);
+			vAux->z = S_RADIUS * cosf(theta);
 			vAux++;
 
-			if (j == S_SLICES)
+			if (j == S_STACKS)
 				continue;
 
-			iSphere[iCount++] = (j*S_SLICES)+i;
-			iSphere[iCount++] = ((j+1)*S_SLICES)+i;
-			iSphere[iCount++] = (j*S_SLICES)+(i+1)%S_SLICES;
-
-			iSphere[iCount++] = (j*S_SLICES)+(i+1)%S_SLICES;
-			iSphere[iCount++] = ((j+1)*S_SLICES)+i;
-			iSphere[iCount++] = ((j+1)*S_SLICES)+(i+1)%S_SLICES;
+			if(j != 0)
+			{
+				sphere.vi[iCount++] = (j*S_SLICES)+i;
+				sphere.vi[iCount++] = ((j+1)*S_SLICES)+i;
+				sphere.vi[iCount++] = (j*S_SLICES)+(i+1)%S_SLICES;
+			}
+			if(j != S_STACKS - 1)
+			{
+				sphere.vi[iCount++] = (j*S_SLICES)+(i+1)%S_SLICES;
+				sphere.vi[iCount++] = ((j+1)*S_SLICES)+i;
+				sphere.vi[iCount++] = ((j+1)*S_SLICES)+(i+1)%S_SLICES;
+			}
 		}
+	}
+
+	for (int i = 0; i < sphere.sizev; i++)
+	{
+		sphere.vn[i] = sphere.v[i];
+		normalize(&sphere.vn[i]);
 	}
 }
 
 void drawSphere(void)
 {
-	glTranslatef(frog.r.x, frog.r.y, frog.r.z);
-	glColor3f(1, 1, 1);
-	drawGeometry(S_SLICES*(S_STACKS+2)*6, vSphere, iSphere, 1, 1);
-	if (getNormalFlag())
-		drawSphereNormals();
-	glTranslatef(-frog.r.x, -frog.r.y, -frog.r.z);
-}
-
-void drawSphereNormals(void)
-{
-	glColor3f(1, 1, 0);
-	glBegin(GL_LINES);
-	for (int i = 0; i < S_SLICES*(S_STACKS+2); i++)
-	{
-		glVertex3fv((float *) &vSphere[i]);
-		glVertex3f(vSphere[i].x*1.2, vSphere[i].y*1.2, vSphere[i].z*1.2);
-	}
-	glEnd();
+	drawGeometry(sphere);
+	drawAxes(1);
 }
 
 void initCylinder(void)
 {
-	initPrism(CYLINDER_HEIGHT, CYLINDER_SLICES, CYLINDER_RADIUS,
-			&vCylinder, &iCylinder);
+	initPrism(CYLINDER_SLICES, CYLINDER_RADIUS, &cylinder);
 }
 
 void drawCylinder(void)
 {
-	float length = CYLINDER_SLICES*6+(CYLINDER_SLICES-2)*6;
-	drawGeometry(length, vCylinder, iCylinder, 3, 1);
+	drawGeometry(cylinder);
+	drawAxes(1);
 }
 
 void initCube(void)
 {
-	initPrism(CUBE_LENGTH, CUBE_SLICES, CUBE_RADIUS, &vCube, &iCube);
+	initPrism(CUBE_SLICES, CUBE_RADIUS, &cube);
 }
 
 void drawCube(void)
 {
-	glColor3f(1, 0, 0);
-	float length = CUBE_SLICES*6+(CUBE_SLICES-2)*6;
-	drawGeometry(length, vCube, iCube, 3, 1);
+	drawGeometry(cube);
+	drawAxes(1);
 }
 
-void initPrism(int height, int slices, float radius, vertex **v, int **index)
+void initPrism(int slices, float radius, mesh *m)
 {
-	*v = (vertex *) calloc(slices*2, sizeof(vertex));
-	int nIndex = slices*6+(slices-2)*2*3;
-	*index = (int *) calloc(nIndex, sizeof(int));
-	if (!(*v) || !(*index))
+	m->sizev = slices*2;
+	m->v = (vertex *) calloc(m->sizev, sizeof(vertex));
+	m->sizevi = slices*6+(slices-2)*2*3;
+	m->vi = (int *) calloc(m->sizevi, sizeof(int));
+	m->ipn = 3;
+	if (!(m->v) || !(m->vi))
 	{
 		if (getDebug())
 			printf("ERROR: Out of memory\n");
 		exit(1);
 	}
 
-	float theta;
+	float theta, height = 1;
 	int iCount = 0;
 
 	/* Get the vertex */
@@ -217,47 +203,159 @@ void initPrism(int height, int slices, float radius, vertex **v, int **index)
 		for (int i = 0; i < slices; i++)
 		{
 			theta = i / (float)slices * 2.0 * M_PI;
-			(*v)[j*slices + i].z = radius * cosf(theta+M_PI/4);
-			(*v)[j*slices + i].y = radius * sinf(theta+M_PI/4);
-			(*v)[j*slices + i].x = height * j - height/2;
+			m->v[j*slices + i].x = radius * cosf(theta+M_PI/4);
+			m->v[j*slices + i].y = radius * sinf(theta+M_PI/4);
+			m->v[j*slices + i].z = height * j - height/2;
 		}
 	}
 
 	/* Get the vertex index for body */
 	for (int i = 0; i < slices; i++)
 	{
-		(*index)[iCount++] = i;
-		(*index)[iCount++] = slices+i;
-		(*index)[iCount++] = slices+(i+1)%slices;
+		m->vi[iCount++] = i;
+		m->vi[iCount++] = slices+(i+1)%slices;
+		m->vi[iCount++] = slices+i;
 
-		(*index)[iCount++] = i;
-		(*index)[iCount++] = slices+(i+1)%slices;
-		(*index)[iCount++] = (i+1)%slices;
+		m->vi[iCount++] = i;
+		m->vi[iCount++] = (i+1)%slices;
+		m->vi[iCount++] = slices+(i+1)%slices;
 	}
 
 	/* Get the vertex index for top and bottom */
-	for (int j = 0; j < 2; j++)
+	for (int i = 1; i < slices - 1; i++)
 	{
-		for (int i = 1; i < slices - 1; i++)
-		{
-			(*index)[iCount++] = j*slices + 0;
-			(*index)[iCount++] = j*slices + i;
-			(*index)[iCount++] = j*slices + i+1;
-		}
+		m->vi[iCount++] = 0;
+		m->vi[iCount++] = i+1;
+		m->vi[iCount++] = i;
 	}
+	for (int i = 1; i < slices - 1; i++)
+	{
+		m->vi[iCount++] = slices + 0;
+		m->vi[iCount++] = slices + i;
+		m->vi[iCount++] = slices + i+1;
+	}
+
+	initNormals(m);
 }
 
-void drawGeometry(int length, vertex *v, int *index, int n, float axesScale)
+/* Draw the triangles and set normals
+ * if ipn==1 there are normal for each vertex, and vn is organized as v
+ * if ipn==3 there are normal for each surface, and there is 1 vn to 3 v */
+void drawGeometry(mesh m)
 {
+	glColor3fv(m.color);
 	glBegin(GL_TRIANGLES);
-	for (int i = 0; i < length; i++)
+
+	for (int i = 0; i < m.sizevi; i++)
 	{
-		if (i % n == 0)
-			glNormal3fv((float *) &v[index[i]]);
-		glVertex3fv((float *) &v[index[i]]);
+		if (m.ipn == 1)
+			glNormal3fv((float *) &m.vn[m.vi[i]]);
+		else if (m.ipn == 3 && i % 3 == 0)
+			glNormal3fv((float *) &m.vn[i/3]);
+
+		glVertex3fv((float *) &m.v[m.vi[i]]);
 	}
 	glEnd();
 
-	drawAxes(axesScale);
+	if(getNormalFlag())
+		drawNormal(m);
+}
+
+/* Draw all normals using the mesh */
+void drawNormal(mesh m)
+{
+	glColor3f(1, 1, 0);
+	glBegin(GL_LINES);
+	if (m.ipn == 3)
+	{
+		for (int i = 0; i < m.sizevi/3; i++)
+		{
+			vertex ini = average3(m.v[m.vi[i*3]], m.v[m.vi[i*3+1]],
+									m.v[m.vi[i*3+2]]);
+			glVertex3fv((float *) &ini);
+			vertex end = vertexAddReduce(ini, m.vn[i]);
+			glVertex3fv((float *) &end);
+		}
+	}
+	else if (m.ipn == 1)
+	{
+		for (int i = 0; i < m.sizev; i++)
+		{
+			glVertex3fv((float *) &m.v[i]);
+			vertex end = vertexAddReduce(m.v[i], m.vn[i]);
+			glVertex3fv((float *) &end);
+		}
+	}
+	glEnd();
+}
+
+vertex vertexAddReduce(vertex v1, vertex v2)
+{
+	vertex v = {v1.x + v2.x * REDUCE,
+				v1.y + v2.y * REDUCE,
+				v1.z + v2.z * REDUCE};
+	return v;
+}
+
+vertex vertexAdd(vertex v1, vertex v2)
+{
+	vertex v = {v1.x + v2.x, v1.y + v2.y, v1.z + v2.z};
+	return v;
+}
+
+vertex vertexSub(vertex v1, vertex v2)
+{
+	vertex v = {v1.x - v2.x, v1.y - v2.y, v1.z - v2.z};
+	return v;
+}
+
+vertex vertexCrossProduct(vertex v1, vertex v2)
+{
+	vertex v = {v1.y * v2.z - v1.z * v2.y,
+				v1.z * v2.x - v1.x * v2.z,
+				v1.x * v2.y - v1.y * v2.x};
+	return v;
+}
+
+void normalize(vertex *v)
+{
+	float length = sqrt(v->x*v->x + v->y*v->y + v->z*v->z);
+	v->x /= length;
+	v->y /= length;
+	v->z /= length;
+}
+
+/* Calculate the normal using the cross product of the surface */
+vertex calcSurfaceNormal(vertex v1, vertex v2, vertex v3)
+{
+	vertex tmp1 = vertexSub(v2, v1);
+	vertex tmp2 = vertexSub(v3, v1);
+
+	vertex v = vertexCrossProduct(tmp1, tmp2);
+
+	normalize(&v);
+
+	return v;
+}
+
+/* Allocate m->vn,
+ * And fill it using calcSurfaceNormal for all triangle surfaces */
+void initNormals(mesh *m)
+{
+	m->vn = (vertex *) calloc(m->sizevi/3, sizeof(vertex));
+	for (int i = 0; i < m->sizevi/3; i++)
+	{
+		m->vn[i] = calcSurfaceNormal(m->v[m->vi[i*3]], m->v[m->vi[i*3+1]],
+									 m->v[m->vi[i*3+2]]);
+	}
+}
+
+vertex average3(vertex v1, vertex v2, vertex v3)
+{
+	vertex v = {(v1.x + v2.x + v3.x)/3,
+				(v1.y + v2.y + v3.y)/3,
+				(v1.z + v2.z + v3.z)/3};
+
+	return v;
 }
 

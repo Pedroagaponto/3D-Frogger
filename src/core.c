@@ -18,7 +18,7 @@ static float rotateCamX = 45;
 static float rotateCamY = 45;
 static float camZoom = 1;
 
-static bool debug = true;
+static bool debug = false;
 static bool pause = false;
 static bool cartesianFlag = true;
 static bool normalFlag = true;

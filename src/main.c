@@ -100,7 +100,7 @@ void display(void)
 	drawDirectionSpeedVector();
 	drawParabola();
 	drawParabolaNormalTangent();
-	drawSphere();
+	drawFrog();
 	drawCars();
 	drawLogs();
 

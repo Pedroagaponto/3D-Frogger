@@ -5,9 +5,17 @@
 #include "jumping_draw.h"
 #include "jumping_logic.h"
 #include "core.h"
+#include "geometry.h"
 
 void drawCartesianParabola(void);
 void drawParametricParabola(void);
+
+void drawFrog(void)
+{
+	glTranslatef(frog.r.x, frog.r.y, frog.r.z);
+	drawSphere();
+	glTranslatef(-frog.r.x, -frog.r.y, -frog.r.z);
+}
 
 /*
  * Draw the speed vector, the force it will be launched
