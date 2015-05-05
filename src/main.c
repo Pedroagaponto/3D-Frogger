@@ -9,7 +9,6 @@
 #include "jumping_draw.h"
 #include "geometry.h"
 #include "procedural.h"
-//#include "circle.h"
 
 void init(void);
 void display(void);
@@ -55,7 +54,6 @@ void initLight(void)
 
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
-
 }
 
 void init(void)
@@ -92,6 +90,11 @@ void display(void)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	else
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+	if (getLightFlag())
+		glEnable(GL_LIGHTING);
+	else
+		glDisable(GL_LIGHTING);
 
 	drawGrid();
 	drawDirectionSpeedVector();

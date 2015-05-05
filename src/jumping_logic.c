@@ -95,7 +95,7 @@ void calcPosition(float t, float dt)
 /* Using the calcReach, checks if will land inside the window */
 bool parabolaInsideWindow(void)
 {
-	if (calcReach() < 1.0)
+	if (calcReach() < 10.0)
 	{
 		float reachX = frog.r0.x + calcReach() * sin(frog.r0.phi);
 		float reachZ = frog.r0.z + calcReach() * cos(frog.r0.phi);
