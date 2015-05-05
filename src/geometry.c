@@ -90,7 +90,7 @@ void drawGrid(void)
 	glBegin(GL_TRIANGLES);
 	for (int i = 0; i < GRID_WIDTH*GRID_HEIGHT*6; i++)
 	{
-		glNormal3fv((float *) &vGrid[iGrid[i]]);
+		glNormal3f(0,1,0);
 		glVertex3fv((float *) &vGrid[iGrid[i]]);
 	}
 	glEnd();
