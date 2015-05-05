@@ -5,39 +5,47 @@ This code was implemented as part of COSC1186/1187 Interactive 3D Graphics and
 Animation course.
 
 Features:
-	-Draws a circle to represent a frog using both cartesian and parametric
-	equations
-	-Draws normal and tangent vectors for the circle
-	-Draws a vector representing the angle and speed of the circle (frog)
-	when it jumps.
-	-Draws a parabola representing the path of the circle (frog) when it jumps,
-	using both cartesian and parametric equations.
-	-Draws normal and tangent vectors for the parabola.
-	-Animates the circle (frog) to use projectile motion when the frog,
-	following the path of the parabola.
-	-Calculates the position of the circle (frog) both analytically,
-	and by integrating the acceleration/velocity.
-	-Draws x/y axes.
+	-Draws a sphere to represent a frog using parametric equations.
+	-Draws a parabola representing the 3D jump tragetory using parametric
+	equations.
+	-Controls the x and z direction of the frog(ie, rotation around the y axis).
+	-Controls the speed/rotation of the frog’s jump.
+	-Animates the frog using the numerical integration technique in three
+	dimensions.
+	-Uses a third person perspective camera, that follows the frog as it moves.
+	-Draws a simple world (a grid 100x100 on the xz plane).
+	-Draws moving cylinders to represent logs, and moving cubes to represent
+	cars.
+	-Draws normal vectors for all geometry being rendered and tangents for the
+	parabola.
+	-Applies lighting to all geometry.
+	-Adds keyboard controls for for toggling lighting/wifreframe mode.
 
 Extra features:
-	-Changes parabola color to red when it ends outside the window, showing
-	that the frog cannot land there.
-	-Allows to switch on/off the debug (verbose) mode during program execution
+	-Changes parabola color to red when the tragetory is too long, showing
+	that the frog cannot land more than 10 units far from the initial position.
+	-Changes parabola color to red when the tragetory is landing outside the
+	grid, showing that the frog cannot land if there is no "floor".
+	-Allows to switch on/off the debug (verbose) mode during program execution.
+	-Uses cubes and cylinders to draw a figure more like a real car than just a
+	cube.
 
 Controls:
-	-'v' or 'V': toggle verbose mode on/off
-	-‘w’ or 'W': increase speed
-	-’s’ or 'S': decrease speed
-	-‘a’ or 'A': increase angle
-	-‘d’ or 'D': decrease angle
-	-‘t’ or 'T': toggle tangent visualisation
-	-‘n’ or 'N': toggle normal visualisation
-	-‘f’ or 'F': toggle between cartesian/parametric equations
-	-‘i’ or 'I': toggle between analytical and numerical integration
+	-'v': toggle debug mode
+	-'o': toggle axes
+	-'n': toggle normals and the parabola tangent
+	-'p': toggle wireframe
+	-'l': toggle lightining.
+	-'w': increase speed
+	-'s': decrease speed
+	-'a': increase angle
+	-'d': decrease angle
+	-' ': jump
+	-left mouse: rotate camera
+	-left arrow: rotate frog left
+	-right mouse: zoom camera
+	-right arrow: rotate frog right
 	-'q' or 'Q' or ESC: exit program
-	-up arrow: double number of segments
-	-down arrow: halve number of segments
-	-spacebar: jump
 
 How to compile:
 	-In the project folder, use the command 'make'
@@ -46,5 +54,5 @@ How to use:
 	-In the project folder, use the command './frogger'
 
 Observation:
-	This project was versionated using Git. The git files are included in the
+	This project was made using Git. The git files are included in the
 	project folder.
