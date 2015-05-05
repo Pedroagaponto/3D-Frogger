@@ -151,7 +151,16 @@ void calcPositionNumerical(float dt)
 {
 	frog.r.x += frog.r.dx * dt;
 	frog.r.z += frog.r.dz * dt;
-	frog.r.y += frog.r.dy * dt + GRAVITY / 2 * dt*dt;
+	frog.r.y += frog.r.dy * dt;
+
+	if (getVerletFlag())
+	{
+		frog.r.y+=(GRAVITY / 2) * dt*dt;
+		if (getDebug())
+			printf("(Jump calculed using Velocity Verlet Integration)\n");
+	}
+	else if (getDebug())
+		printf("(Jump calculed using Euler Integration)\n");
 
 	frog.r.dy += -GRAVITY * dt;
 

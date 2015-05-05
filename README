@@ -30,6 +30,8 @@ Extra features:
 	-Uses cubes and cylinders to draw a figure more like a real car than just a
 	cube.
 	-Allows to switch on/off the cars/logs movement.
+	-Allows to switch the jumping calculation between Velocity Verlet
+	Integration (standart one) and Euler Integration.
 
 Controls:
 	-' ': jump
@@ -43,6 +45,7 @@ Controls:
 	-'a' or 'A': increase angle
 	-'d' or 'D': decrease angle
 	-'b' or 'B': pause/continue cars/logs movement
+	-'j' or 'J': switch the jumping integration mode
 	-left mouse: rotate camera
 	-left arrow: rotate frog left
 	-right mouse: zoom camera

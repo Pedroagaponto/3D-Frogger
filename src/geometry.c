@@ -46,9 +46,6 @@ void drawAxes(float scale)
 		glVertex3f(scale*vAxes[i].x, scale*vAxes[i].y, scale*vAxes[i].z);
 	}
 	glEnd();
-
-	if (getDebug())
-		printf(">>>>>AXES DREW<<<<<\n");
 }
 
 void initGrid(void)
@@ -159,8 +156,6 @@ void drawSphere(void)
 	drawGeometry(S_SLICES*(S_STACKS+2)*6, vSphere, iSphere, 1, 1);
 	if (getNormalFlag())
 		drawSphereNormals();
-	if (getDebug())
-		printf(">>>>SPHERE DREW<<<<<\n");
 	glTranslatef(-frog.r.x, -frog.r.y, -frog.r.z);
 }
 
@@ -186,8 +181,6 @@ void drawCylinder(void)
 {
 	float length = CYLINDER_SLICES*6+(CYLINDER_SLICES-2)*6;
 	drawGeometry(length, vCylinder, iCylinder, 3, 1);
-	if (getDebug())
-		printf(">>>>>CYLINDER DREW<<<<<\n");
 }
 
 void initCube(void)
@@ -200,8 +193,6 @@ void drawCube(void)
 	glColor3f(1, 0, 0);
 	float length = CUBE_SLICES*6+(CUBE_SLICES-2)*6;
 	drawGeometry(length, vCube, iCube, 3, 1);
-	if (getDebug())
-		printf(">>>>>CUBE DREW<<<<<\n");
 }
 
 void initPrism(int height, int slices, float radius, vertex **v, int **index)

@@ -19,13 +19,14 @@ static float rotateCamY = 45;
 static float camZoom = 1;
 
 static bool debug = true;
+static bool pause = false;
 static bool cartesianFlag = true;
 static bool normalFlag = true;
 static bool wireFlag = true;
 static bool axesFlag = true;
 static bool lightFlag = true;
 static bool textureFlag = true;
-static bool pause = false;
+static bool verletFlag = true;
 
 void setProjectionMatrix(void)
 {
@@ -110,10 +111,14 @@ void updateSpherical(projection *p)
 	//p->phi += ( p->phi < 0 ) ? 2*M_PI : 0;
 }
 
-
 void switchDebug(void)
 {
 	debug = !debug;
+}
+
+void switchPause(void)
+{
+	pause = !pause;
 }
 
 void switchCartesianFlag(void)
@@ -146,9 +151,9 @@ void switchTextureFlag(void)
 	textureFlag = !textureFlag;
 }
 
-void switchPause(void)
+void switchVerletFlag(void)
 {
-	pause = !pause;
+	verletFlag = !verletFlag;
 }
 
 int getSegments(void)
@@ -186,6 +191,11 @@ bool getDebug(void)
 	return debug;
 }
 
+bool getPause(void)
+{
+	return pause;
+}
+
 bool getCartesianFlag(void)
 {
 	return cartesianFlag;
@@ -216,8 +226,8 @@ bool getTextureFlag(void)
 	return textureFlag;
 }
 
-bool getPause(void)
+bool getVerletFlag(void)
 {
-	return pause;
+	return verletFlag;
 }
 

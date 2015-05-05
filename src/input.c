@@ -55,6 +55,11 @@ void keyboard(unsigned char key, int x, int y)
 			switchPause();
 			glutPostRedisplay();
 			break;
+		case 'j':
+		case 'J':
+			if (!getJumpingFlag())
+				switchVerletFlag();
+			break;
 		case 'd':
 		case 'D':
 			if (!getJumpingFlag())
