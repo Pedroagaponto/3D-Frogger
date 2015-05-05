@@ -60,7 +60,7 @@ void drawParabolaNormalTangent(void)
 		dz = frog.r0.dz;
 		dy = frog.r0.dy - (GRAVITY*t);
 
-		if (getTangentFlag())
+		if (getNormalFlag())
 		{
 			glBegin(GL_LINES);
 			glColor3f (0, 1, 1);

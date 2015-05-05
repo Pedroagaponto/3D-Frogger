@@ -20,10 +20,11 @@ static float camZoom = 1;
 
 static bool debug = true;
 static bool cartesianFlag = true;
-static bool tangentFlag = true;
 static bool normalFlag = true;
 static bool wireFlag = true;
 static bool axesFlag = true;
+static bool lightFlag = true;
+static bool textureFlag = true;
 
 void setProjectionMatrix(void)
 {
@@ -119,11 +120,6 @@ void switchCartesianFlag(void)
 	cartesianFlag = !cartesianFlag;
 }
 
-void switchTangentFlag(void)
-{
-	tangentFlag = !tangentFlag;
-}
-
 void switchNormalFlag(void)
 {
 	normalFlag = !normalFlag;
@@ -137,6 +133,16 @@ void switchWireFlag(void)
 void switchAxesFlag(void)
 {
 	axesFlag = !axesFlag;
+}
+
+void switchLightFlag(void)
+{
+	lightFlag = !lightFlag;
+}
+
+void switchTextureFlag(void)
+{
+	textureFlag = !textureFlag;
 }
 
 int getSegments(void)
@@ -179,11 +185,6 @@ bool getCartesianFlag(void)
 	return cartesianFlag;
 }
 
-bool getTangentFlag(void)
-{
-	return tangentFlag;
-}
-
 bool getNormalFlag(void)
 {
 	return normalFlag;
@@ -197,5 +198,15 @@ bool getWireFlag(void)
 bool getAxesFlag(void)
 {
 	return axesFlag;
+}
+
+bool getLightFlag(void)
+{
+	return lightFlag;
+}
+
+bool getTextureFlag(void)
+{
+	return textureFlag;
 }
 

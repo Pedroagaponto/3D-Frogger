@@ -21,18 +21,13 @@ void keyboard(unsigned char key, int x, int y)
 		case ' ':
 			jumpingSettings();
 			break;
-		case 'f':
-		case 'F':
-			switchCartesianFlag();
-			glutPostRedisplay();
-			break;
 		case 'v':
 		case 'V':
 			switchDebug();
 			break;
 		case 't':
 		case 'T':
-			switchTangentFlag();
+			switchTextureFlag();
 			glutPostRedisplay();
 			break;
 		case 'p':
@@ -48,6 +43,11 @@ void keyboard(unsigned char key, int x, int y)
 		case 'n':
 		case 'N':
 			switchNormalFlag();
+			glutPostRedisplay();
+			break;
+		case 'l':
+		case 'L':
+			switchLightFlag();
 			glutPostRedisplay();
 			break;
 		case 'd':
@@ -87,11 +87,6 @@ void keyboard(unsigned char key, int x, int y)
 				updateCartesian(&frog.r0);
 				glutPostRedisplay();
 			}
-			break;
-		case 'i':
-		case 'I':
-			if (!getJumpingFlag())
-				switchAnalyticFlag();
 			break;
 		case 27:
 		case 'q':

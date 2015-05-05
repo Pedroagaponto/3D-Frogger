@@ -36,10 +36,11 @@ void updateCartesian(projection *p);
 void updateSpherical(projection *p);
 void switchDebug(void);
 void switchCartesianFlag(void);
-void switchTangentFlag(void);
 void switchNormalFlag(void);
 void switchWireFlag(void);
 void switchAxesFlag(void);
+void switchLightFlag(void);
+void switchTextureFlag(void);
 int getSegments(void);
 float getWidth(void);
 float getHeight(void);
@@ -48,10 +49,11 @@ float getRotateCamY(void);
 float getCamZoom(void);
 bool getDebug(void);
 bool getCartesianFlag(void);
-bool getTangentFlag(void);
 bool getNormalFlag(void);
 bool getWireFlag(void);
 bool getAxesFlag(void);
+bool getLightFlag(void);
+bool getTextureFlag(void);
 
 extern frogState frog;
 
