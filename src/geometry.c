@@ -90,7 +90,13 @@ void initGrid(void)
 void drawGrid(void)
 {
 	glColor3f(0, 1, 0);
-	drawGeometry(GRID_WIDTH*GRID_HEIGHT*6, vGrid, iGrid, 1, 50);
+
+	glBegin(GL_TRIANGLES);
+	glNormal3f(0,1,0);
+	for (int i = 0; i < GRID_WIDTH*GRID_HEIGHT*6; i++)
+		glVertex3fv((float *) &vGrid[iGrid[i]]);
+	glEnd();
+
 	if (getNormalFlag())
 		drawGridNormals();
 	if (getDebug())
