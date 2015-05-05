@@ -15,6 +15,7 @@ void init(void);
 void display(void);
 void idle(void);
 void reshape(int width, int height);
+void initLight(void);
 
 int main(int argc, char **argv)
 {
@@ -38,6 +39,25 @@ int main(int argc, char **argv)
 	return EXIT_SUCCESS;
 }
 
+void initLight(void)
+{
+	float specular[] = {1, 1, 1, 1};
+	float shininess[] = {50};
+	float lPosition[] = {1, 1, 1, 0};
+	float ambient[] = {0, 0, 0, 1};
+	glClearColor(0, 0, 0, 0);
+	glShadeModel(GL_SMOOTH);
+
+	glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
+	glMaterialfv(GL_FRONT, GL_SHININESS, shininess);
+	glLightfv(GL_LIGHT0, GL_POSITION, lPosition);
+	glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);
+
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+
+}
+
 void init(void)
 {
 	glMatrixMode(GL_PROJECTION);
@@ -46,6 +66,7 @@ void init(void)
 
 	glEnable(GL_NORMALIZE);
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_COLOR_MATERIAL);
 
 	updateCartesian(&frog.r);
 	updateCartesian(&frog.r0);
@@ -56,14 +77,16 @@ void init(void)
 	initCylinder();
 	initCars();
 	initLogs();
+	initLight();
 }
 
 void display(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 	setProjectionMatrix();
 	setupCamera();
+	GLfloat lightpos[] = {1.0, 1.0, 1.0, 0.0};
+	glLightfv(GL_LIGHT0, GL_POSITION, lightpos);
 
 	if (getWireFlag())
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
