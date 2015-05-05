@@ -18,7 +18,7 @@
 #define BLUE  {0.0, 0.0, 1.0}
 #define BLACK {0.0, 0.0, 0.0}
 
-void initPrism(int slices, float radius, mesh *m);
+void initPrism(int slices, float radius, mesh *m, float height);
 void drawGeometry(mesh m);
 vertex vertexAddReduce(vertex v1, vertex v2);
 vertex vertexAdd(vertex v1, vertex v2);
@@ -160,18 +160,20 @@ void drawSphere(void)
 
 void initCylinder(void)
 {
-	initPrism(CYLINDER_SLICES, CYLINDER_RADIUS, &cylinder);
+	initPrism(CYLINDER_SLICES, CYLINDER_RADIUS, &cylinder, CYLINDER_HEIGHT);
 }
 
 void drawCylinder(void)
 {
+	glRotatef(90,0,1,0);
 	drawGeometry(cylinder);
+	glRotatef(-90,0,1,0);
 	drawAxes(1);
 }
 
 void initCube(void)
 {
-	initPrism(CUBE_SLICES, CUBE_RADIUS, &cube);
+	initPrism(CUBE_SLICES, CUBE_RADIUS, &cube, CUBE_LENGTH);
 }
 
 void drawCube(void)
@@ -180,7 +182,7 @@ void drawCube(void)
 	drawAxes(1);
 }
 
-void initPrism(int slices, float radius, mesh *m)
+void initPrism(int slices, float radius, mesh *m, float height)
 {
 	m->sizev = slices*2;
 	m->v = (vertex *) calloc(m->sizev, sizeof(vertex));
@@ -194,7 +196,7 @@ void initPrism(int slices, float radius, mesh *m)
 		exit(1);
 	}
 
-	float theta, height = 1;
+	float theta;
 	int iCount = 0;
 
 	/* Get the vertex */
