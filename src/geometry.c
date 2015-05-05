@@ -184,7 +184,6 @@ void initCylinder(void)
 
 void drawCylinder(void)
 {
-	glColor3f(1, 0, 0);
 	float length = CYLINDER_SLICES*6+(CYLINDER_SLICES-2)*6;
 	drawGeometry(length, vCylinder, iCylinder, 3, 1);
 	if (getDebug())

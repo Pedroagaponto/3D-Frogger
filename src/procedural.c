@@ -13,6 +13,8 @@
 #define V_LOGS 0.03
 
 vertex randVertex(vertex *array, vertex lenght, int zMin, int zMax, int index);
+void drawCarFront(float x);
+void drawWheels(void);
 
 vertex cars[20];
 vertex logs[20];
@@ -45,9 +47,13 @@ void drawCars(void)
 {
 	for (int i = 0; i < 20; i++)
 	{
+		glPushMatrix();
+		glColor3f(1, 0, 0);
 		glTranslatef(cars[i].x, cars[i].y, cars[i].z);
 		drawCube();
-		glTranslatef(-cars[i].x, -cars[i].y, -cars[i].z);
+		drawCarFront(CUBE_LENGTH);
+		drawWheels();
+		glPopMatrix();
 	}
 }
 
@@ -55,6 +61,7 @@ void drawLogs(void)
 {
 	for (int i = 0; i < 20; i++)
 	{
+		glColor3f(1, 0, 0);
 		glTranslatef(logs[i].x, logs[i].y, logs[i].z);
 		drawCylinder();
 		glTranslatef(-logs[i].x, -logs[i].y, -logs[i].z);
@@ -93,5 +100,27 @@ vertex randVertex(vertex *array, vertex length, int zMin, int zMax, int index)
 	}
 
 	return v;
+}
+
+void drawCarFront(float x)
+{
+	glPushMatrix();
+	glTranslatef(x, 0, 0);
+	glScalef(0.4, 0.4, 1);
+	glColor3f(1, 0, 0);
+	drawCube();
+	glPopMatrix();
+}
+
+void drawWheels(void)
+{
+	glScalef(0.3, 0.3, 0.4);
+	glRotatef(90, 0, 1, 0);
+	glTranslatef(-0.46, 0, 0.6);
+	glColor3f(0, 0, 0);
+	drawCylinder();
+	glTranslatef(0, 0, 3);
+	glColor3f(0, 0, 0);
+	drawCylinder();
 }
 
