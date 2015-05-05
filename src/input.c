@@ -50,6 +50,11 @@ void keyboard(unsigned char key, int x, int y)
 			switchLightFlag();
 			glutPostRedisplay();
 			break;
+		case 'b':
+		case 'B':
+			switchPause();
+			glutPostRedisplay();
+			break;
 		case 'd':
 		case 'D':
 			if (!getJumpingFlag())

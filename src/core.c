@@ -25,6 +25,7 @@ static bool wireFlag = true;
 static bool axesFlag = true;
 static bool lightFlag = true;
 static bool textureFlag = true;
+static bool pause = false;
 
 void setProjectionMatrix(void)
 {
@@ -145,6 +146,11 @@ void switchTextureFlag(void)
 	textureFlag = !textureFlag;
 }
 
+void switchPause(void)
+{
+	pause = !pause;
+}
+
 int getSegments(void)
 {
 	return segments;
@@ -208,5 +214,10 @@ bool getLightFlag(void)
 bool getTextureFlag(void)
 {
 	return textureFlag;
+}
+
+bool getPause(void)
+{
+	return pause;
 }
 

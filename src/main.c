@@ -122,10 +122,15 @@ void display(void)
 
 void idle(void)
 {
-	jumpingIdle();
-	updateCars();
-	updateLogs();
-	glutPostRedisplay();
+	int jump = jumpingIdle();
+	if (!getPause())
+	{
+		updateCars();
+		updateLogs();
+		glutPostRedisplay();
+	}
+	else if (jump == 0)
+		glutPostRedisplay();
 }
 
 void reshape(int width, int height)

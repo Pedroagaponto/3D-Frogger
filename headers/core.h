@@ -41,6 +41,7 @@ void switchWireFlag(void);
 void switchAxesFlag(void);
 void switchLightFlag(void);
 void switchTextureFlag(void);
+void switchPause(void);
 int getSegments(void);
 float getWidth(void);
 float getHeight(void);
@@ -54,6 +55,7 @@ bool getWireFlag(void);
 bool getAxesFlag(void);
 bool getLightFlag(void);
 bool getTextureFlag(void);
+bool getPause(void);
 
 extern frogState frog;
 

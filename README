@@ -29,18 +29,20 @@ Extra features:
 	-Allows to switch on/off the debug (verbose) mode during program execution.
 	-Uses cubes and cylinders to draw a figure more like a real car than just a
 	cube.
+	-Allows to switch on/off the cars/logs movement.
 
 Controls:
-	-'v': toggle debug mode
-	-'o': toggle axes
-	-'n': toggle normals and the parabola tangent
-	-'p': toggle wireframe
-	-'l': toggle lightining.
-	-'w': increase speed
-	-'s': decrease speed
-	-'a': increase angle
-	-'d': decrease angle
 	-' ': jump
+	-'v' or 'V': toggle debug mode
+	-'o' or 'O': toggle axes
+	-'n' or 'N': toggle normals and the parabola tangent
+	-'p' or 'P: toggle wireframe
+	-'l' or 'L': toggle lightining.
+	-'w' or 'W': increase speed
+	-'s' or 'S': decrease speed
+	-'a' or 'A': increase angle
+	-'d' or 'D': decrease angle
+	-'b' or 'B': pause/continue cars/logs movement
 	-left mouse: rotate camera
 	-left arrow: rotate frog left
 	-right mouse: zoom camera
