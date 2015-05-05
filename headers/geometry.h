@@ -10,6 +10,8 @@ void initSphere(void);
 void drawSphereNormals(void);
 void initCylinder(void);
 void drawCylinder(void);
+void initCybe(void);
+void drawCube(void);
 
 #endif
 

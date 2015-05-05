@@ -65,11 +65,10 @@ void display(void)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	drawGrid();
-	drawCylinder();
-	//drawDirectionSpeedVector();
-	//drawParabola();
-	//drawParabolaNormalTangent();
-	//drawSphere();
+	drawDirectionSpeedVector();
+	drawParabola();
+	drawParabolaNormalTangent();
+	drawSphere();
 	glutSwapBuffers();
 	if (getDebug())
 	{
