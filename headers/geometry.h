@@ -20,6 +20,10 @@ typedef struct {
 	vertex *vn;
 	/* Index per Normal vector, 1 for normal vertex and 3 for surface normal */
 	int ipn;
+	/* UV mapping */
+	vertex *uv;
+	/* Texture */
+	int tex;
 	/* Color array */
 	float color[3];
 } mesh;
@@ -53,6 +57,7 @@ void initCylinder(void);
 void drawCylinder(void);
 void initCube(void);
 void drawCube(void);
+GLuint loadTexture(const char *filename);
 
 #endif
 

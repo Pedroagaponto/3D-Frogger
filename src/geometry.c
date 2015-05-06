@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <GL/glut.h>
+#include <SOIL.h>
 
 #include "geometry.h"
 
@@ -30,10 +31,24 @@ vertex average3(vertex v1, vertex v2, vertex v3);
 static vertex vAxes[3] = { RED, GREEN, BLUE };
 
 static vertex vOrigin = {0, 0, 0};
-static mesh cylinder = {NULL, 0, NULL, 0, NULL, 3, BLACK};
-static mesh cube     = {NULL, 0, NULL, 0, NULL, 3, RED};
-static mesh sphere   = {NULL, 0, NULL, 0, NULL, 1, WHITE};
-static mesh grid     = {NULL, 0, NULL, 0, NULL, 3, GREEN};
+static mesh cylinder = {NULL, 0, NULL, 0, NULL, 3, NULL, -1, BLACK};
+static mesh cube     = {NULL, 0, NULL, 0, NULL, 3, NULL, -1, RED};
+static mesh sphere   = {NULL, 0, NULL, 0, NULL, 1, NULL, -1, WHITE};
+static mesh grid     = {NULL, 0, NULL, 0, NULL, 3, NULL, -1, GREEN};
+
+GLuint loadTexture(const char *filename)
+{
+	GLuint tex = SOIL_load_OGL_texture(filename, SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y);
+	if (!tex)
+		return 0;
+
+	glBindTexture(GL_TEXTURE_2D, tex);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	return tex;
+}
 
 void drawAxes(float scale)
 {
@@ -161,6 +176,8 @@ void drawSphere(void)
 
 void initCylinder(void)
 {
+	cylinder.tex = loadTexture("res/wood.jpg");
+	printf ("\n\n%d\n\n", cylinder.tex);
 	initPrism(CYLINDER_SLICES, CYLINDER_RADIUS, &cylinder, CYLINDER_HEIGHT);
 }
 

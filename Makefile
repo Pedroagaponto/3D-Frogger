@@ -1,16 +1,21 @@
 CC = gcc
 
 SDIR = src
-IDIR = headers
+HDIR = headers
+LDIR = libs/lib
+IDIR = libs/include
 ODIR = obj
 
 _OBJ = main.o core.o input.o jumping_logic.o jumping_draw.o geometry.o procedural.o new_geometry.o objloader.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
-CFLAGS = -I$(IDIR) -Wall -Wextra -pedantic -g -std=c99
-LIBS = -lm -lGL -lGLU -lglut
+CFLAGS = -I$(IDIR) -I$(HDIR) -L$(LDIR) -Wall -Wextra -pedantic -std=c99
+LIBS = -lm -lglut -lGLU -lGL libs/lib/libSOIL.a
 
 all: frogger
+
+debug: CFLAGS += -g
+debug: all
 
 $(ODIR)/%.o: $(SDIR)/%.c
 	@mkdir -p $(@D)
