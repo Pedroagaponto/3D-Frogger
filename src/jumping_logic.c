@@ -8,6 +8,7 @@
 
 void calcPositionAnalytical(float t);
 void calcPositionNumerical(float dt);
+bool collisionDetection(void);
 
 static float startTime = 0;
 
@@ -169,16 +170,40 @@ void calcPositionNumerical(float dt)
 	if (getDebug())
 		printf("Numerical Jump: angle %f, speed %f, x %f, y %f, z %f\n",
 				frog.r.theta*180/M_PI, frog.r.r, frog.r.x, frog.r.y, frog.r.dz);
-	if (frog.r.y < frog.r0.y)
+	if ((frog.r.y <= 0) || (collisionDetection()))
 	{
+		if (frog.r.y < 0)
+			frog.r.y = 0;
 		jumpingFlag = false;
 		//frog.r0.x += calcReach() * sin(frog.r0.phi);
 		//frog.r0.z += calcReach() * cos(frog.r0.phi);
 		frog.r0.x = frog.r.x;
+		frog.r0.y = frog.r.y;
 		frog.r0.z = frog.r.z;
 		updateSpherical(&frog.r0);
 		frog.r = frog.r0;
 		glutPostRedisplay();
 	}
+}
+
+bool collisionDetection(void)
+{
+	for (int i = 0; i < 20; i++)
+	{
+		if ((frog.r.x > logs[i].x-1.5) && (frog.r.x < logs[i].x+1.5) &&
+				(frog.r.y <= logs[i].y+0.3) &&
+				(frog.r.z > logs[i].z-0.3) && (frog.r.z < logs[i].z+0.3))
+		{
+			if (getDebug())
+				printf("On top of log\n");
+			frog.onLog = true;
+			frog.r.y = logs[i].y+0.3;
+			return true;
+		}
+		else
+			frog.onLog = false; 
+	}
+
+	return false;
 }
 

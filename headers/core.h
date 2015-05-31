@@ -18,12 +18,14 @@ typedef struct{
 
 typedef struct {
 	projection r0, r;
+	bool onLog;
 } frogState;
 
 typedef struct {
 	float x, y, z;
 } vertex;
 
+void resetGame(void);
 void setProjectionMatrix(void);
 void setupCamera(void);
 void setSegments(int newSegments);
@@ -60,6 +62,7 @@ bool getTextureFlag(void);
 bool getVerletFlag(void);
 
 extern frogState frog;
+extern vertex logs[20];
 
 #endif
 

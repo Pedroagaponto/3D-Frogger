@@ -17,7 +17,6 @@ void drawCarFront(float x);
 void drawWheels(float x);
 
 vertex cars[20];
-vertex logs[20];
 
 void initCars(void)
 {
@@ -79,8 +78,16 @@ void updateCars(void)
 void updateLogs(void)
 {
 	for (int i = 0; i < 20; i++)
-		logs[i].x = (logs[i].x+V_LOGS < GRID_WIDTH/2 - CYLINDER_HEIGHT) ?
+		logs[i].x = (logs[i].x+V_LOGS < GRID_WIDTH/2 - CYLINDER_HEIGHT/2) ?
 			logs[i].x+V_LOGS : -GRID_WIDTH/2 + CYLINDER_HEIGHT/2;
+
+	if (frog.onLog)
+	{
+		if (frog.r.x + V_LOGS < GRID_WIDTH/2 - CYLINDER_HEIGHT/2)
+			frog.r.x = frog.r0.x = frog.r.x + V_LOGS;
+		else
+			resetGame();
+	}
 }
 
 vertex randVertex(vertex *array, vertex length, int zMin, int zMax, int index)

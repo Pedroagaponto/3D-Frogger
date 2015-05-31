@@ -66,6 +66,7 @@ void init(void)
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_COLOR_MATERIAL);
 
+	resetGame();
 	updateCartesian(&frog.r);
 	updateCartesian(&frog.r0);
 

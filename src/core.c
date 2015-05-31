@@ -4,20 +4,30 @@
 
 #include "core.h"
 
-frogState frog = {
+typedef struct {
+	float theta, phi, zoom;
+} camAttr;
+
+/* extern variables */
+frogState frog;
+vertex logs[20];
+
+/* initialization variables */
+static const frogState frogInit = {
 /*	{   x,   y,   z,   r,  theta,    phi,  dx,  dy,  dz}*/
 	{ 0.0, 0.0, 48.0, 2.0, M_PI/4, M_PI, 0.0, 0.0, 0.0},
-	{ 0.0, 0.0, 48.0, 2.0, M_PI/4, M_PI, 0.0, 0.0, 0.0}
+	{ 0.0, 0.0, 48.0, 2.0, M_PI/4, M_PI, 0.0, 0.0, 0.0},
+	false
 };
+static const camAttr camInit = {45, 0, 5};
 
+/* attributes variables*/
+static camAttr cam;
 static int segments = 10;
-
 static float width = 500;
 static float height = 500;
-static float rotateCamTheta = 45;
-static float rotateCamPhi = 0;
-static float camZoom = 5;
 
+/* flags */
 static bool debug = false;
 static bool pause = false;
 static bool cartesianFlag = true;
@@ -27,6 +37,12 @@ static bool axesFlag = true;
 static bool lightFlag = true;
 static bool textureFlag = true;
 static bool verletFlag = true;
+
+void resetGame(void)
+{
+	cam = camInit;
+	frog = frogInit;
+}
 
 void setProjectionMatrix(void)
 {
@@ -43,16 +59,16 @@ void setupCamera(void)
 	float upX, upY, upZ;
 	const float offset = 1.0;
 
-	camX = camZoom * sin(rotateCamTheta*M_PI/180) * sin(rotateCamPhi*M_PI/180);
-	camZ = camZoom * sin(rotateCamTheta*M_PI/180) * cos(rotateCamPhi*M_PI/180);
-	camY = camZoom * cos(rotateCamTheta*M_PI/180);
+	camX = cam.zoom * sin(cam.theta*M_PI/180) * sin(cam.phi*M_PI/180);
+	camZ = cam.zoom * sin(cam.theta*M_PI/180) * cos(cam.phi*M_PI/180);
+	camY = cam.zoom * cos(cam.theta*M_PI/180);
 
 	// Changing on the y to get a new up vector
-	offsetYcamX = camZoom * sin(rotateCamTheta*M_PI/180-offset) *
-		sin(rotateCamPhi*M_PI/180);
-	offsetYcamZ = camZoom * sin(rotateCamTheta*M_PI/180-offset) *
-		cos(rotateCamPhi*M_PI/180);
-	offsetYcamY = camZoom * cos(rotateCamTheta*M_PI/180-offset);
+	offsetYcamX = cam.zoom * sin(cam.theta*M_PI/180-offset) *
+		sin(cam.phi*M_PI/180);
+	offsetYcamZ = cam.zoom * sin(cam.theta*M_PI/180-offset) *
+		cos(cam.phi*M_PI/180);
+	offsetYcamY = cam.zoom * cos(cam.theta*M_PI/180-offset);
 
 	upX = offsetYcamX-camX;
 	upY = offsetYcamY-camY;
@@ -82,18 +98,18 @@ void setHeight(float newHeight)
 
 void setRotateCamTheta(float newRotateCamTheta)
 {
-	rotateCamTheta = (newRotateCamTheta > 0 && newRotateCamTheta < 180)
-		         ? newRotateCamTheta : rotateCamTheta;
+	cam.theta = (newRotateCamTheta > 0 && newRotateCamTheta < 180)
+		         ? newRotateCamTheta : cam.theta;
 }
 
 void setRotateCamPhi(float newRotateCamPhi)
 {
-	rotateCamPhi = newRotateCamPhi;
+	cam.phi = newRotateCamPhi;
 }
 
 void setCamZoom(float newCamZoom)
 {
-	camZoom = newCamZoom;
+	cam.zoom = newCamZoom;
 }
 
 void updateCartesian(projection *p)
@@ -173,17 +189,17 @@ float getHeight(void)
 
 float getRotateCamTheta(void)
 {
-	return rotateCamTheta;
+	return cam.theta;
 }
 
 float getRotateCamPhi(void)
 {
-	return rotateCamPhi;
+	return cam.phi;
 }
 
 float getCamZoom(void)
 {
-	return camZoom;
+	return cam.zoom;
 }
 
 bool getDebug(void)
