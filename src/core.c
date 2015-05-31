@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 
 #include <GL/glut.h>
 
@@ -26,6 +27,9 @@ static camAttr cam;
 static int segments = 10;
 static float width = 500;
 static float height = 500;
+static float camX;
+static float camY;
+static float camZ;
 
 /* flags */
 static bool debug = false;
@@ -54,7 +58,6 @@ void setProjectionMatrix(void)
 
 void setupCamera(void)
 {
-	float camX, camY, camZ;
 	float offsetYcamX, offsetYcamY, offsetYcamZ;
 	float upX, upY, upZ;
 	const float offset = 1.0;
@@ -80,6 +83,15 @@ void setupCamera(void)
 			  frog.r.x, frog.r.y, frog.r.z,
 			  upX, upY, upZ);
 }
+
+void drawText(char *text, float x, float y, float z)
+{
+	int length = (int) strlen(text);
+	
+	glRasterPos3f(x, y, z);
+	for (int i = 0; i < length; i++)
+		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, text[i]);
+} 
 
 void setSegments(int newSegments)
 {

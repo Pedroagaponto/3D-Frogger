@@ -28,6 +28,7 @@ typedef struct {
 void resetGame(void);
 void setProjectionMatrix(void);
 void setupCamera(void);
+void drawText(char *text, float x, float y, float z);
 void setSegments(int newSegments);
 void setWidth(float newWidth);
 void setHeight(float newHeight);

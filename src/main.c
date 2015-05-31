@@ -10,54 +10,50 @@
 #include "geometry.h"
 #include "procedural.h"
 
+#define INFO_HEIGHT 30
+
 void init(void);
-void display(void);
-void idle(void);
-void reshape(int width, int height);
 void initLight(void);
+void mainDisplay(void);
+void infoDisplay(void);
+void mainReshape(int width, int height);
+void infoReshape(int width, int height);
+void idle(void);
+
+int mainWin;
+int infoWin;
 
 int main(int argc, char **argv)
 {
+	srand(time(NULL));
+
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 	glutInitWindowSize(getWidth(), getHeight());
-	glutCreateWindow("Assignment 2");
 
-	srand(time(NULL));
-	init();
-
-	glutDisplayFunc(display);
+	mainWin = glutCreateWindow("Frogger");
+	glutDisplayFunc(mainDisplay);
+	glutReshapeFunc(mainReshape);
 	glutKeyboardFunc(keyboard);
-	glutReshapeFunc(reshape);
 	glutMouseFunc(mouseClick);
 	glutMotionFunc(mouseMove);
 	glutSpecialFunc(specialKeys);
 	glutIdleFunc(idle);
+
+	infoWin =
+		glutCreateSubWindow(mainWin, 0, 0, getWidth(), INFO_HEIGHT); 
+	glutDisplayFunc(infoDisplay); 
+	glutReshapeFunc(infoReshape); 
+
+	init();
 	glutMainLoop();
 
 	return EXIT_SUCCESS;
 }
 
-void initLight(void)
-{
-	float specular[] = {1, 1, 1, 1};
-	float shininess[] = {50};
-	float lPosition[] = {1, 1, 1, 0};
-	float ambient[] = {0, 0, 0, 1};
-	glClearColor(0, 0, 0, 0);
-	glShadeModel(GL_SMOOTH);
-
-	glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
-	glMaterialfv(GL_FRONT, GL_SHININESS, shininess);
-	glLightfv(GL_LIGHT0, GL_POSITION, lPosition);
-	glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);
-
-	glEnable(GL_LIGHTING);
-	glEnable(GL_LIGHT0);
-}
-
 void init(void)
 {
+	glutSetWindow(mainWin);
 	glMatrixMode(GL_PROJECTION);
 	glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
 	glMatrixMode(GL_MODELVIEW);
@@ -79,8 +75,28 @@ void init(void)
 	initLight();
 }
 
-void display(void)
+void initLight(void)
 {
+	float specular[] = {1, 1, 1, 1};
+	float shininess[] = {50};
+	float lPosition[] = {1, 1, 1, 0};
+	float ambient[] = {0, 0, 0, 1};
+	glClearColor(0, 0, 0, 0);
+	glShadeModel(GL_SMOOTH);
+
+	glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
+	glMaterialfv(GL_FRONT, GL_SHININESS, shininess);
+	glLightfv(GL_LIGHT0, GL_POSITION, lPosition);
+	glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);
+
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+}
+
+void mainDisplay(void)
+{
+	glutSetWindow(mainWin);
+	glutShowWindow(); 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	setProjectionMatrix();
 	setupCamera();
@@ -121,8 +137,42 @@ void display(void)
 	}
 }
 
+void infoDisplay(void)
+{
+	glutSetWindow(infoWin); 
+	glClearColor(0.0, 0.25, 0.0, 0.0); 
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glColor3f(0.5, 0.5, 0.5);
+	drawText("Lifes <3 <3 <3", -0.95, -0.35, 0);
+	drawText("Score: 10", (getWidth()/500) - 0.35, -0.35, 0);
+	glutSwapBuffers();
+}
+
+void mainReshape(int width, int height)
+{
+	glutSetWindow(mainWin);
+	glViewport(frog.r.x, frog.r.y, width, height);
+	setProjectionMatrix();
+
+	infoReshape(width, height);
+	glutPostRedisplay();
+
+	setWidth(width);
+	setHeight(height);
+}
+
+void infoReshape(int width, int height)
+{
+	glutSetWindow(infoWin); 
+	glutReshapeWindow(width, INFO_HEIGHT); 
+	glutPositionWindow(0, 0); 
+	glutSetWindow(mainWin);
+}
+
 void idle(void)
 {
+	glutSetWindow(mainWin);
 	int jump = jumpingIdle();
 	if (!getPause())
 	{
@@ -132,14 +182,5 @@ void idle(void)
 	}
 	else if (jump == 0)
 		glutPostRedisplay();
-}
-
-void reshape(int width, int height)
-{
-	glViewport(frog.r.x, frog.r.y, width, height);
-	setProjectionMatrix();
-	glutPostRedisplay();
-	setWidth(width);
-	setHeight(height);
 }
 
