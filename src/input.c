@@ -118,22 +118,25 @@ void specialKeys(int key, int x, int y)
 	{
 		case GLUT_KEY_UP:
 			setSegments(getSegments()*2);
+			glutPostRedisplay();
 			break;
 		case GLUT_KEY_DOWN:
 			setSegments((getSegments() < 8) ? 4 : getSegments()/2);
+			glutPostRedisplay();
 			break;
 		case GLUT_KEY_LEFT:
 			frog.r0.phi += M_PI/16;
 			updateCartesian(&frog.r0);
+			glutPostRedisplay();
 			break;
 		case GLUT_KEY_RIGHT:
 			frog.r0.phi -= M_PI/16;
+			glutPostRedisplay();
 			updateCartesian(&frog.r0);
 			break;
 		default:
 			break;
 	}
-	glutPostRedisplay();
 }
 
 void mouseClick(int button, int state, int x, int y)
@@ -156,13 +159,14 @@ void mouseMove(int x, int y)
 	{
 		setRotateCamPhi(getRotateCamPhi() + diffX);
 		setRotateCamTheta(getRotateCamTheta() + diffY);
+		glutPostRedisplay();
 	}
-	else if ((getCamZoom()-(diffY*0.1) > 0.5) &&
-			(getCamZoom()-(diffY*0.1) < 6))
+	else if ((getCamZoom()-(diffY*0.1) > 0.5) && (getCamZoom()-(diffY*0.1) < 6))
+	{
 		setCamZoom(getCamZoom()-diffY*0.01);
-
+		glutPostRedisplay();
+	}
 	oldX = x;
 	oldY = y;
-	glutPostRedisplay();
 }
 

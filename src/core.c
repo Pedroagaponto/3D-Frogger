@@ -27,11 +27,11 @@ static camAttr cam;
 static int segments = 10;
 static int score = 0;
 static int lifes = 5;
-static float width = 500;
-static float height = 500;
-static float camX;
-static float camY;
-static float camZ;
+static int width = 500;
+static int height = 500;
+static int oldTime = 0;
+static int fps = 0;
+static int frameCount = 0;
 
 /* flags */
 static bool debug = false;
@@ -46,8 +46,16 @@ static bool verletFlag = true;
 
 void resetGame(void)
 {
+	resetPerformance();
 	cam = camInit;
 	frog = frogInit;
+}
+
+void resetPerformance(void)
+{
+	frameCount = 0;
+	fps = 0;
+	oldTime = glutGet(GLUT_ELAPSED_TIME);
 }
 
 void setProjectionMatrix(void)
@@ -60,6 +68,7 @@ void setProjectionMatrix(void)
 
 void setupCamera(void)
 {
+	float camX, camY, camZ;
 	float offsetYcamX, offsetYcamY, offsetYcamZ;
 	float upX, upY, upZ;
 	const float offset = 1.0;
@@ -95,6 +104,23 @@ void drawText(char *text, float x, float y, float z)
 		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, text[i]);
 } 
 
+void calculatePerformance(void)
+{
+	int time = glutGet(GLUT_ELAPSED_TIME);
+
+	if (time - oldTime >= 1000)
+	{
+		fps = frameCount;
+		frameCount = 0;
+		oldTime += 1000;
+	}
+}
+
+void incFrameCount(void)
+{
+	frameCount++;
+}
+
 void setSegments(int newSegments)
 {
 	segments = newSegments;
@@ -110,12 +136,12 @@ void setLifes(int newLifes)
 	lifes = newLifes;
 }
 
-void setWidth(float newWidth)
+void setWidth(int newWidth)
 {
 	width = newWidth;
 }
 
-void setHeight(float newHeight)
+void setHeight(int newHeight)
 {
 	height = newHeight;
 }
@@ -211,14 +237,19 @@ int getLifes(void)
 	return lifes;
 }
 
-float getWidth(void)
+int getWidth(void)
 {
 	return width;
 }
 
-float getHeight(void)
+int getHeight(void)
 {
 	return height;
+}
+
+int getFps(void)
+{
+	return fps;
 }
 
 float getRotateCamTheta(void)

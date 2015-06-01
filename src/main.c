@@ -11,18 +11,22 @@
 #include "geometry.h"
 #include "procedural.h"
 
-#define INFO_HEIGHT 30
+#define SUB_HEIGHT 30
 
+void inputEvents(void);
 void init(void);
 void initLight(void);
 void mainDisplay(void);
 void infoDisplay(void);
+void osdDisplay(void);
 void mainReshape(int width, int height);
 void infoReshape(int width, int height);
+void osdReshape(int width, int height);
 void idle(void);
 
 int mainWin;
 int infoWin;
+int osdWin;
 
 int main(int argc, char **argv)
 {
@@ -35,25 +39,29 @@ int main(int argc, char **argv)
 	mainWin = glutCreateWindow("Frogger");
 	glutDisplayFunc(mainDisplay);
 	glutReshapeFunc(mainReshape);
-	glutKeyboardFunc(keyboard);
-	glutMouseFunc(mouseClick);
-	glutMotionFunc(mouseMove);
-	glutSpecialFunc(specialKeys);
+	inputEvents();
 	glutIdleFunc(idle);
 
-	infoWin =
-		glutCreateSubWindow(mainWin, 0, 0, getWidth(), INFO_HEIGHT); 
+	infoWin = glutCreateSubWindow(mainWin, 0, 0, getWidth(), SUB_HEIGHT); 
 	glutDisplayFunc(infoDisplay); 
-	glutReshapeFunc(infoReshape); 
-	glutKeyboardFunc(keyboard);
-	glutMouseFunc(mouseClick);
-	glutMotionFunc(mouseMove);
-	glutSpecialFunc(specialKeys);
+	inputEvents();
+
+	osdWin = glutCreateSubWindow(mainWin, 150, SUB_HEIGHT, 100, SUB_HEIGHT); 
+	glutDisplayFunc(osdDisplay); 
+	inputEvents();
 
 	init();
 	glutMainLoop();
 
 	return EXIT_SUCCESS;
+}
+
+void inputEvents(void)
+{
+	glutKeyboardFunc(keyboard);
+	glutMouseFunc(mouseClick);
+	glutMotionFunc(mouseMove);
+	glutSpecialFunc(specialKeys);
 }
 
 void init(void)
@@ -100,6 +108,7 @@ void initLight(void)
 
 void mainDisplay(void)
 {
+	incFrameCount();
 	glutSetWindow(mainWin);
 	glutShowWindow(); 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -147,6 +156,7 @@ void infoDisplay(void)
 	char buffer[40];
 
 	glutSetWindow(infoWin); 
+	glutShowWindow(); 
 	glClearColor(0.0, 0.0, 0.0, 0.0); 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -155,10 +165,26 @@ void infoDisplay(void)
 	for (int i = 0; i < getLifes(); i++)
 		snprintf(buffer + strlen(buffer), 40, " <3");
 	glColor3f(0.5, 0.5, 0.5);
-	drawText(buffer, (500/getWidth())*0.05-1, -0.35, 0);
+	drawText(buffer, (500/(float)getWidth())*0.05-1, -0.35, 0);
 	memset(buffer, '\0', 40);
 	snprintf(buffer, 40, "Score: %2d", getScore());
-	drawText(buffer, 1-(500/getWidth())*0.33, -0.35, 0);
+	drawText(buffer, 1-(500/(float)getWidth())*0.33, -0.35, 0);
+
+	glutSwapBuffers();
+}
+
+void osdDisplay(void)
+{
+	char buffer[20];
+
+	glutSetWindow(osdWin); 
+	glutShowWindow(); 
+	glClearColor(0.5, 0.0, 0.0, 0.0); 
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	memset(buffer, '\0', 20);
+	snprintf(buffer, 20, "FPS: %2d", getFps());
+	drawText(buffer, -0.26, -0.35, 0);
 
 	glutSwapBuffers();
 }
@@ -170,25 +196,34 @@ void mainReshape(int width, int height)
 	setProjectionMatrix();
 
 	infoReshape(width, height);
-	glutPostRedisplay();
+	osdReshape(width, height);
 
 	setWidth(width);
 	setHeight(height);
+	glutPostRedisplay();
 }
 
 void infoReshape(int width, int height)
 {
-	UNUSED_VAR height;
-
 	glutSetWindow(infoWin);
-	glViewport(0,0, width, height);
-	glutReshapeWindow(width, INFO_HEIGHT); 
+	glViewport(0, 0, width, height);
+	glutReshapeWindow(width, SUB_HEIGHT); 
 	glutPositionWindow(0, 0); 
+	glutSetWindow(mainWin);
+}
+
+void osdReshape(int width, int height)
+{
+	glutSetWindow(osdWin);
+	glViewport(0, 0, width, height); 
+	glutReshapeWindow(200, SUB_HEIGHT); 
+	glutPositionWindow(width/2-100, SUB_HEIGHT);
 	glutSetWindow(mainWin);
 }
 
 void idle(void)
 {
+	calculatePerformance();
 	glutSetWindow(mainWin);
 	int jump = jumpingIdle();
 	if (!getPause())
