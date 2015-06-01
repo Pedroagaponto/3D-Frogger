@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <time.h>
+#include <string.h>
 
 #include <GL/glut.h>
 
@@ -44,6 +45,10 @@ int main(int argc, char **argv)
 		glutCreateSubWindow(mainWin, 0, 0, getWidth(), INFO_HEIGHT); 
 	glutDisplayFunc(infoDisplay); 
 	glutReshapeFunc(infoReshape); 
+	glutKeyboardFunc(keyboard);
+	glutMouseFunc(mouseClick);
+	glutMotionFunc(mouseMove);
+	glutSpecialFunc(specialKeys);
 
 	init();
 	glutMainLoop();
@@ -139,13 +144,22 @@ void mainDisplay(void)
 
 void infoDisplay(void)
 {
+	char buffer[40];
+
 	glutSetWindow(infoWin); 
-	glClearColor(0.0, 0.25, 0.0, 0.0); 
+	glClearColor(0.0, 0.0, 0.0, 0.0); 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	memset(buffer, '\0', 40);
+	snprintf(buffer, 40, "Lifes:");
+	for (int i = 0; i < getLifes(); i++)
+		snprintf(buffer + strlen(buffer), 40, " <3");
 	glColor3f(0.5, 0.5, 0.5);
-	drawText("Lifes <3 <3 <3", -0.95, -0.35, 0);
-	drawText("Score: 10", (getWidth()/500) - 0.35, -0.35, 0);
+	drawText(buffer, (500/getWidth())*0.05-1, -0.35, 0);
+	memset(buffer, '\0', 40);
+	snprintf(buffer, 40, "Score: %2d", getScore());
+	drawText(buffer, 1-(500/getWidth())*0.33, -0.35, 0);
+
 	glutSwapBuffers();
 }
 
@@ -164,7 +178,10 @@ void mainReshape(int width, int height)
 
 void infoReshape(int width, int height)
 {
-	glutSetWindow(infoWin); 
+	UNUSED_VAR height;
+
+	glutSetWindow(infoWin);
+	glViewport(0,0, width, height);
 	glutReshapeWindow(width, INFO_HEIGHT); 
 	glutPositionWindow(0, 0); 
 	glutSetWindow(mainWin);

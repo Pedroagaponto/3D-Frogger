@@ -25,6 +25,8 @@ static const camAttr camInit = {45, 0, 5};
 /* attributes variables*/
 static camAttr cam;
 static int segments = 10;
+static int score = 0;
+static int lifes = 5;
 static float width = 500;
 static float height = 500;
 static float camX;
@@ -96,6 +98,16 @@ void drawText(char *text, float x, float y, float z)
 void setSegments(int newSegments)
 {
 	segments = newSegments;
+}
+
+void setScore(int newScore)
+{
+	score = newScore;
+}
+
+void setLifes(int newLifes)
+{
+	lifes = newLifes;
 }
 
 void setWidth(float newWidth)
@@ -187,6 +199,16 @@ void switchVerletFlag(void)
 int getSegments(void)
 {
 	return segments;
+}
+
+int getScore(void)
+{
+	return score;
+}
+
+int getLifes(void)
+{
+	return lifes;
 }
 
 float getWidth(void)
