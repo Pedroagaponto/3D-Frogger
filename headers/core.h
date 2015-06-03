@@ -5,6 +5,9 @@
 #include <stdbool.h>
 
 #define REDUCTION 25
+#define GRID_WIDTH 25
+#define GRID_HEIGHT 25
+#define LINE_WIDTH 4
 #ifndef M_PI
 #define M_PI 3.14159265359
 #endif
@@ -43,6 +46,7 @@ void setCamZoom(float newCamZoom);
 void updateCartesian(projection *p);
 void updateSpherical(projection *p);
 void switchDebug(void);
+void switchGameMode(void);
 void switchPause(void);
 void switchCartesianFlag(void);
 void switchNormalFlag(void);
@@ -63,6 +67,7 @@ float getRotateCamPhi(void);
 float getCamZoom(void);
 bool getDebug(void);
 bool getPause(void);
+bool getGameMode(void);
 bool getCartesianFlag(void);
 bool getNormalFlag(void);
 bool getWireFlag(void);

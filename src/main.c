@@ -61,6 +61,7 @@ void inputEvents(void)
 	glutKeyboardFunc(keyboard);
 	glutMouseFunc(mouseClick);
 	glutMotionFunc(mouseMove);
+	glutPassiveMotionFunc(passiveMouseMove);
 	glutSpecialFunc(specialKeys);
 }
 
@@ -76,6 +77,7 @@ void init(void)
 	glEnable(GL_COLOR_MATERIAL);
 
 	resetGame();
+	resetInputVariables();
 	updateCartesian(&frog.r);
 	updateCartesian(&frog.r0);
 
@@ -132,8 +134,8 @@ void mainDisplay(void)
 	drawParabola();
 	drawParabolaNormalTangent();
 	drawFrog();
-	drawCars();
-	drawLogs();
+	//drawCars();
+	//drawLogs();
 
 	glutSwapBuffers();
 	if (getDebug())
@@ -149,6 +151,9 @@ void mainDisplay(void)
 			   frog.r.dx,  frog.r.dy,     frog.r.dz);
 		printf("\n\n");
 	}
+
+	if (getGameMode())
+		glutWarpPointer(getWidth()/2, getHeight()/2);
 }
 
 void infoDisplay(void)
@@ -192,7 +197,7 @@ void osdDisplay(void)
 void mainReshape(int width, int height)
 {
 	glutSetWindow(mainWin);
-	glViewport(frog.r.x, frog.r.y, width, height);
+	glViewport(frog.r.y, frog.r.y, width, height);
 	setProjectionMatrix();
 
 	infoReshape(width, height);

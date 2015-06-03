@@ -6,16 +6,87 @@
 #include "core.h"
 #include "jumping_logic.h"
 
-static int oldX = 0;
-static int oldY = 0;
+static int oldX;
+static int oldY;
 
 static bool leftClickFlag = true;
+
+void gameKeyboard(unsigned char key);
+void debugKeyboard(unsigned char key);
+void gameSpecialKeys(unsigned char key);
+void debugSpecialKeys(unsigned char key);
+void keyJump(void);
+
+void resetInputVariables(void)
+{
+	oldX = getWidth()/2;
+	oldY = getHeight()/2;
+}
 
 void keyboard(unsigned char key, int x, int y)
 {
 	UNUSED_VAR x;
 	UNUSED_VAR y;
 
+	switch (key)
+	{
+		case 'b':
+		case 'B':
+			switchPause();
+			glutPostRedisplay();
+			break;
+		case 27:
+		case 'q':
+		case 'Q':
+			if (getDebug())
+				printf("\n>>>>>EXIT<<<<<\n");
+			exit(EXIT_SUCCESS);
+		case 'm':
+		case 'M':
+			switchGameMode();
+			if(getGameMode())
+				oldX = getWidth()/2;
+			break;
+		default:
+			if (getGameMode())
+				gameKeyboard(key);
+			else
+				debugKeyboard(key);
+			break;
+	}
+}
+
+void gameKeyboard(unsigned char key)
+{
+	switch (key)
+	{
+		case 'd':
+		case 'D':
+			frog.r0.phi = 2 * M_PI;
+			keyJump();
+			break;
+		case 'a':
+		case 'A':
+			frog.r0.phi = M_PI;
+			keyJump();
+			break;
+		case 'w':
+		case 'W':
+			frog.r0.phi = (5 * M_PI) / 2;
+			keyJump();
+			break;
+		case 's':
+		case 'S':
+			frog.r0.phi = (3 * M_PI) / 2;
+			keyJump();
+			break;
+		default:
+			break;
+	}
+}
+
+void debugKeyboard(unsigned char key)
+{
 	switch (key)
 	{
 		case ' ':
@@ -48,11 +119,6 @@ void keyboard(unsigned char key, int x, int y)
 		case 'l':
 		case 'L':
 			switchLightFlag();
-			glutPostRedisplay();
-			break;
-		case 'b':
-		case 'B':
-			switchPause();
 			glutPostRedisplay();
 			break;
 		case 'j':
@@ -98,12 +164,6 @@ void keyboard(unsigned char key, int x, int y)
 				glutPostRedisplay();
 			}
 			break;
-		case 27:
-		case 'q':
-		case 'Q':
-			if (getDebug())
-				printf("\n>>>>>EXIT<<<<<\n");
-			exit(EXIT_SUCCESS);
 		default:
 			break;
 	}
@@ -114,6 +174,39 @@ void specialKeys(int key, int x, int y)
 	UNUSED_VAR x;
 	UNUSED_VAR y;
 
+	if (getGameMode())
+		gameSpecialKeys(key);
+	else
+		debugSpecialKeys(key);
+}
+
+void gameSpecialKeys(unsigned char key)
+{
+	switch (key)
+	{
+		case GLUT_KEY_UP:
+			frog.r0.phi = (5 * M_PI) / 2;
+			keyJump();
+			break;
+		case GLUT_KEY_DOWN:
+			frog.r0.phi = (3 * M_PI) / 2;
+			keyJump();
+			break;
+		case GLUT_KEY_LEFT:
+			frog.r0.phi = M_PI;
+			keyJump();
+			break;
+		case GLUT_KEY_RIGHT:
+			frog.r0.phi = 2 * M_PI;
+			keyJump();
+			break;
+		default:
+			break;
+	}
+}
+
+void debugSpecialKeys(unsigned char key)
+{
 	switch (key)
 	{
 		case GLUT_KEY_UP:
@@ -143,30 +236,52 @@ void mouseClick(int button, int state, int x, int y)
 {
 	UNUSED_VAR state;
 
-	oldX = x;
-	oldY = y;
-	if (button == GLUT_LEFT_BUTTON)
-		leftClickFlag = true;
-	else if (button == GLUT_RIGHT_BUTTON)
-		leftClickFlag = false;
+	if (!getGameMode())
+	{
+		oldX = x;
+		oldY = y;
+		if (button == GLUT_LEFT_BUTTON)
+			leftClickFlag = true;
+		else if (button == GLUT_RIGHT_BUTTON)
+			leftClickFlag = false;
+	}
 }
 
 void mouseMove(int x, int y)
 {
 	int diffX = oldX - x, diffY = oldY - y;
 
-	if (leftClickFlag)
+	if (!getGameMode())
 	{
-		setRotateCamPhi(getRotateCamPhi() + diffX);
-		setRotateCamTheta(getRotateCamTheta() + diffY);
-		glutPostRedisplay();
+		if (leftClickFlag)
+		{
+			setRotateCamPhi(getRotateCamPhi() + diffX);
+			setRotateCamTheta(getRotateCamTheta() + diffY);
+			glutPostRedisplay();
+		}
+		else
+		{
+			setCamZoom(getCamZoom()-diffY*0.01);
+			glutPostRedisplay();
+		}
+		oldX = x;
+		oldY = y;
 	}
-	else if ((getCamZoom()-(diffY*0.1) > 0.5) && (getCamZoom()-(diffY*0.1) < 6))
-	{
-		setCamZoom(getCamZoom()-diffY*0.01);
-		glutPostRedisplay();
-	}
-	oldX = x;
-	oldY = y;
+	else
+		setRotateCamPhi(getRotateCamPhi() + (oldX - x)*0.1);
+}
+
+void passiveMouseMove(int x, int y)
+{
+	UNUSED_VAR y;
+
+	if (getGameMode())
+		setRotateCamPhi(getRotateCamPhi() + (oldX - x)*0.1);
+}
+
+void keyJump(void)
+{
+	updateCartesian(&frog.r0);
+	jumpingSettings();
 }
 

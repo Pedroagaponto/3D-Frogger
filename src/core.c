@@ -15,12 +15,12 @@ vertex logs[20];
 
 /* initialization variables */
 static const frogState frogInit = {
-/*	{   x,   y,   z,   r,  theta,    phi,  dx,  dy,  dz}*/
-	{ 0.0, 0.0, 48.0, 2.0, M_PI/4, M_PI, 0.0, 0.0, 0.0},
-	{ 0.0, 0.0, 48.0, 2.0, M_PI/4, M_PI, 0.0, 0.0, 0.0},
+/*	{ x,  y,   z,    r,          theta,  phi,      dx,  dy,  dz}*/
+	{ 26, 0.0, 50.0, 8.94427191, M_PI/4, 5*M_PI/2, 0.0, 0.0, 0.0},
+	{ 26, 0.0, 50.0, 8.94427191, M_PI/4, 5*M_PI/2, 0.0, 0.0, 0.0},
 	false
 };
-static const camAttr camInit = {45, 0, 5};
+static const camAttr camInit = {45, -90, 5};
 
 /* attributes variables*/
 static camAttr cam;
@@ -35,6 +35,7 @@ static int frameCount = 0;
 
 /* flags */
 static bool debug = false;
+static bool gameMode = true;
 static bool pause = false;
 static bool cartesianFlag = true;
 static bool normalFlag = true;
@@ -49,6 +50,11 @@ void resetGame(void)
 	resetPerformance();
 	cam = camInit;
 	frog = frogInit;
+
+	if (gameMode)
+		glutSetCursor(GLUT_CURSOR_NONE);
+	else
+		glutSetCursor(GLUT_CURSOR_LEFT_ARROW);
 }
 
 void resetPerformance(void)
@@ -68,6 +74,7 @@ void setProjectionMatrix(void)
 
 void setupCamera(void)
 {
+	float yFactor = 0;
 	float camX, camY, camZ;
 	float offsetYcamX, offsetYcamY, offsetYcamZ;
 	float upX, upY, upZ;
@@ -85,13 +92,15 @@ void setupCamera(void)
 	offsetYcamY = cam.zoom * cos(cam.theta*M_PI/180-offset);
 
 	upX = offsetYcamX-camX;
-	upY = offsetYcamY-camY;
 	upZ = offsetYcamZ-camZ;
+	upY = offsetYcamY-camY;
 
+	if (gameMode)
+		yFactor = 5;
 
 	glLoadIdentity();
-	gluLookAt(frog.r.x + camX, frog.r.y + camY, frog.r.z + camZ,
-			  frog.r.x, frog.r.y, frog.r.z,
+	gluLookAt(frog.r.x + camX, frog.r.y + camY + yFactor, frog.r.z + camZ,
+			  frog.r.x, frog.r.y + yFactor, frog.r.z,
 			  upX, upY, upZ);
 }
 
@@ -182,6 +191,18 @@ void switchDebug(void)
 	debug = !debug;
 }
 
+void switchGameMode(void)
+{
+	gameMode = !gameMode;
+	if (gameMode)
+	{
+		glutSetCursor(GLUT_CURSOR_NONE);
+		resetGame();
+	}
+	else
+		glutSetCursor(GLUT_CURSOR_LEFT_ARROW);
+}
+
 void switchPause(void)
 {
 	pause = !pause;
@@ -270,6 +291,11 @@ float getCamZoom(void)
 bool getDebug(void)
 {
 	return debug;
+}
+
+bool getGameMode(void)
+{
+	return gameMode;
 }
 
 bool getPause(void)

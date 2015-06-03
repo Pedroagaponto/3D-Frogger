@@ -3,15 +3,16 @@
 
 #include "geometry.h"
 
-#define REDUCE 0.1
-#define GRID_WIDTH 100
-#define GRID_HEIGHT 100
+#define REDUCE 1
 #define S_SLICES 8
 #define S_STACKS 8
-#define S_RADIUS 0.1
+#define S_RADIUS 0.5
 #define CYLINDER_SLICES 8
 #define CUBE_SLICES 4
 #define CUBE_RADIUS sqrt(2)/2
+#define GRASS_SIZE 7
+#define OBSTACLE_SIZE 5
+#define INTERVAL_SIZE 1
 #define WHITE {1.0, 1.0, 1.0}
 #define RED   {1.0, 0.0, 0.0}
 #define GREEN {0.0, 1.0, 0.0}
@@ -68,14 +69,18 @@ void initGrid(void)
 
 	vertex *vAux = grid.v;
 	int iCount = 0;
+	float riverInit = GRASS_SIZE + OBSTACLE_SIZE + INTERVAL_SIZE;
 
 	for (int i = 0; i <= GRID_WIDTH; i++)
 	{
 		for (int j =  0; j <= GRID_HEIGHT; j++)
 		{
-			vAux->x = i - GRID_WIDTH/2;
-			vAux->y = 0;
-			vAux->z = j - GRID_HEIGHT/2;
+			vAux->x = i * LINE_WIDTH;
+			vAux->z = j * LINE_WIDTH;
+			if ((i <= riverInit) || (i >= riverInit + OBSTACLE_SIZE))
+				vAux->y = 0;
+			else
+				vAux->y = -(CYLINDER_RADIUS * 2);
 			vAux++;
 
 			if (i == GRID_WIDTH || j == GRID_HEIGHT)

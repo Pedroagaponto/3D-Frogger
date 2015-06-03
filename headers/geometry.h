@@ -2,8 +2,7 @@
 #define GEOMETRY_H
 #include "core.h"
 
-#define GRID_WIDTH 100
-#define CYLINDER_RADIUS 0.3
+#define CYLINDER_RADIUS 1
 #define CYLINDER_HEIGHT 3
 #define CUBE_LENGTH 1
 

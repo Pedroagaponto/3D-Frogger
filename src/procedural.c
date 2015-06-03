@@ -13,8 +13,6 @@
 #define V_LOGS 0.03
 
 vertex randVertex(vertex *array, vertex lenght, int zMin, int zMax, int index);
-void drawCarFront(float x);
-void drawWheels(float x);
 
 vertex cars[20];
 
@@ -50,9 +48,6 @@ void drawCars(void)
 		glColor3f(1, 0, 0);
 		glTranslatef(cars[i].x, cars[i].y, cars[i].z);
 		drawCube();
-		drawCarFront(CUBE_LENGTH-0.3);
-		drawWheels(-CUBE_LENGTH/2-0.2);
-		drawWheels(CUBE_LENGTH-0.4);
 		glPopMatrix();
 	}
 }
@@ -108,25 +103,5 @@ vertex randVertex(vertex *array, vertex length, int zMin, int zMax, int index)
 	}
 
 	return v;
-}
-
-void drawCarFront(float x)
-{
-	glPushMatrix();
-	glTranslatef(x, 0, 0);
-	glScalef(0.4, 0.5, 1);
-	glColor3f(1, 0, 0);
-	drawCube();
-	glPopMatrix();
-}
-
-void drawWheels(float x)
-{
-	glPushMatrix();
-	glTranslatef(x, 0, 0);
-	glScalef(0.4, 0.4, 0.4);
-	glRotatef(90, 0, 1, 0);
-	drawCylinder();
-	glPopMatrix();
 }
 

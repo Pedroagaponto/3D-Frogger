@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#define GRAVITY 9.8
+#define GRAVITY 20
 
 bool getJumpingFlag(void);
 void switchAnalyticFlag(void);
@@ -11,7 +11,6 @@ void jumpingSettings(void);
 int jumpingIdle(void);
 float calcReach(void);
 float calcTimeOfFlight(void);
-void calcPosition(float t, float dt);
 bool parabolaInsideWindow(void);
 
 #endif

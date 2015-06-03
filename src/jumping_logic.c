@@ -6,8 +6,8 @@
 #include "jumping_draw.h"
 #include "core.h"
 
-void calcPositionAnalytical(float t);
 void calcPositionNumerical(float dt);
+void calcPositionAnalytical(float t);
 bool collisionDetection(void);
 
 static float startTime = 0;
@@ -64,7 +64,7 @@ int jumpingIdle(void)
 	if (getDebug())
 		printf(">>>>>JUMP<<<<<\nt=%f\tstartTime=%f\tx=%f\ty=%f\tz=%f\n",
 				t, startTime, frog.r.x, frog.r.y, frog.r.z);
-	calcPosition(t, dt);
+	calcPositionNumerical(dt);
 
 	if (!jumpingFlag)
 		tLast = -1;
@@ -86,13 +86,6 @@ float calcTimeOfFlight(void)
 	return (2*(frog.r0.r * cos(frog.r0.theta)))/(GRAVITY);
 }
 
-void calcPosition(float t, float dt)
-{
-	UNUSED_VAR t;
-
-	calcPositionNumerical(dt);
-}
-
 /* Using the calcReach, checks if will land inside the window */
 bool parabolaInsideWindow(void)
 {
@@ -101,14 +94,50 @@ bool parabolaInsideWindow(void)
 		float reachX = frog.r0.x + calcReach() * sin(frog.r0.phi);
 		float reachZ = frog.r0.z + calcReach() * cos(frog.r0.phi);
 
-		if (reachX <= 50 && reachX >= -50 &&
-			reachZ <= 50 && reachZ >= -50)
+		if ((reachX >= 0 && reachX <= GRID_WIDTH * LINE_WIDTH) &&
+			(reachZ >= 0 && reachZ <= GRID_HEIGHT * LINE_WIDTH))
 			return true;
 	}
 	return false;
 }
 
 /****** LOCAL FUNCTIONS ******/
+void calcPositionNumerical(float dt)
+{
+	frog.r.x += frog.r.dx * dt;
+	frog.r.z += frog.r.dz * dt;
+	frog.r.y += frog.r.dy * dt;
+
+	if (getVerletFlag())
+	{
+		frog.r.y+=(GRAVITY / 2) * dt*dt;
+		if (getDebug())
+			printf("(Jump calculed using Velocity Verlet Integration)\n");
+	}
+	else if (getDebug())
+		printf("(Jump calculed using Euler Integration)\n");
+
+	frog.r.dy += -GRAVITY * dt;
+
+	updateSpherical(&frog.r);
+
+	if (getDebug())
+		printf("Numerical Jump: angle %f, speed %f, x %f, y %f, z %f\n",
+				frog.r.theta*180/M_PI, frog.r.r, frog.r.x, frog.r.y, frog.r.dz);
+	if ((frog.r.y <= 0) || (collisionDetection()))
+	{
+		frog.r.y = frog.r0.y = 0;
+		frog.r0.x += calcReach() * sin(frog.r0.phi);
+		frog.r0.z += calcReach() * cos(frog.r0.phi);
+		frog.r.x = frog.r0.x;
+		frog.r.z = frog.r0.z;
+		jumpingFlag = false;
+		updateSpherical(&frog.r0);
+		frog.r = frog.r0;
+		glutPostRedisplay();
+	}
+}
+
 void calcPositionAnalytical(float t)
 {
 	UNUSED_VAR t;
@@ -146,44 +175,6 @@ void calcPositionAnalytical(float t)
 	if (dx < 0)
 		frog.r.angle+=M_PI;
 #endif
-}
-
-void calcPositionNumerical(float dt)
-{
-	frog.r.x += frog.r.dx * dt;
-	frog.r.z += frog.r.dz * dt;
-	frog.r.y += frog.r.dy * dt;
-
-	if (getVerletFlag())
-	{
-		frog.r.y+=(GRAVITY / 2) * dt*dt;
-		if (getDebug())
-			printf("(Jump calculed using Velocity Verlet Integration)\n");
-	}
-	else if (getDebug())
-		printf("(Jump calculed using Euler Integration)\n");
-
-	frog.r.dy += -GRAVITY * dt;
-
-	updateSpherical(&frog.r);
-
-	if (getDebug())
-		printf("Numerical Jump: angle %f, speed %f, x %f, y %f, z %f\n",
-				frog.r.theta*180/M_PI, frog.r.r, frog.r.x, frog.r.y, frog.r.dz);
-	if ((frog.r.y <= 0) || (collisionDetection()))
-	{
-		if (frog.r.y < 0)
-			frog.r.y = 0;
-		jumpingFlag = false;
-		//frog.r0.x += calcReach() * sin(frog.r0.phi);
-		//frog.r0.z += calcReach() * cos(frog.r0.phi);
-		frog.r0.x = frog.r.x;
-		frog.r0.y = frog.r.y;
-		frog.r0.z = frog.r.z;
-		updateSpherical(&frog.r0);
-		frog.r = frog.r0;
-		glutPostRedisplay();
-	}
 }
 
 bool collisionDetection(void)
