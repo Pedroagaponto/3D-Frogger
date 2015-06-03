@@ -85,6 +85,7 @@ void init(void)
 	initCars();
 	initLogs();
 	initLight();
+	initFrog();
 }
 
 void initLight(void)

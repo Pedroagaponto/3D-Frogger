@@ -1,5 +1,7 @@
 #ifndef GEOMETRY_H
 #define GEOMETRY_H
+#include <stdio.h>
+#include <GL/gl.h>
 #include "core.h"
 
 /* Struct for the mesh, it consider there will be drawn as triangles.
@@ -21,6 +23,26 @@ typedef struct {
 	/* Color array */
 	float color[3];
 } mesh;
+
+
+typedef struct vertexInfo
+{
+	vertex p;
+	vertex n;
+	vertex2 t;
+} vertexInfo;
+
+typedef struct newMesh
+{
+	// Mesh data is stored in arrays, separated between vertices and indices.
+	size_t nVerts;
+	vertexInfo *vertices;
+
+	size_t nIndices;
+	int *indices;
+
+	GLuint obj;
+} newMesh;
 
 void drawAxes(float scale);
 void initGrid(void);

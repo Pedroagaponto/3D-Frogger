@@ -1,6 +1,5 @@
 # Objects
 *.o
-*.obj
 obj/
 
 # Executables

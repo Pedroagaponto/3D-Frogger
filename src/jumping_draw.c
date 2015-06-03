@@ -6,14 +6,24 @@
 #include "jumping_logic.h"
 #include "core.h"
 #include "geometry.h"
+#include "new_geometry.h"
+#include "objloader.h"
+
+newMesh test;
 
 void drawCartesianParabola(void);
 void drawParametricParabola(void);
 
+void initFrog(void)
+{
+	load_obj("res/frog1.obj", &test);
+}
+
 void drawFrog(void)
 {
+	glColor3f(0, 1, 0);
 	glTranslatef(frog.r.x, frog.r.y, frog.r.z);
-	drawSphere();
+	render_mesh(&test);
 	glTranslatef(-frog.r.x, -frog.r.y, -frog.r.z);
 }
 

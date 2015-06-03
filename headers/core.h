@@ -33,6 +33,11 @@ typedef struct {
 	int logDirection;
 } frogState;
 
+typedef struct vertex2
+{
+	float x, y;
+} vertex2;
+
 typedef struct {
 	float x, y, z;
 } vertex;
