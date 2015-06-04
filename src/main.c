@@ -130,12 +130,15 @@ void mainDisplay(void)
 		glDisable(GL_LIGHTING);
 
 	drawGrid();
-	drawDirectionSpeedVector();
-	drawParabola();
-	drawParabolaNormalTangent();
+	if (!getGameMode())
+	{
+		drawDirectionSpeedVector();
+		drawParabola();
+		drawParabolaNormalTangent();
+	}
 	drawFrog();
-	//drawCars();
-	//drawLogs();
+	drawCars();
+	drawLogs();
 
 	glutSwapBuffers();
 	if (getDebug())

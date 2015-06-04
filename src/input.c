@@ -45,7 +45,12 @@ void keyboard(unsigned char key, int x, int y)
 		case 'M':
 			switchGameMode();
 			if(getGameMode())
+			{
 				oldX = getWidth()/2;
+				settingsGameMode();
+			}
+			else
+				settingsDeveloperMode();
 			break;
 		default:
 			if (getGameMode())

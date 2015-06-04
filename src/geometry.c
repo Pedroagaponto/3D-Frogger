@@ -9,10 +9,7 @@
 #define S_RADIUS 0.5
 #define CYLINDER_SLICES 8
 #define CUBE_SLICES 4
-#define CUBE_RADIUS sqrt(2)/2
-#define GRASS_SIZE 7
-#define OBSTACLE_SIZE 5
-#define INTERVAL_SIZE 1
+#define CUBE_RADIUS (sqrt(2)/2)*CUBE_LENGTH
 #define WHITE {1.0, 1.0, 1.0}
 #define RED   {1.0, 0.0, 0.0}
 #define GREEN {0.0, 1.0, 0.0}
@@ -80,7 +77,7 @@ void initGrid(void)
 			if ((i <= riverInit) || (i >= riverInit + OBSTACLE_SIZE))
 				vAux->y = 0;
 			else
-				vAux->y = -(CYLINDER_RADIUS * 2);
+				vAux->y = -(CYLINDER_RADIUS * 3);
 			vAux++;
 
 			if (i == GRID_WIDTH || j == GRID_HEIGHT)

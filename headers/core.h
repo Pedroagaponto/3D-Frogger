@@ -8,6 +8,8 @@
 #define GRID_WIDTH 25
 #define GRID_HEIGHT 25
 #define LINE_WIDTH 4
+#define LINE_OBSTACLES 6
+#define OBSTACLE_SIZE 5
 #ifndef M_PI
 #define M_PI 3.14159265359
 #endif
@@ -29,6 +31,8 @@ typedef struct {
 } vertex;
 
 void resetGame(void);
+void settingsGameMode(void);
+void settingsDeveloperMode(void);
 void resetPerformance(void);
 void setProjectionMatrix(void);
 void setupCamera(void);
@@ -77,7 +81,8 @@ bool getTextureFlag(void);
 bool getVerletFlag(void);
 
 extern frogState frog;
-extern vertex logs[20];
+extern vertex cars[OBSTACLE_SIZE][LINE_OBSTACLES];
+extern vertex logs[OBSTACLE_SIZE][LINE_OBSTACLES];
 
 #endif
 

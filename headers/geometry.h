@@ -3,8 +3,10 @@
 #include "core.h"
 
 #define CYLINDER_RADIUS 1
-#define CYLINDER_HEIGHT 3
-#define CUBE_LENGTH 1
+#define CYLINDER_HEIGHT 6
+#define CUBE_LENGTH 2
+#define GRASS_SIZE 7
+#define INTERVAL_SIZE 1
 
 /* Struct for the mesh, it consider there will be drawn as triangles.
  * Surface = sizei/3

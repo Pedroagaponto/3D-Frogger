@@ -12,92 +12,121 @@
 #define V_CARS 0.1
 #define V_LOGS 0.03
 
-vertex randVertex(vertex *array, vertex lenght, int zMin, int zMax, int index);
-
-vertex cars[20];
+vertex randVertex(vertex *array, float x, float y, int length, int index);
 
 void initCars(void)
 {
-	vertex length = {CUBE_LENGTH, CUBE_LENGTH, CUBE_LENGTH};
-	for (int i = 0; i < 20; i++)
+	int init = GRASS_SIZE*LINE_WIDTH + LINE_WIDTH/2;
+	float x, y = (float) CUBE_LENGTH/2;
+	for (int i = 0; i < OBSTACLE_SIZE; i++)
 	{
-		cars[i] = randVertex(cars, length, 30, 45, i);
-		if (getDebug())
-			printf("randCar=(%.0f, %.0f, %.0f)\n",
-					cars[i].x, cars[i].y, cars[i].z);
+		x = (float) (init + LINE_WIDTH * i);
+		for (int j = 0; j < LINE_OBSTACLES; j++)
+		{
+			cars[i][j] = randVertex(cars[i], x, y, CUBE_LENGTH, j);
+			if (getDebug())
+				printf("randCar=(%f, %f, %f)\n",
+						cars[i][j].x, cars[i][j].y, cars[i][j].z);
+		}
 	}
 }
 
 void initLogs(void)
 {
-	vertex length = {CYLINDER_HEIGHT, CYLINDER_RADIUS*2, CYLINDER_RADIUS*2};
-	for (int i = 0; i < 20; i++)
+	int init;
+	init = (GRASS_SIZE+INTERVAL_SIZE+OBSTACLE_SIZE)*LINE_WIDTH+LINE_WIDTH/2;
+	float x, y = (float) (-CYLINDER_RADIUS);
+	for (int i = 0; i < OBSTACLE_SIZE; i++)
 	{
-		logs[i] = randVertex(logs, length, 2, 20, i); 
-		if (getDebug())
-			printf("randLog=(%.0f, %.0f, %.0f)\n",
-					logs[i].x, logs[i].y, logs[i].z);
+		for (int j = 0; j < LINE_OBSTACLES; j++)
+		{
+			x = (float) (init + LINE_WIDTH * i);
+			logs[i][j] = randVertex(logs[i], x, y, CYLINDER_HEIGHT, i);
+			if (getDebug())
+				printf("randLog=(%.0f, %.0f, %.0f)\n",
+						logs[i][j].x, logs[i][j].y, logs[i][j].z);
+		}
 	}
 }
 
 void drawCars(void)
 {
-	for (int i = 0; i < 20; i++)
-	{
-		glPushMatrix();
-		glColor3f(1, 0, 0);
-		glTranslatef(cars[i].x, cars[i].y, cars[i].z);
-		drawCube();
-		glPopMatrix();
-	}
+	for (int i = 0; i < OBSTACLE_SIZE; i++)
+		for (int j = 0; j < LINE_OBSTACLES; j++)
+		{
+			glPushMatrix();
+			glColor3f(1, 0, 0);
+			glTranslatef(cars[i][j].x, cars[i][j].y, cars[i][j].z);
+			drawCube();
+			glPopMatrix();
+		}
 }
 
 void drawLogs(void)
 {
-	for (int i = 0; i < 20; i++)
-	{
-		glColor3f(1, 0, 0);
-		glTranslatef(logs[i].x, logs[i].y, logs[i].z);
-		drawCylinder();
-		glTranslatef(-logs[i].x, -logs[i].y, -logs[i].z);
-	}
+	for (int i = 0; i < OBSTACLE_SIZE; i++)
+		for (int j = 0; j < LINE_OBSTACLES; j++)
+		{
+			glPushMatrix();
+			glColor3f(1, 0, 0);
+			glTranslatef(logs[i][j].x, logs[i][j].y, logs[i][j].z);
+			glRotatef(90, 0, 1, 0);
+			drawCylinder();
+			glPopMatrix();
+		}
 }
 
 void updateCars(void)
 {
-	for (int i = 0; i < 20; i++)
-		cars[i].x = (cars[i].x+V_CARS < GRID_WIDTH/2 - CUBE_LENGTH) ?
-			cars[i].x+V_CARS : -GRID_WIDTH/2 + CUBE_LENGTH/2;
+	float distance = (GRID_WIDTH*LINE_WIDTH)-CUBE_LENGTH;
+	for (int i = 0; i < OBSTACLE_SIZE; i++)
+		for (int j = 0; j < LINE_OBSTACLES; j++)
+	{
+		if (i % 2 == 0)
+			cars[i][j].z = (cars[i][j].z + V_CARS < distance) ?
+				cars[i][j].z + V_CARS : CUBE_LENGTH/2;
+		else
+			cars[i][j].z = (cars[i][j].z - V_CARS > CUBE_LENGTH) ?
+				cars[i][j].z - V_CARS : distance;
+	}
 }
 
 void updateLogs(void)
 {
-	for (int i = 0; i < 20; i++)
-		logs[i].x = (logs[i].x+V_LOGS < GRID_WIDTH/2 - CYLINDER_HEIGHT/2) ?
-			logs[i].x+V_LOGS : -GRID_WIDTH/2 + CYLINDER_HEIGHT/2;
+	float distance = (GRID_WIDTH*LINE_WIDTH)-CYLINDER_HEIGHT;
+	for (int i = 0; i < OBSTACLE_SIZE; i++)
+		for (int j = 0; j < LINE_OBSTACLES; j++)
+		{
+			if (i % 2 == 0)
+				logs[i][j].z = (logs[i][j].z + V_LOGS < distance) ?
+					logs[i][j].z + V_LOGS : CYLINDER_HEIGHT/2;
+			else
+				logs[i][j].z = (logs[i][j].z - V_LOGS > CYLINDER_HEIGHT) ?
+					logs[i][j].z - V_LOGS : distance;
+		}
 
 	if (frog.onLog)
 	{
-		if (frog.r.x + V_LOGS < GRID_WIDTH/2 - CYLINDER_HEIGHT/2)
-			frog.r.x = frog.r0.x = frog.r.x + V_LOGS;
+		if (frog.r.z + V_LOGS < GRID_WIDTH - CYLINDER_HEIGHT/2)
+			frog.r.z = frog.r0.z = frog.r.z + V_LOGS;
 		else
 			resetGame();
 	}
 }
 
-vertex randVertex(vertex *array, vertex length, int zMin, int zMax, int index)
+vertex randVertex(vertex *array, float x, float y, int length, int index)
 {
 	int i;
-	vertex v = {0, 0, 0};
+	vertex v = {x, y, 0.0};
 
 	while (1)
 	{
-		v.x = RAND(-GRID_WIDTH/2 + length.x/2, GRID_WIDTH/2 - length.x/2);
-		v.z = RAND(zMin + length.z/2, zMax - length.z/2);
+		v.z = RAND(length/2, (GRID_WIDTH * LINE_WIDTH) - length/2);
 		for (i = 0; i < index; i++)
-			if (array[i].x >= v.x-length.x/2 && array[i].x <= v.x+length.x/2 &&
-				array[i].z >= v.z-length.z/2 && array[i].z <= v.z+length.z/2)
+		{
+			if ((array[i].z > v.z - 2*length) && (array[i].z < v.z + 2*length))
 				break;
+		}
 		if (i == index)
 			break;
 	}

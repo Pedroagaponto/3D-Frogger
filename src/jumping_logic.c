@@ -179,21 +179,24 @@ void calcPositionAnalytical(float t)
 
 bool collisionDetection(void)
 {
-	for (int i = 0; i < 20; i++)
-	{
-		if ((frog.r.x > logs[i].x-1.5) && (frog.r.x < logs[i].x+1.5) &&
-				(frog.r.y <= logs[i].y+0.3) &&
-				(frog.r.z > logs[i].z-0.3) && (frog.r.z < logs[i].z+0.3))
+	for (int i = 0; i < OBSTACLE_SIZE; i++)
+		for (int j = 0; j < LINE_OBSTACLES; j++)
 		{
-			if (getDebug())
-				printf("On top of log\n");
-			frog.onLog = true;
-			frog.r.y = logs[i].y+0.3;
-			return true;
+			if ((frog.r.x > logs[i][j].x - 1.5) &&
+					(frog.r.x < logs[i][j].x + 1.5) &&
+					(frog.r.y <= logs[i][j].y + 0.3) &&
+					(frog.r.z > logs[i][j].z - 0.3) &&
+					(frog.r.z < logs[i][j].z + 	0.3))
+			{
+				if (getDebug())
+					printf("On top of log\n");
+				frog.onLog = true;
+				frog.r.y = logs[i][j].y+0.3;
+				return true;
+			}
+			else
+				frog.onLog = false; 
 		}
-		else
-			frog.onLog = false; 
-	}
 
 	return false;
 }

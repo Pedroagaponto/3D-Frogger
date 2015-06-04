@@ -11,7 +11,8 @@ typedef struct {
 
 /* extern variables */
 frogState frog;
-vertex logs[20];
+vertex cars[OBSTACLE_SIZE][LINE_OBSTACLES];
+vertex logs[OBSTACLE_SIZE][LINE_OBSTACLES];
 
 /* initialization variables */
 static const frogState frogInit = {
@@ -52,11 +53,37 @@ void resetGame(void)
 	frog = frogInit;
 
 	if (gameMode)
-		glutSetCursor(GLUT_CURSOR_NONE);
+		settingsGameMode();
 	else
-		glutSetCursor(GLUT_CURSOR_LEFT_ARROW);
+		settingsDeveloperMode();
 }
 
+void settingsGameMode(void)
+{
+	glutSetCursor(GLUT_CURSOR_NONE);
+	debug = false;
+	pause = false;
+	normalFlag = false;
+	wireFlag = false;
+	axesFlag = false;
+	lightFlag = true;
+	textureFlag = true;
+	verletFlag = true;
+}
+
+void settingsDeveloperMode(void)
+{
+	glutSetCursor(GLUT_CURSOR_LEFT_ARROW);
+	debug = false;
+	pause = true;
+	normalFlag = true;
+	wireFlag = true;
+	axesFlag = true;
+	lightFlag = true;
+	textureFlag = true;
+	verletFlag = true;
+	cam.zoom = 20;
+}
 void resetPerformance(void)
 {
 	frameCount = 0;
@@ -107,11 +134,11 @@ void setupCamera(void)
 void drawText(char *text, float x, float y, float z)
 {
 	int length = (int) strlen(text);
-	
+
 	glRasterPos3f(x, y, z);
 	for (int i = 0; i < length; i++)
 		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, text[i]);
-} 
+}
 
 void calculatePerformance(void)
 {
