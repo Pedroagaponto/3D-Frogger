@@ -147,13 +147,66 @@ int parseObjFile(FILE *objFile, parseResult *result)
 	return 0;
 }
 
+int vertexEqual (vertex a, vertex b)
+{
+	if (a.x != b.x)
+		return 0;
+
+	if (a.y != b.y)
+		return 0;
+
+	if (a.z != b.z)
+		return 0;
+
+	return 1;
+}
+
+int vertex2Equal (vertex2 a, vertex2 b)
+{
+	if (a.x != b.x)
+		return 0;
+
+	if (a.y != b.y)
+		return 0;
+
+	return 1;
+}
+
+int vertexInfoEqual(vertexInfo a, vertexInfo b)
+{
+	if (!vertexEqual(a.p, b.p))
+		return 0;
+
+	if (!vertexEqual(a.n, b.n))
+		return 0;
+
+	if (!vertex2Equal(a.t, b.t))
+		return 0;
+
+	return 1;
+}
+
+int searchVertexInfo(vertexInfo *haystack, int size, vertexInfo needle)
+{
+	int i;
+
+	for (i = 0; i < size; i++)
+	{
+		if (vertexInfoEqual(haystack[i], needle))
+			return i;
+	}
+
+	return -1;
+}
+
 int load_obj(const char *filename, newMesh *m)
 {
 	FILE *objFile;
 	parseResult parsed;
-	int i;
+	int ret, i, filled = 0;
 	vertex vNULL = {0,0,0};
 	vertex2 v2NULL = {0,0};
+	void *new_prt;
 
 	objFile = fopen(filename, "r");
 	if (objFile == NULL)
@@ -169,11 +222,26 @@ int load_obj(const char *filename, newMesh *m)
 
 	for (i = 0; i < parsed.n_f * 3; i++)
 	{
-			m->vertices[i].p = parsed.v[parsed.f[i].v - 1];
-			m->vertices[i].t = (parsed.f[i].vt != 0) ? parsed.vt[parsed.f[i].vt - 1] : v2NULL;
-			m->vertices[i].n = (parsed.f[i].vn != 0) ? parsed.vn[parsed.f[i].vn - 1] : vNULL;
-			m->indices[i] = i;
+		vertexInfo vertex_buf;
+
+		vertex_buf.p = parsed.v[parsed.f[i].v - 1];
+		vertex_buf.t = (parsed.f[i].vt != 0) ? parsed.vt[parsed.f[i].vt - 1] : v2NULL;
+		vertex_buf.n = (parsed.f[i].vn != 0) ? parsed.vn[parsed.f[i].vn - 1] : vNULL;
+
+		ret = searchVertexInfo(m->vertices, filled, vertex_buf);
+		if(ret == -1)
+		{
+			m->vertices[filled] = vertex_buf;
+			m->indices[i] = filled;
+			filled++;
+		}
+		else
+			m->indices[i] = ret;
 	}
+
+	new_prt = realloc(m->vertices, filled * sizeof(vertexInfo));
+	if(new_prt != NULL)
+		m->vertices = (vertexInfo *) new_prt;
 
 	free(parsed.v);
 	free(parsed.vt);
