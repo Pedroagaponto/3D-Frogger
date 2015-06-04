@@ -7,17 +7,28 @@
 #include "procedural.h"
 #include "core.h"
 #include "geometry.h"
+#include "new_geometry.h"
+#include "objloader.h"
 
 #define RAND(min, max) ((rand()%(int)((max+1)-min)) + min)
 #define V_CARS 0.1
 #define V_LOGS 0.03
 
+newMesh car_mesh;
+
+#define N_COLORS 5
+char carTexFiles[N_COLORS][20] = {"res/car_black.png","res/car_blue.png", "res/car_purple.png", "res/car_red.png", "res/car_white.png"};
+int tex[N_COLORS];
 vertex randVertex(vertex *array, float x, float y, int length, int index);
 
 void initCars(void)
 {
 	int init = GRASS_SIZE*LINE_WIDTH + LINE_WIDTH/2;
 	float x, y = (float) CUBE_LENGTH/2;
+
+	for (int i = 0; i < N_COLORS; i++)
+		tex[i] = loadTexture(carTexFiles[i]);
+
 	for (int i = 0; i < OBSTACLE_SIZE; i++)
 	{
 		x = (float) (init + LINE_WIDTH * i);
@@ -29,6 +40,7 @@ void initCars(void)
 						cars[i][j].x, cars[i][j].y, cars[i][j].z);
 		}
 	}
+	load_obj("res/car.obj", &car_mesh);
 }
 
 void initLogs(void)
@@ -54,10 +66,18 @@ void drawCars(void)
 	for (int i = 0; i < OBSTACLE_SIZE; i++)
 		for (int j = 0; j < LINE_OBSTACLES; j++)
 		{
+			glColor3f(1, 1, 1);
+			glPushAttrib(GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_COLOR_BUFFER_BIT | GL_TEXTURE_BIT);
+
 			glPushMatrix();
-			glColor3f(1, 0, 0);
 			glTranslatef(cars[i][j].x, cars[i][j].y, cars[i][j].z);
-			drawCube();
+			glRotatef(180*(i%2), 0, 1, 0);
+			glScalef(1.5, 1.5, 1.5);
+
+			glBindTexture(GL_TEXTURE_2D, tex[i % N_COLORS]);
+			render_mesh(&car_mesh);
+			glBindTexture(GL_TEXTURE_2D, 0);
+
 			glPopMatrix();
 		}
 }

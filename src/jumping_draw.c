@@ -24,11 +24,17 @@ void drawFrog(void)
 {
 	glColor3f(1, 1, 1);
 	glPushAttrib(GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_COLOR_BUFFER_BIT | GL_TEXTURE_BIT);
+
+	glPushMatrix();
 	glBindTexture(GL_TEXTURE_2D, test.obj);
+
 	glTranslatef(frog.r.x, frog.r.y, frog.r.z);
+	glRotatef(frog.r0.phi/M_PI * 180, 0, 1, 0);
 	render_mesh(&test);
-	glTranslatef(-frog.r.x, -frog.r.y, -frog.r.z);
+
 	glBindTexture(GL_TEXTURE_2D, 0);
+	glPopMatrix();
+
 	glPopAttrib();
 }
 
