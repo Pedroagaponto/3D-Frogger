@@ -6,7 +6,6 @@
 #define REDUCE 1
 #define S_SLICES 8
 #define S_STACKS 8
-#define S_RADIUS 0.5
 #define CYLINDER_SLICES 8
 #define CUBE_SLICES 4
 #define CUBE_RADIUS (sqrt(2)/2)*CUBE_LENGTH

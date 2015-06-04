@@ -17,12 +17,6 @@ void gameSpecialKeys(unsigned char key);
 void debugSpecialKeys(unsigned char key);
 void keyJump(float phi);
 
-void resetInputVariables(void)
-{
-	oldX = getWidth()/2;
-	oldY = getHeight()/2;
-}
-
 void keyboard(unsigned char key, int x, int y)
 {
 	UNUSED_VAR x;
@@ -44,13 +38,7 @@ void keyboard(unsigned char key, int x, int y)
 		case 'm':
 		case 'M':
 			switchGameMode();
-			if(getGameMode())
-			{
-				oldX = getWidth()/2;
-				settingsGameMode();
-			}
-			else
-				settingsDeveloperMode();
+			resetGame();
 			break;
 		default:
 			if (getGameMode())
@@ -264,7 +252,7 @@ void mouseMove(int x, int y)
 		oldY = y;
 	}
 	else
-		setRotateCamPhi(getRotateCamPhi() + (oldX - x)*0.1);
+		setRotateCamPhi(getRotateCamPhi() + (getWidth()/2 - x)*0.1);
 }
 
 void passiveMouseMove(int x, int y)
@@ -272,7 +260,7 @@ void passiveMouseMove(int x, int y)
 	UNUSED_VAR y;
 
 	if (getGameMode())
-		setRotateCamPhi(getRotateCamPhi() + (oldX - x)*0.1);
+		setRotateCamPhi(getRotateCamPhi() + ((getWidth()/2 - x)*0.1));
 }
 
 void keyJump(float phi)

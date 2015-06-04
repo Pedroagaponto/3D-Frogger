@@ -9,6 +9,9 @@ typedef struct {
 	float theta, phi, zoom;
 } camAttr;
 
+void settingsGameMode(void);
+void settingsDeveloperMode(void);
+
 /* extern variables */
 frogState frog;
 vertex cars[OBSTACLE_SIZE][LINE_OBSTACLES];
@@ -19,7 +22,8 @@ static const frogState frogInit = {
 /*	{ x,  y,   z,    r,          theta,  phi,      dx,  dy,  dz}*/
 	{ 26, 0.0, 50.0, 8.94427191, M_PI/4, 5*M_PI/2, 0.0, 0.0, 0.0},
 	{ 26, 0.0, 50.0, 8.94427191, M_PI/4, 5*M_PI/2, 0.0, 0.0, 0.0},
-	false
+	false,
+	0
 };
 static const camAttr camInit = {45, -90, 5};
 
@@ -28,8 +32,8 @@ static camAttr cam;
 static int segments = 10;
 static int score = 0;
 static int lifes = 5;
-static int width = 500;
-static int height = 500;
+static int width = 1000;
+static int height = 1000;
 static int oldTime = 0;
 static int fps = 0;
 static int frameCount = 0;
@@ -45,12 +49,18 @@ static bool axesFlag = true;
 static bool lightFlag = true;
 static bool textureFlag = true;
 static bool verletFlag = true;
+static bool jumpingFlag = false;
 
 void resetGame(void)
 {
 	resetPerformance();
 	cam = camInit;
 	frog = frogInit;
+
+	jumpingFlag = false;
+	debug = false;
+	lightFlag = true;
+	verletFlag = true;
 
 	if (gameMode)
 		settingsGameMode();
@@ -61,27 +71,21 @@ void resetGame(void)
 void settingsGameMode(void)
 {
 	glutSetCursor(GLUT_CURSOR_NONE);
-	debug = false;
 	pause = false;
 	normalFlag = false;
 	wireFlag = false;
 	axesFlag = false;
-	lightFlag = true;
 	textureFlag = true;
-	verletFlag = true;
 }
 
 void settingsDeveloperMode(void)
 {
 	glutSetCursor(GLUT_CURSOR_LEFT_ARROW);
-	debug = false;
 	pause = true;
 	normalFlag = true;
 	wireFlag = true;
 	axesFlag = true;
-	lightFlag = true;
-	textureFlag = true;
-	verletFlag = true;
+	textureFlag = false;
 	cam.zoom = 20;
 }
 void resetPerformance(void)
@@ -221,13 +225,6 @@ void switchDebug(void)
 void switchGameMode(void)
 {
 	gameMode = !gameMode;
-	if (gameMode)
-	{
-		glutSetCursor(GLUT_CURSOR_NONE);
-		resetGame();
-	}
-	else
-		glutSetCursor(GLUT_CURSOR_LEFT_ARROW);
 }
 
 void switchPause(void)
@@ -268,6 +265,11 @@ void switchTextureFlag(void)
 void switchVerletFlag(void)
 {
 	verletFlag = !verletFlag;
+}
+
+void setJumpingFlag(bool flag)
+{
+	jumpingFlag = flag;
 }
 
 int getSegments(void)
@@ -363,5 +365,10 @@ bool getTextureFlag(void)
 bool getVerletFlag(void)
 {
 	return verletFlag;
+}
+
+bool getJumpingFlag(void)
+{
+	return jumpingFlag;
 }
 

@@ -77,9 +77,6 @@ void init(void)
 	glEnable(GL_COLOR_MATERIAL);
 
 	resetGame();
-	resetInputVariables();
-	updateCartesian(&frog.r);
-	updateCartesian(&frog.r0);
 
 	initGrid();
 	initSphere();
@@ -238,6 +235,10 @@ void idle(void)
 	{
 		updateCars();
 		updateLogs();
+
+		if (collisionDetection())
+			resetGame();
+
 		glutPostRedisplay();
 	}
 	else if (jump == 0)

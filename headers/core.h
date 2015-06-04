@@ -7,9 +7,15 @@
 #define REDUCTION 25
 #define GRID_WIDTH 25
 #define GRID_HEIGHT 25
+#define CYLINDER_RADIUS 1
+#define CYLINDER_HEIGHT 6
+#define S_RADIUS 0.5
+#define CUBE_LENGTH 2
 #define LINE_WIDTH 4
 #define LINE_OBSTACLES 6
 #define OBSTACLE_SIZE 5
+#define INTERVAL_SIZE 1
+#define GRASS_SIZE 7
 #ifndef M_PI
 #define M_PI 3.14159265359
 #endif
@@ -24,6 +30,7 @@ typedef struct{
 typedef struct {
 	projection r0, r;
 	bool onLog;
+	int logDirection;
 } frogState;
 
 typedef struct {
@@ -31,8 +38,6 @@ typedef struct {
 } vertex;
 
 void resetGame(void);
-void settingsGameMode(void);
-void settingsDeveloperMode(void);
 void resetPerformance(void);
 void setProjectionMatrix(void);
 void setupCamera(void);
@@ -59,6 +64,7 @@ void switchAxesFlag(void);
 void switchLightFlag(void);
 void switchTextureFlag(void);
 void switchVerletFlag(void);
+void setJumpingFlag(bool flag);
 int getSegments(void);
 int getScore(void);
 int getLifes(void);
@@ -79,6 +85,7 @@ bool getAxesFlag(void);
 bool getLightFlag(void);
 bool getTextureFlag(void);
 bool getVerletFlag(void);
+bool getJumpingFlag(void);
 
 extern frogState frog;
 extern vertex cars[OBSTACLE_SIZE][LINE_OBSTACLES];

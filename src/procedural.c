@@ -93,22 +93,29 @@ void updateCars(void)
 
 void updateLogs(void)
 {
-	float distance = (GRID_WIDTH*LINE_WIDTH)-CYLINDER_HEIGHT;
+	float distance = (GRID_WIDTH*LINE_WIDTH)-CYLINDER_HEIGHT/2;
 	for (int i = 0; i < OBSTACLE_SIZE; i++)
 		for (int j = 0; j < LINE_OBSTACLES; j++)
 		{
 			if (i % 2 == 0)
+			{
 				logs[i][j].z = (logs[i][j].z + V_LOGS < distance) ?
 					logs[i][j].z + V_LOGS : CYLINDER_HEIGHT/2;
+			}
 			else
-				logs[i][j].z = (logs[i][j].z - V_LOGS > CYLINDER_HEIGHT) ?
+			{
+				logs[i][j].z = (logs[i][j].z - V_LOGS > CYLINDER_HEIGHT/2) ?
 					logs[i][j].z - V_LOGS : distance;
+			}
 		}
 
 	if (frog.onLog)
 	{
-		if (frog.r.z + V_LOGS < GRID_WIDTH - CYLINDER_HEIGHT/2)
-			frog.r.z = frog.r0.z = frog.r.z + V_LOGS;
+		if ((frog.logDirection == 1) &&	(frog.r.z + V_LOGS < distance))
+			frog.r0.z = frog.r.z = frog.r.z + V_LOGS;
+		else if ((frog.logDirection == -1) &&
+				(frog.r.z - V_LOGS >= CYLINDER_HEIGHT/2))
+			frog.r0.z = frog.r.z = frog.r.z - V_LOGS;
 		else
 			resetGame();
 	}

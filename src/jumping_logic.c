@@ -8,32 +8,69 @@
 
 void calcPositionNumerical(float dt);
 void calcPositionAnalytical(float t);
-bool collisionDetection(void);
 
 static float startTime = 0;
-
-static bool jumpingFlag = false;
 static bool analyticFlag = true;
-
-bool getJumpingFlag(void)
-{
-	return jumpingFlag;
-}
 
 void switchAnalyticFlag(void)
 {
 	analyticFlag = !analyticFlag;
 }
 
+bool collisionDetection(void)
+{
+	for (int i = 0; i < OBSTACLE_SIZE; i++)
+		for (int j = 0; j < LINE_OBSTACLES; j++)
+		{
+			if ((frog.r.x == logs[i][j].x ) && (frog.r.y == 0) &&
+					(frog.r.z > logs[i][j].z - CYLINDER_HEIGHT/2) &&
+					(frog.r.z < logs[i][j].z + CYLINDER_HEIGHT/2))
+			{
+				if (getDebug())
+					printf("On top of log\n");
+				
+				frog.onLog = true;
+
+				if (i % 2 == 0)
+					frog.logDirection = 1;
+				else
+					frog.logDirection = -1;
+
+				return false;
+			}
+			if ((frog.r.x >= cars[i][j].x - CUBE_LENGTH/2) &&
+					(frog.r.x <= cars[i][j].x + CUBE_LENGTH/2) &&
+					(frog.r.y <= CUBE_LENGTH) &&
+					(frog.r.y >= 0) &&
+					(frog.r.z >= cars[i][j].z - CUBE_LENGTH/2) &&
+					(frog.r.z <= cars[i][j].z + CUBE_LENGTH/2))
+			{
+				if (getDebug())
+					printf("Frog/car colision\n");
+				return true;
+			}
+		}
+
+	frog.onLog = false; 
+
+	int riverInit =
+		(GRASS_SIZE+INTERVAL_SIZE+OBSTACLE_SIZE)*LINE_WIDTH+LINE_WIDTH/2;
+	if ((frog.r.y == 0) && (frog.r.x >= riverInit) &&
+			(frog.r.x <= riverInit + LINE_WIDTH * 4))
+		return true;
+
+	return false;
+}
+
 /*
- * Function executed when space key is pressed,
- * and just allow jumping inside the window
+ * Function executed when a jumping key is pressed,
+ * and just allow jumping inside the stablished limit
  */
 void jumpingSettings(void)
 {
-	if (!jumpingFlag && parabolaInsideWindow())
+	if (!getJumpingFlag() && parabolaInsideWindow())
 	{
-		jumpingFlag = true;
+		setJumpingFlag(true);
 		startTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0;
 		frog.r.theta = frog.r0.theta;
 		frog.r.r = frog.r0.r;
@@ -48,7 +85,7 @@ int jumpingIdle(void)
 	static float tLast = -1.0;
 	float t, dt;
 
-	if (!jumpingFlag)
+	if (!getJumpingFlag())
 		return -1;
 
 	t = glutGet(GLUT_ELAPSED_TIME) / 1000.0 - startTime;
@@ -66,7 +103,7 @@ int jumpingIdle(void)
 				t, startTime, frog.r.x, frog.r.y, frog.r.z);
 	calcPositionNumerical(dt);
 
-	if (!jumpingFlag)
+	if (!getJumpingFlag())
 		tLast = -1;
 	else
 		tLast = t;
@@ -124,14 +161,14 @@ void calcPositionNumerical(float dt)
 	if (getDebug())
 		printf("Numerical Jump: angle %f, speed %f, x %f, y %f, z %f\n",
 				frog.r.theta*180/M_PI, frog.r.r, frog.r.x, frog.r.y, frog.r.dz);
-	if ((frog.r.y <= 0) || (collisionDetection()))
+	if (frog.r.y <= 0)
 	{
 		frog.r.y = frog.r0.y = 0;
 		frog.r0.x += calcReach() * sin(frog.r0.phi);
 		frog.r0.z += calcReach() * cos(frog.r0.phi);
 		frog.r.x = frog.r0.x;
 		frog.r.z = frog.r0.z;
-		jumpingFlag = false;
+		setJumpingFlag(false);
 		updateSpherical(&frog.r0);
 		frog.r = frog.r0;
 		glutPostRedisplay();
@@ -163,7 +200,7 @@ void calcPositionAnalytical(float t)
 				frog.r.angle*180/M_PI, frog.r.speed, frog.r.x, frog.r.y);
 	if (t >= tEnd)
 	{
-		jumpingFlag = false;
+		getJumpingFlag() = false;
 		frog.r0.x = frog.r.x;
 		frog.r0.y = frog.r.y;
 	}
@@ -175,29 +212,5 @@ void calcPositionAnalytical(float t)
 	if (dx < 0)
 		frog.r.angle+=M_PI;
 #endif
-}
-
-bool collisionDetection(void)
-{
-	for (int i = 0; i < OBSTACLE_SIZE; i++)
-		for (int j = 0; j < LINE_OBSTACLES; j++)
-		{
-			if ((frog.r.x > logs[i][j].x - 1.5) &&
-					(frog.r.x < logs[i][j].x + 1.5) &&
-					(frog.r.y <= logs[i][j].y + 0.3) &&
-					(frog.r.z > logs[i][j].z - 0.3) &&
-					(frog.r.z < logs[i][j].z + 	0.3))
-			{
-				if (getDebug())
-					printf("On top of log\n");
-				frog.onLog = true;
-				frog.r.y = logs[i][j].y+0.3;
-				return true;
-			}
-			else
-				frog.onLog = false; 
-		}
-
-	return false;
 }
 
