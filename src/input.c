@@ -15,7 +15,7 @@ void gameKeyboard(unsigned char key);
 void debugKeyboard(unsigned char key);
 void gameSpecialKeys(unsigned char key);
 void debugSpecialKeys(unsigned char key);
-void keyJump(void);
+void keyJump(float phi);
 
 void resetInputVariables(void)
 {
@@ -67,23 +67,19 @@ void gameKeyboard(unsigned char key)
 	{
 		case 'd':
 		case 'D':
-			frog.r0.phi = 2 * M_PI;
-			keyJump();
+			keyJump(2 * M_PI);
 			break;
 		case 'a':
 		case 'A':
-			frog.r0.phi = M_PI;
-			keyJump();
+			keyJump(M_PI);
 			break;
 		case 'w':
 		case 'W':
-			frog.r0.phi = (5 * M_PI) / 2;
-			keyJump();
+			keyJump((5 * M_PI) / 2);
 			break;
 		case 's':
 		case 'S':
-			frog.r0.phi = (3 * M_PI) / 2;
-			keyJump();
+			keyJump((3 * M_PI) / 2);
 			break;
 		default:
 			break;
@@ -190,20 +186,16 @@ void gameSpecialKeys(unsigned char key)
 	switch (key)
 	{
 		case GLUT_KEY_UP:
-			frog.r0.phi = (5 * M_PI) / 2;
-			keyJump();
+			keyJump((5 * M_PI) / 2);
 			break;
 		case GLUT_KEY_DOWN:
-			frog.r0.phi = (3 * M_PI) / 2;
-			keyJump();
+			keyJump((3 * M_PI) / 2);
 			break;
 		case GLUT_KEY_LEFT:
-			frog.r0.phi = M_PI;
-			keyJump();
+			keyJump(M_PI);
 			break;
 		case GLUT_KEY_RIGHT:
-			frog.r0.phi = 2 * M_PI;
-			keyJump();
+			keyJump(2 * M_PI);
 			break;
 		default:
 			break;
@@ -223,7 +215,6 @@ void debugSpecialKeys(unsigned char key)
 			glutPostRedisplay();
 			break;
 		case GLUT_KEY_LEFT:
-			frog.r0.phi += M_PI/16;
 			updateCartesian(&frog.r0);
 			glutPostRedisplay();
 			break;
@@ -284,9 +275,13 @@ void passiveMouseMove(int x, int y)
 		setRotateCamPhi(getRotateCamPhi() + (oldX - x)*0.1);
 }
 
-void keyJump(void)
+void keyJump(float phi)
 {
-	updateCartesian(&frog.r0);
-	jumpingSettings();
+	if (!getJumpingFlag())
+	{
+		frog.r0.phi = phi;
+		updateCartesian(&frog.r0);
+		jumpingSettings();
+	}
 }
 
