@@ -16,8 +16,8 @@ void drawParametricParabola(void);
 
 void initFrog(void)
 {
-	test.obj = loadTexture("res/world_map.jpg");
-	load_obj("res/sphere.obj", &test);
+	test.obj = loadTexture("res/frog.jpg");
+	load_obj("res/frog.obj", &test);
 }
 
 void drawFrog(void)
