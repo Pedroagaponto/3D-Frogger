@@ -24,7 +24,7 @@ vertex randVertex(vertex *array, float x, float y, int length, int index);
 void initCars(void)
 {
 	int init = GRASS_SIZE*LINE_WIDTH + LINE_WIDTH/2;
-	float x, y = (float) CUBE_LENGTH/2;
+	float x, y = 0;
 
 	for (int i = 0; i < N_COLORS; i++)
 		tex[i] = loadTexture(carTexFiles[i]);
@@ -34,7 +34,7 @@ void initCars(void)
 		x = (float) (init + LINE_WIDTH * i);
 		for (int j = 0; j < LINE_OBSTACLES; j++)
 		{
-			cars[i][j] = randVertex(cars[i], x, y, CUBE_LENGTH, j);
+			cars[i][j] = randVertex(cars[i], x, y, LINE_WIDTH, j);
 			if (getDebug())
 				printf("randCar=(%f, %f, %f)\n",
 						cars[i][j].x, cars[i][j].y, cars[i][j].z);

@@ -139,7 +139,7 @@ void debugKeyboard(unsigned char key)
 		case 'W':
 			if (!getJumpingFlag())
 			{
-				frog.r0.r = (frog.r0.r > 9.8) ? 10 : frog.r0.r+0.2;
+				frog.r0.r = (frog.r0.r > 99.8) ? 100 : frog.r0.r+0.2;
 				updateCartesian(&frog.r0);
 				glutPostRedisplay();
 			}
@@ -203,6 +203,7 @@ void debugSpecialKeys(unsigned char key)
 			glutPostRedisplay();
 			break;
 		case GLUT_KEY_LEFT:
+			frog.r0.phi += M_PI/16;
 			updateCartesian(&frog.r0);
 			glutPostRedisplay();
 			break;

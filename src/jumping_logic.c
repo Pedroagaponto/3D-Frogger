@@ -126,7 +126,7 @@ float calcTimeOfFlight(void)
 /* Using the calcReach, checks if will land inside the window */
 bool parabolaInsideWindow(void)
 {
-	if (calcReach() < 10.0)
+	if (calcReach() < 100.0)
 	{
 		float reachX = frog.r0.x + calcReach() * sin(frog.r0.phi);
 		float reachZ = frog.r0.z + calcReach() * cos(frog.r0.phi);
