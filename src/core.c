@@ -5,7 +5,7 @@
 
 #include "core.h"
 
-#define MAX_LIFES 1
+#define MAX_LIFES 5
 
 typedef struct {
 	float theta, phi, zoom;

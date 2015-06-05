@@ -131,19 +131,16 @@ void updateLogs(void)
 
 	if (frog.onLog)
 	{
-		if ((frog.logDirection == 1) &&	(frog.r.z + V_LOGS < distance))
+		if (frog.logDirection == 1)
 			frog.r0.z = frog.r.z = frog.r.z + V_LOGS;
-		else if ((frog.logDirection == -1) &&
-				(frog.r.z - V_LOGS >= CYLINDER_HEIGHT/2))
+		else if (frog.logDirection == -1)
 			frog.r0.z = frog.r.z = frog.r.z - V_LOGS;
-		else
-			resetGame();
 	}
 }
 
 vertex randVertex(vertex *array, float x, float y, int length, int index)
 {
-	int i;
+	int i, count;
 	vertex v = {x, y, 0.0};
 
 	while (1)
@@ -151,11 +148,18 @@ vertex randVertex(vertex *array, float x, float y, int length, int index)
 		v.z = RAND(length/2, (GRID_WIDTH * LINE_WIDTH) - length/2);
 		for (i = 0; i < index; i++)
 		{
-			if ((array[i].z > v.z - 2*length) && (array[i].z < v.z + 2*length))
+			if ((array[i].z > v.z - 2*length - 2) &&
+					(array[i].z < v.z + 2*length - 2))
 				break;
 		}
+		count++;
 		if (i == index)
 			break;
+		else if (count > 10)
+		{
+			v.z = array[0].z;
+			break;
+		}
 	}
 
 	return v;

@@ -36,9 +36,17 @@ bool collisionDetection(void)
 				frog.onLog = true;
 
 				if (i % 2 == 0)
+				{
 					frog.logDirection = 1;
+					if (frog.r.z >= (GRID_WIDTH*LINE_WIDTH)-CYLINDER_HEIGHT/2)
+						return true;
+				}
 				else
+				{
 					frog.logDirection = -1;
+					if (frog.r.z <= CYLINDER_HEIGHT/2)
+						return true;
+				}
 
 				return false;
 			}
@@ -72,7 +80,7 @@ bool gameCheck(void)
 
 	if (frog.r.y == 0)
 	{
-		if ((getLifes() == 1) && (collision))
+		if (collision)
 			oldLine = 0;
 		else if (line > 11)
 		{
