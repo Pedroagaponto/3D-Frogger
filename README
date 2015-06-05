@@ -4,53 +4,78 @@ Authors:	Aurora Li Min de Freitas - s3529137
 This code was implemented as part of COSC1186/1187 Interactive 3D Graphics and
 Animation course.
 
-Features:
-	-Draws a sphere to represent a frog using parametric equations.
-	-Draws a parabola representing the 3D jump tragetory using parametric
-	equations.
-	-Controls the x and z direction of the frog(ie, rotation around the y axis).
-	-Controls the speed/rotation of the frog’s jump.
-	-Animates the frog using the numerical integration technique in three
-	dimensions.
-	-Uses a third person perspective camera, that follows the frog as it moves.
-	-Draws a simple world (a grid 100x100 on the xz plane).
-	-Draws moving cylinders to represent logs, and moving cubes to represent
-	cars.
-	-Draws normal vectors for all geometry being rendered and tangents for the
-	parabola.
-	-Applies lighting to all geometry.
-	-Adds keyboard controls for for toggling lighting/wifreframe mode.
+Note: Some textures and models used are based on creative commons that can be
+found on:
+	-http://www.theairtightgarage.net/index_textures.html
+	-http://www.123dapp.com/3dcr-Creature/Racing-frog-8/1625190
+	-http://www.123dapp.com/123C-3D-Model/Old-Fashioned-Convertible/1124556
 
-Extra features:
-	-Changes parabola color to red when the tragetory is too long, showing
-	that the frog cannot land more than 10 units far from the initial position.
-	-Changes parabola color to red when the tragetory is landing outside the
-	grid, showing that the frog cannot land if there is no "floor".
-	-Allows to switch on/off the debug (verbose) mode during program execution.
-	-Uses cubes and cylinders to draw a figure more like a real car than just a
-	cube.
-	-Allows to switch on/off the cars/logs movement.
-	-Allows to switch the jumping calculation between Velocity Verlet
-	Integration (standart one) and Euler Integration.
+Features and extra features:
+	[Global features]
+		-Draws logs
+		-Draws cars models loaded from a .obj
+		-Draws a frog model loaded from a .obj
+		-Animates the frog using the numerical integration technique in three
+		dimensions
+		-Uses a third person perspective camera, that follows the frog as
+		it moves
+		-Draws a frogger map with road and river
+		(a grid 100x100 on the xz plane)
+		-Applies lighting to all geometry
+		-Performs collision detection with the cars
+		-Performs collision detection with the logs
+		-Adds an OSD which shows frame rate and time per frame
+		-Changes parabola color to red when the tragetory is landing outside
+		the stablished limit area, showing that the frog cannot land there
+		-Allows to switch on/off the debug (verbose) mode during program
+		execution
+		-Adds a pause game mechanism
+		-Allows to switch the jumping calculation between Velocity Verlet
+		Integration (standart one) and Euler Integration.
+	[Game mode feetures]
+		-Game Scoring
+		-Adds a game over screen displayed when the user has no lifes.
+		-Create restart game option
+		-Implements moviments using the arrow keys and wasd keys to improve
+		jogability
+		-Implements camera control with mouse in a way that improves jogability
+	[Developer mode features]
+		-Draws a parabola representing the 3D jump tragetory using parametric
+		equations
+		-Controls the x and z direction of the frog
+		(ie, rotation around the y axis)
+		-Controls the speed/rotation of the frog’s jump
+		-Draws normal vectors for the geometry being rendered and tangents for
+		the parabola
+		-Adds keyboard controls for for toggling lighting/wifreframe mode.
 
 Controls:
-	-' ': jump
-	-'v' or 'V': toggle debug mode
-	-'o' or 'O': toggle axes
-	-'n' or 'N': toggle normals and the parabola tangent
-	-'p' or 'P: toggle wireframe
-	-'l' or 'L': toggle lightining.
-	-'w' or 'W': increase speed
-	-'s' or 'S': decrease speed
-	-'a' or 'A': increase angle
-	-'d' or 'D': decrease angle
-	-'b' or 'B': pause/continue cars/logs movement
-	-'j' or 'J': switch the jumping integration mode
-	-left mouse: rotate camera
-	-left arrow: rotate frog left
-	-right mouse: zoom camera
-	-right arrow: rotate frog right
-	-'q' or 'Q' or ESC: exit program
+	[All modes]
+		-'q' or 'Q' or ESC: exit program
+		-'b' or 'B': pause/continue
+		-'m' or 'M': switch between developer mode and game mode
+	[Developer mode]
+		-' ': jump
+		-'v' or 'V': toggle debug mode
+		-'o' or 'O': toggle axes
+		-'n' or 'N': toggle normals and the parabola tangent
+		-'p' or 'P: toggle wireframe
+		-'l' or 'L': toggle lightining.
+		-'w' or 'W': increase speed
+		-'s' or 'S': decrease speed
+		-'a' or 'A': increase angle
+		-'d' or 'D': decrease angle
+		-'j' or 'J': switch the jumping integration mode
+		-left mouse: rotate camera
+		-left arrow: rotate frog left
+		-right mouse: zoom camera
+		-right arrow: rotate frog right
+	[Game mode]
+		-'w' or 'W' or up arrow: front jump
+		-'s' or 'S' or down arrow: back jump
+		-'a' or 'A' or left arrow: left jump
+		-'d' or 'D' or right arrow: right jump
+		-Mouse right/left: rotates camera around Y axis
 
 How to compile:
 	-In the project folder, use the command 'make'
