@@ -5,6 +5,8 @@
 
 #include "core.h"
 
+#define MAX_LIFES 1
+
 typedef struct {
 	float theta, phi, zoom;
 } camAttr;
@@ -31,7 +33,7 @@ static const camAttr camInit = {45, -90, 5};
 static camAttr cam;
 static int segments = 10;
 static int score = 0;
-static int lifes = 5;
+static int lifes = MAX_LIFES;
 static int width = 1000;
 static int height = 1000;
 static int oldTime = 0;
@@ -49,23 +51,32 @@ static bool axesFlag = true;
 static bool lightFlag = true;
 static bool textureFlag = true;
 static bool verletFlag = true;
+static bool gameOver = false;
 static bool jumpingFlag = false;
 
 void resetGame(void)
 {
-	resetPerformance();
-	cam = camInit;
-	frog = frogInit;
-
 	jumpingFlag = false;
 	debug = false;
 	lightFlag = true;
 	verletFlag = true;
 
+	cam = camInit;
+
 	if (gameMode)
 		settingsGameMode();
 	else
 		settingsDeveloperMode();
+
+	resetPerformance();
+	frog = frogInit;
+
+	if (gameOver)
+	{
+		score = 0;
+		lifes = MAX_LIFES;
+	}
+	gameOver = false;
 }
 
 void settingsGameMode(void)
@@ -135,13 +146,13 @@ void setupCamera(void)
 			  upX, upY, upZ);
 }
 
-void drawText(char *text, float x, float y, float z)
+void drawText(char *text, float x, float y, float z, void *font)
 {
 	int length = (int) strlen(text);
 
 	glRasterPos3f(x, y, z);
 	for (int i = 0; i < length; i++)
-		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, text[i]);
+			glutBitmapCharacter(font, text[i]);
 }
 
 void calculatePerformance(void)
@@ -267,6 +278,13 @@ void switchVerletFlag(void)
 	verletFlag = !verletFlag;
 }
 
+void setGameOver(bool flag)
+{
+	gameOver = flag;
+	if (gameOver)
+		pause = true;
+}
+
 void setJumpingFlag(bool flag)
 {
 	jumpingFlag = flag;
@@ -365,6 +383,11 @@ bool getTextureFlag(void)
 bool getVerletFlag(void)
 {
 	return verletFlag;
+}
+
+bool getGameOver(void)
+{
+	return gameOver;
 }
 
 bool getJumpingFlag(void)

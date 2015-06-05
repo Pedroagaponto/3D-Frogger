@@ -30,6 +30,7 @@ void drawFrog(void)
 
 	glTranslatef(frog.r.x, frog.r.y, frog.r.z);
 	glRotatef(frog.r0.phi/M_PI * 180, 0, 1, 0);
+	glScalef(0.5, 0.5, 0.5);
 	render_mesh(&test);
 
 	glBindTexture(GL_TEXTURE_2D, 0);

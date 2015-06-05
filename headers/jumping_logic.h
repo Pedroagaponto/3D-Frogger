@@ -6,7 +6,7 @@
 #define GRAVITY 20
 
 void switchAnalyticFlag(void);
-bool collisionDetection(void);
+bool gameCheck(void);
 void jumpingSettings(void);
 int jumpingIdle(void);
 float calcReach(void);

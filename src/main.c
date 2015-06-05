@@ -12,6 +12,8 @@
 #include "procedural.h"
 
 #define SUB_HEIGHT 30
+#define GAME_OVER_W 200
+#define GAME_OVER_H 160
 
 void inputEvents(void);
 void init(void);
@@ -19,14 +21,17 @@ void initLight(void);
 void mainDisplay(void);
 void infoDisplay(void);
 void osdDisplay(void);
+void overDisplay(void);
 void mainReshape(int width, int height);
 void infoReshape(int width, int height);
 void osdReshape(int width, int height);
+void overReshape(int width, int height);
 void idle(void);
 
 int mainWin;
 int infoWin;
 int osdWin;
+int overWin;
 
 int main(int argc, char **argv)
 {
@@ -49,6 +54,11 @@ int main(int argc, char **argv)
 	osdWin = glutCreateSubWindow(mainWin, 150, SUB_HEIGHT, 100, SUB_HEIGHT); 
 	glutDisplayFunc(osdDisplay); 
 	inputEvents();
+
+	overWin = glutCreateSubWindow(mainWin, 0, 0, GAME_OVER_W, GAME_OVER_H); 
+	glutDisplayFunc(overDisplay); 
+	glutHideWindow();
+	glutKeyboardFunc(keyboard);
 
 	init();
 	glutMainLoop();
@@ -79,8 +89,6 @@ void init(void)
 	resetGame();
 
 	initGrid();
-	initSphere();
-	initCube();
 	initCylinder();
 	initCars();
 	initLogs();
@@ -175,10 +183,12 @@ void infoDisplay(void)
 	for (int i = 0; i < getLifes(); i++)
 		snprintf(buffer + strlen(buffer), 40, " <3");
 	glColor3f(0.5, 0.5, 0.5);
-	drawText(buffer, (500/(float)getWidth())*0.05-1, -0.35, 0);
+	drawText(buffer, (500/(float)getWidth())*0.07-1, -0.35, 0,
+			GLUT_BITMAP_HELVETICA_18);
 	memset(buffer, '\0', 40);
-	snprintf(buffer, 40, "Score: %2d", getScore());
-	drawText(buffer, 1-(500/(float)getWidth())*0.33, -0.35, 0);
+	snprintf(buffer, 40, "Score: %3d", getScore());
+	drawText(buffer, 1-(500/(float)getWidth())*0.37, -0.35, 0,
+			GLUT_BITMAP_HELVETICA_18);
 
 	glutSwapBuffers();
 }
@@ -194,7 +204,32 @@ void osdDisplay(void)
 
 	memset(buffer, '\0', 20);
 	snprintf(buffer, 20, "FPS: %2d", getFps());
-	drawText(buffer, -0.26, -0.35, 0);
+	drawText(buffer, -0.26, -0.35, 0, GLUT_BITMAP_HELVETICA_18);
+
+	glutSwapBuffers();
+}
+
+void overDisplay(void)
+{
+	char buffer[20];
+
+	glutSetWindow(overWin); 
+	if (!getGameOver())
+	{
+		glutHideWindow(); 
+		return;
+	}
+
+	glutShowWindow(); 
+	glClearColor(0.0, 0.0, 0.0, 0.0); 
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	memset(buffer, '\0', 20);
+	snprintf(buffer, 20, "FINAL SCORE: %2d", getScore());
+	drawText("GAME OVER", -0.7, 0.2, 0, GLUT_BITMAP_TIMES_ROMAN_24);
+	drawText(buffer, -0.65, -0.1, 0, GLUT_BITMAP_9_BY_15);
+	drawText("Press [space] to", -0.6, -0.3, 0, GLUT_BITMAP_8_BY_13);
+	drawText("restart", -0.25, -0.45, 0, GLUT_BITMAP_8_BY_13);
 
 	glutSwapBuffers();
 }
@@ -207,6 +242,7 @@ void mainReshape(int width, int height)
 
 	infoReshape(width, height);
 	osdReshape(width, height);
+	overReshape(width, height);
 
 	setWidth(width);
 	setHeight(height);
@@ -231,6 +267,15 @@ void osdReshape(int width, int height)
 	glutSetWindow(mainWin);
 }
 
+void overReshape(int width, int height)
+{
+	glutSetWindow(overWin);
+	glViewport(0, 0, width, height); 
+	glutReshapeWindow(GAME_OVER_W, GAME_OVER_H); 
+	glutPositionWindow(width/2 - GAME_OVER_W/2, height/2 - GAME_OVER_H/2);
+	glutSetWindow(mainWin);
+}
+
 void idle(void)
 {
 	calculatePerformance();
@@ -241,9 +286,20 @@ void idle(void)
 		updateCars();
 		updateLogs();
 
-		if (collisionDetection())
-			resetGame();
-
+		if (gameCheck())
+		{
+			if (getLifes() > 1)
+			{
+				setLifes(getLifes()-1);
+				resetGame();
+			}
+			else
+			{
+				setGameOver(true);
+				overDisplay();
+			}
+		}
+		gameCheck();
 		glutPostRedisplay();
 	}
 	else if (jump == 0)

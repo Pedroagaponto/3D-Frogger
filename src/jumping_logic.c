@@ -6,6 +6,7 @@
 #include "jumping_draw.h"
 #include "core.h"
 
+bool collisionDetection(void);
 void calcPositionNumerical(float dt);
 void calcPositionAnalytical(float t);
 
@@ -19,6 +20,9 @@ void switchAnalyticFlag(void)
 
 bool collisionDetection(void)
 {
+	if (!getGameMode())
+		return false;
+
 	for (int i = 0; i < OBSTACLE_SIZE; i++)
 		for (int j = 0; j < LINE_OBSTACLES; j++)
 		{
@@ -38,12 +42,10 @@ bool collisionDetection(void)
 
 				return false;
 			}
-			if ((frog.r.x >= cars[i][j].x - CUBE_LENGTH/2) &&
-					(frog.r.x <= cars[i][j].x + CUBE_LENGTH/2) &&
-					(frog.r.y <= CUBE_LENGTH) &&
-					(frog.r.y >= 0) &&
-					(frog.r.z >= cars[i][j].z - CUBE_LENGTH/2) &&
-					(frog.r.z <= cars[i][j].z + CUBE_LENGTH/2))
+			if ((frog.r.x >= cars[i][j].x - 1.5) &&
+					(frog.r.x <= cars[i][j].x + 1.5) &&
+					(frog.r.z >= cars[i][j].z - LINE_WIDTH * 0.7) &&
+					(frog.r.z <= cars[i][j].z + LINE_WIDTH * 0.7))
 			{
 				if (getDebug())
 					printf("Frog/car colision\n");
@@ -60,6 +62,32 @@ bool collisionDetection(void)
 		return true;
 
 	return false;
+}
+
+bool gameCheck(void)
+{
+	bool collision = collisionDetection();
+	static int oldLine = 0;
+	int line = frog.r.x/LINE_WIDTH - 6;
+
+	if (frog.r.y == 0)
+	{
+		if ((getLifes() == 1) && (collision))
+			oldLine = 0;
+		else if (line > 11)
+		{
+			setScore(getScore()+50);
+			resetGame();
+			oldLine = 0;
+		}
+		else if (line - oldLine > 0)
+		{
+			setScore(getScore()+10);
+			oldLine = line;
+		}
+	}
+
+	return collision;
 }
 
 /*
@@ -86,7 +114,10 @@ int jumpingIdle(void)
 	float t, dt;
 
 	if (!getJumpingFlag())
+	{
+		tLast = -1;
 		return -1;
+	}
 
 	t = glutGet(GLUT_ELAPSED_TIME) / 1000.0 - startTime;
 
@@ -131,7 +162,7 @@ bool parabolaInsideWindow(void)
 		float reachX = frog.r0.x + calcReach() * sin(frog.r0.phi);
 		float reachZ = frog.r0.z + calcReach() * cos(frog.r0.phi);
 
-		if ((reachX >= 0 && reachX <= GRID_WIDTH * LINE_WIDTH) &&
+		if ((reachX >= 26 && reachX <= GRID_WIDTH * LINE_WIDTH) &&
 			(reachZ >= 0 && reachZ <= GRID_HEIGHT * LINE_WIDTH))
 			return true;
 	}

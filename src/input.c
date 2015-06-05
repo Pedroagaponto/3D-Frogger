@@ -26,8 +26,11 @@ void keyboard(unsigned char key, int x, int y)
 	{
 		case 'b':
 		case 'B':
-			switchPause();
-			glutPostRedisplay();
+			if (!getGameOver())
+			{
+				switchPause();
+				glutPostRedisplay();
+			}
 			break;
 		case 27:
 		case 'q':
@@ -40,6 +43,14 @@ void keyboard(unsigned char key, int x, int y)
 			switchGameMode();
 			resetGame();
 			break;
+		case ' ':
+			if (getGameOver())
+			{
+				oldX = x;
+				oldY = y;
+				resetGame();
+				break;
+			}
 		default:
 			if (getGameMode())
 				gameKeyboard(key);
@@ -163,10 +174,13 @@ void specialKeys(int key, int x, int y)
 	UNUSED_VAR x;
 	UNUSED_VAR y;
 
-	if (getGameMode())
-		gameSpecialKeys(key);
-	else
-		debugSpecialKeys(key);
+	if (!getPause())
+	{
+		if (getGameMode())
+			gameSpecialKeys(key);
+		else
+			debugSpecialKeys(key);
+	}
 }
 
 void gameSpecialKeys(unsigned char key)
@@ -252,7 +266,7 @@ void mouseMove(int x, int y)
 		oldX = x;
 		oldY = y;
 	}
-	else
+	else if (!getPause())
 		setRotateCamPhi(getRotateCamPhi() + (getWidth()/2 - x)*0.1);
 }
 
@@ -260,13 +274,13 @@ void passiveMouseMove(int x, int y)
 {
 	UNUSED_VAR y;
 
-	if (getGameMode())
+	if ((getGameMode()) && (!getPause()))
 		setRotateCamPhi(getRotateCamPhi() + ((getWidth()/2 - x)*0.1));
 }
 
 void keyJump(float phi)
 {
-	if (!getJumpingFlag())
+	if ((!getJumpingFlag()) && (!getPause()))
 	{
 		frog.r0.phi = phi;
 		updateCartesian(&frog.r0);

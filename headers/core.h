@@ -7,8 +7,8 @@
 #define REDUCTION 25
 #define GRID_WIDTH 25
 #define GRID_HEIGHT 25
-#define CYLINDER_RADIUS 1
-#define CYLINDER_HEIGHT 6
+#define CYLINDER_RADIUS 1.5
+#define CYLINDER_HEIGHT 8
 #define S_RADIUS 0.5
 #define CUBE_LENGTH 2
 #define LINE_WIDTH 4
@@ -46,7 +46,7 @@ void resetGame(void);
 void resetPerformance(void);
 void setProjectionMatrix(void);
 void setupCamera(void);
-void drawText(char *text, float x, float y, float z);
+void drawText(char *text, float x, float y, float z, void *font);
 void calculatePerformance(void);
 void incFrameCount(void);
 void setSegments(int newSegments);
@@ -69,6 +69,7 @@ void switchAxesFlag(void);
 void switchLightFlag(void);
 void switchTextureFlag(void);
 void switchVerletFlag(void);
+void setGameOver(bool flag);
 void setJumpingFlag(bool flag);
 int getSegments(void);
 int getScore(void);
@@ -90,6 +91,7 @@ bool getAxesFlag(void);
 bool getLightFlag(void);
 bool getTextureFlag(void);
 bool getVerletFlag(void);
+bool getGameOver(void);
 bool getJumpingFlag(void);
 
 extern frogState frog;
